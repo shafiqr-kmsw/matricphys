@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="icon" href="lgphy6.png">
+    <style>
+    body {
+        /*height: 842px; width: 1280px;*/ /* to centre page on screen*/margin-left: auto; margin-right: auto;background-color: #003b6f; font-family: andale mono,monospace;
+      		}
+    table{background-color: white; border-collapse: collapse; border-color: #003b6f
+    			}
+    ul {list-style-type: none; margin: 0; padding: 0; color: blue; font-family: "Lucida Console", "Courier New", monospace; font-size: 20px;
+    			}
+    li{margin: 10px 0;}
+    </style>
+  </head>
+<body>
+
+<table style="width:90% " border= "0px" align="center" >
+	<tr>
+		<td colspan="3">
+			<h1>hello :) </h1>
+			<hr>
+		</td>
+	</tr>
+	<tr>
+		<td style="width:15%; vertical-align:text-top;">
+			<h3>
+				<ul>
+					<li> <a href="https://matrikulasi.moe.gov.my/system/index.cfm"> SP015 Results </a></li>
+					<li> <a href="index.html"> Home</a> </li>
+					<li> <a href="coursesche.htm"> Course Schedule </a></li>
+					<li> <a href="weightage.htm"> Assessments </a></li>
+					<li> <a href="short_notes.pdf"> Short Notes </a></li>
+					<li> <a href="tutorials.pdf"> Tutorials </a></li>
+					<li> <a href="c1_c5_tuto_soln.pdf"> Tutorials Soln Pt 1 </a></li>
+					<li> <a href="https://phy6.my/matric_phys/labs/lab_manual_2223.pdf"> Lab Manual </a></li>
+					<li> <a href="https://phy6.my/matric_phys/labs/025_prelabs.pdf"> Prelabs </a></li>
+				</ul>
+			</h3>
+		</td>
+
+		<td style="border-left: 1px solid grey" style="width:5%">
+		<!--leave empty-->
+		<br>
+		</td>
+		<td>
+			<!-- Insert Content Here -->
+				
+	<h1>Optics Equation Calculator</h1>
+	<h2>Curved Mirror Equation</h2>
+	<div>
+	  <label for="radius">Radius of curvature:</label>
+	  <input type="number" id="radius" name="radius"><br>
+	  <label for="object-distance">Object distance:</label>
+	  <input type="number" id="object-distance" name="object-distance"><br>
+	  <button onclick="calculateCurvedMirror()">Calculate</button><br><br>
+	  <label for="image-distance">Image distance:</label>
+	  <input type="number" id="image-distance" name="image-distance" disabled><br>
+	  <label for="magnification">Magnification:</label>
+	  <input type="number" id="magnification" name="magnification" disabled>
+	</div>
+	<h2>Thin Lens Equation</h2>
+	<div>
+	  <label for="focal-length">Focal length:</label>
+	  <input type="number" id="focal-length" name="focal-length"><br>
+	  <label for="object-distance2">Object distance:</label>
+	  <input type="number" id="object-distance2" name="object-distance2"><br>
+	  <button onclick="calculateThinLens()">Calculate</button><br><br>
+	  <label for="image-distance2">Image distance:</label>
+	  <input type="number" id="image-distance2" name="image-distance2" disabled><br>
+	  <label for="magnification2">Magnification:</label>
+	  <input type="number" id="magnification2" name="magnification2" disabled>
+	</div>
+	<h2>Lensmaker's Equation</h2>
+	<div>
+	  <label for="r1">Radius of curvature of first surface:</label>
+	  <input type="number" id="r1" name="r1"><br>
+	  <label for="r2">Radius of curvature of second surface:</label>
+	  <input type="number" id="r2" name="r2"><br>
+	  <label for="refractive-index">Refractive index of lens material:</label>
+	  <input type="number" id="refractive-index" name="refractive-index"><br>
+	  <button onclick="calculateLensmaker()">Calculate</button><br><br>
+	  <label for="focal-length3">Focal length:</label>
+	  <input type="number" id="focal-length3" name="focal-length3" disabled><br>
+	</div>
+	<script>
+		function calculateCurvedMirror() {
+		  // Get input values
+		  var radius = parseFloat(document.getElementById("radius").value);
+		  var objectDistance = parseFloat(document.getElementById("object-distance").value);
+		  
+		  // Calculate image distance and magnification
+		  var imageDistance = (1 / ((1 / radius) - (1 / objectDistance))).toFixed(2);
+		  var magnification = (-imageDistance / objectDistance).toFixed(2);
+		  
+		  // Set output values
+		  document.getElementById("image-distance").value = imageDistance;
+		  document.getElementById("magnification").value = magnification;
+		}
+		
+		function calculateThinLens() {
+		  // Get input values
+		  var focalLength = parseFloat(document.getElementById("focal-length").value);
+		  var objectDistance = parseFloat(document.getElementById("object-distance2").value
+	  // Calculate image distance and magnification
+	  var imageDistance = (1 / ((1 / focalLength) - (1 / objectDistance))).toFixed(2);
+	  var magnification = (-imageDistance / objectDistance).toFixed(2);
+	  
+	  // Set output values
+	  document.getElementById("image-distance2").value = imageDistance;
+	  document.getElementById("magnification2").value = magnification;
+	}
+	
+	function calculateLensmaker() {
+	  // Get input values
+	  var r1 = parseFloat(document.getElementById("r1").value);
+	  var r2 = parseFloat(document.getElementById("r2").value);
+	  var refractiveIndex = parseFloat(document.getElementById("refractive-index").value);
+	  
+	  // Calculate focal length
+	  var focalLength = ((refractiveIndex - 1) * ((1 / r1) - (1 / r2) + ((refractiveIndex - 1) / (refractiveIndex * r1 * r2)))).toFixed(2);
+	  
+	  // Set output value
+	  document.getElementById("focal-length3").value = focalLength;
+	}
+</script>
+		</td>
+	</tr>
+</table>
+<footer align="center"> <p style="color:white;">Copyright sr@kmsw 2021<br>
+</body>
+</html>
