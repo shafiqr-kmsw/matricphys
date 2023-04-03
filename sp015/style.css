@@ -1,0 +1,77 @@
+body {
+  background-color: #000000;
+  color: #ffffff;
+  filter: grayscale(0%);
+  transition: all 0.5s;
+}
+
+.grayscale-mode body {
+  filter: grayscale(100%);
+}
+
+.collapsible {
+  margin: 10px;
+  padding: 5px;
+  background-color: #333333;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.grayscale-mode .collapsible {
+  background-color: #444444;
+}
+
+.collapsible label {
+  font-weight: bold;
+  cursor: pointer;
+  display: block;
+  padding: 10px;
+  color: #ffffff;
+}
+
+.collapsible input[type=checkbox] {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+
+.collapsible input[type=checkbox]:checked + .content {
+  display: block;
+}
+
+.content {
+  display: none;
+  padding: 10px;
+  background-color: #000000;
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+  margin-top: 5px;
+  color: #ffffff;
+}
+
+.grayscale-mode .content {
+  background-color: #444444;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+
+a {
+  color: #ffffff;
+}
+
+.grayscale-mode a {
+  color: #ffffff;
+}
+
+.neonText {
+  color: #fff;
+  text-shadow:
+      0 0 7px #fff,
+      0 0 10px #fff,
+      0 0 21px #fff,
+      0 0 42px #0fa,
+      0 0 82px #0fa,
+      0 0 92px #0fa,
+      0 0 102px #0fa,
+      0 0 151px #0fa;
+}
