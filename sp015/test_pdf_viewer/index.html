@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PDF Viewer</title>
+    <style>
+      /* Body */
+      body {
+        background-color: #202020;
+        color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+      
+      /* Container */
+      .container {
+        display: flex;
+        background-color: #202020;
+        color: #f0f0f0;
+        height: 100vh;
+      }
+      
+      /* Navigation */
+      .navigation {
+        flex: 1;
+        padding: 20px;
+      }
+      
+      .navigation button {
+        background-color: #444;
+        border: none;
+        color: #f0f0f0;
+        padding: 10px 20px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      
+      .navigation button:hover {
+        background-color: #666;
+      }
+      
+      /* PDF Viewer */
+      .pdf-viewer {
+        flex: 4;
+        padding: 20px;
+        height: 100%;
+        background-color: #333;
+        overflow: auto;
+      }
+      
+      canvas {
+        display: block;
+        margin: 0 auto;
+      }
+    </style>
+    <script src="pdf.js"></script>
+    <script>
+      function loadPDF(pdfUrl) {
+        PDFJS.getDocument(pdfUrl).promise.then(function(pdf) {
+          pdf.getPage(1).then(function(page) {
+            var canvas = document.createElement('canvas');
+            var viewport = page.getViewport({ scale: 1.5 });
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            var context = canvas.getContext('2d');
+            var renderContext = {
+              canvasContext: context,
+              viewport: viewport
+            };
+            page.render(renderContext).promise.then(function() {
+              var pdfViewer = document.querySelector('.pdf-viewer');
+              pdfViewer.innerHTML = '';
+              pdfViewer.appendChild(canvas);
+            });
+          });
+        });
+      }
+      
+      function resizePDFViewer() {
+        var containerHeight = document.querySelector('.container').clientHeight;
+        var navigationHeight = document.querySelector('.navigation').clientHeight;
+        var pdfViewer = document.querySelector('.pdf-viewer');
+        pdfViewer.style.height = (containerHeight - navigationHeight - 40) + 'px';
+      }
+      window.addEventListener('resize', resizePDFViewer);
+    </script>
+  </head>
+  <body onload="resizePDFViewer()">
+    <div class="container">
+      <div class="navigation">
+        <button onclick="loadPDF('kinematics_linear.pdf')">PDF 1</button>
+        <button onclick="loadPDF('pdf2.pdf')">PDF 2</button>
+        <button onclick="loadPDF('pdf3.pdf')">PDF 3</button>
+      </div>
+      <div class="pdf-viewer">
+      </div
