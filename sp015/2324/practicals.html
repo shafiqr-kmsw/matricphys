@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Course Page</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="notes.html">Notes</a></li>
+          <li><a href="tutorials.html">Tutorials</a></li>
+          <li><a href="practicals.html">Physics Practicals</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <h1>Practicals</h1>
+      <div class="clearfix">
+      <section>
+      <div class="left-panel">
+        <button class="button button1" onclick="loadPdf('hello.pdf')">Kinematics</button><br>
+        <button class="button button2" onclick="loadPdf('pdf2.pdf')">PDF 2</button><br>
+      </div>
+  
+      <div class="right-panel">
+        <iframe id="pdf-container" class="pdf-embed" src="" frameborder="0" scrolling="no" ></iframe>
+      </div>
+      <script>
+        function loadPdf(pdfName) {
+          var pdfContainer = document.getElementById("pdf-container");
+          pdfContainer.src = pdfName;
+        }
+        var windowHeight = window.innerHeight;
+        document.getElementsByClassName("pdf-embed")[0].style.height = windowHeight + "px";
+      </script>
+      </section>
+    </main>
+    <footer>
+      <p>&copy; 2021 sr</p>
+    </footer>
+  </div>
+  </body>
+</html>
