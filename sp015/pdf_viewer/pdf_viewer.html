@@ -25,13 +25,12 @@
       </div>
   
       <div class="right-panel">
-        <object id="pdf-container" class="pdf-embed" type="application/pdf" data="" toolbar=0 ></object>
-
+        <iframe id="pdf-container" class="pdf-embed" src="" frameborder="0" scrolling="no" ></iframe>
       </div>
       <script>
         function loadPdf(pdfName) {
           var pdfContainer = document.getElementById("pdf-container");
-          pdfContainer.data = pdfName;
+          pdfContainer.src = pdfName;
         }
         var windowHeight = window.innerHeight;
         document.getElementsByClassName("pdf-embed")[0].style.height = windowHeight + "px";
