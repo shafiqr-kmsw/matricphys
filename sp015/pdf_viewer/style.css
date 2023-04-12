@@ -1,0 +1,117 @@
+body {
+  background-color: #292929;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+header {
+  background-color: #191919;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+nav ul li a {
+  color: #fff;
+  text-decoration: none;
+}
+
+main {
+  padding: 10px;
+}
+
+footer {
+  background-color: #191919;
+  padding: 10px;
+  margin-top: 10px;
+  text-align: center;
+}
+footer p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  header {
+    text-align: center;
+  }
+  
+  nav ul li {
+    display: block;
+    margin: 0;
+  }
+}
+.left-panel {
+  float: left;
+  width: 10%;
+  height: 100%;
+  background-color: #292929;
+  padding: 2px;
+}
+    
+.right-panel {
+  float: right;
+  width: 87%;
+  height: 100%;
+  padding: 2px;
+}
+    
+.pdf-embed {
+  width: 100%;
+  height: 100%;
+}
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+/*about buttons*/
+.button1 {
+  padding: 0px 0px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  width: 100%;
+  background-color: #292929;
+  border: 2px solid #f44336; /*Red*/
+  color: white;
+  white-space: normal;
+  word-wrap: break-word;
+}
+.button1:hover {
+  background-color: #f44336;
+  color: black;
+}
+.button2 {
+  padding: 0px 0px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  width: 100%;
+  background-color: #292929;
+  border: 2px solid #008CBA; /*Blue*/
+  color: white;
+  white-space: normal;
+  word-wrap: break-word;
+}
+.button2:hover {
+  background-color: #008CBA;
+  color: black;
+}
