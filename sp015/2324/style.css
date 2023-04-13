@@ -116,6 +116,44 @@ main {
   background-color: #008CBA;
   color: black;
 }
+.button3 {
+  padding: 0px 0px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  width: 100%;
+  background-color: #292929;
+  border: 2px solid #EFFD5F; /*Yellow*/
+  color: white;
+  white-space: normal;
+  word-wrap: break-word;
+}
+.button3:hover {
+  background-color: #EFFD5F;
+  color: black;
+}
+.button4 {
+  padding: 0px 0px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  width: 100%;
+  background-color: #292929;
+  border: 2px solid #03AC13; /*Green*/
+  color: white;
+  white-space: normal;
+  word-wrap: break-word;
+}
+.button4:hover {
+  background-color: #03AC13;
+  color: black;
+}
 /*Table customization*/
 table, th, td {
   border:1px solid white;
