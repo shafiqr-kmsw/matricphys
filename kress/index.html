@@ -27,10 +27,21 @@
         }
         
         .password-form {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+        }
+        
+        .password-form-content {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            height: 100%;
         }
         
         .password-form input[type="password"] {
@@ -45,19 +56,29 @@
     </style>
 </head>
 <body>
-    <div class="password-form">
-        <form onsubmit="event.preventDefault(); checkPassword()">
-            <input type="password" id="password" placeholder="Enter password" required>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
-    
-    <div class="content" id="content" style="display: none;">
+    <div class="content" id="content">
         <h1>A4 Paper Size Example</h1>
         <p>This is an example HTML page with the size of an A4 paper.</p>
     </div>
     
+    <div class="password-form" id="passwordForm">
+        <div class="password-form-content">
+            <form onsubmit="event.preventDefault(); checkPassword()">
+                <input type="password" id="password" placeholder="Enter password" required>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+    
     <script>
+        function showPasswordForm() {
+            document.getElementById("passwordForm").style.display = "block";
+        }
+        
+        function hidePasswordForm() {
+            document.getElementById("passwordForm").style.display = "none";
+        }
+        
         function hashPassword(password) {
             // Replace this with your desired password hashing algorithm
             return password; // Example: no hashing applied
@@ -68,13 +89,15 @@
             var hashedPassword = hashPassword(enteredPassword);
             
             // Replace "YOUR_HASHED_PASSWORD" with the hashed version of your desired password
-            if (hashedPassword === "YOUR_HASHED_PASSWORD") {
-                document.getElementById("content").style.display = "block";
-                document.querySelector(".password-form").style.display = "none";
+            if (hashedPassword === "qm5866g") {
+                hidePasswordForm();
             } else {
                 alert("Incorrect password. Please try again.");
             }
         }
+        
+        // Show the password form initially
+        showPasswordForm();
     </script>
 </body>
 </html>
