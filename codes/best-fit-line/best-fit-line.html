@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Fit Line Calculator with Uncertainties by Mr Sha</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px;
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .output {
+            margin-top: 20px;
+        }
+        .equation {
+            font-style: italic;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Best Fit Line Calculator with Uncertainties</h2>
+        <h2>by Mr Sha</h2>
+        <label for="xData">Enter X data points (comma-separated):</label>
+        <input type="text" id="xData" placeholder="e.g., 1, 2, 3, 4, 5">
+        <label for="yData">Enter Y data points (comma-separated):</label>
+        <input type="text" id="yData" placeholder="e.g., 2, 4, 6, 8, 10">
+        <button onclick="calculate()">Calculate Best Fit Line</button>
+        <div class="output" id="output"></div>
+    </div>
+
+    <script>
+        function calculate() {
+            let xData = document.getElementById('xData').value.split(',').map(Number);
+            let yData = document.getElementById('yData').value.split(',').map(Number);
+            
+            if (xData.length !== yData.length) {
+                document.getElementById('output').innerHTML = "<p style='color:red;'>X and Y data points must have the same length!</p>";
+                return;
+            }
+
+            let n = xData.length;
+            let sumX = xData.reduce((a, b) => a + b, 0);
+            let sumY = yData.reduce((a, b) => a + b, 0);
+            let sumXY = xData.map((x, i) => x * yData[i]).reduce((a, b) => a + b, 0);
+            let sumX2 = xData.map(x => x * x).reduce((a, b) => a + b, 0);
+            let sumY2 = yData.map(y => y * y).reduce((a, b) => a + b, 0);
+
+            // Calculate slope (gradient) and intercept
+            let slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            let intercept = (sumY - slope * sumX) / n;
+
+            // Calculate uncertainties
+            let delta = n * sumX2 - sumX * sumX;
+            let s = Math.sqrt((sumY2 - slope * sumXY - intercept * sumY) / (n - 2));
+            let uncertaintySlope = s * Math.sqrt(n / delta);
+            let uncertaintyIntercept = s * Math.sqrt(sumX2 / delta);
+
+            // Calculate centroid
+            let centroidX = sumX / n;
+            let centroidY = sumY / n;
+
+            // Display results
+            document.getElementById('output').innerHTML = `
+                <p><strong>Best Fit Line Equation:</strong> y = ${slope.toFixed(2)}x + ${intercept.toFixed(2)}</p>
+                <p><strong>Centroid Coordinates:</strong> (${centroidX.toFixed(2)}, ${centroidY.toFixed(2)})</p>
+                <p><strong>Uncertainty in Slope:</strong> ±${uncertaintySlope.toFixed(2)}</p>
+                <p><strong>Uncertainty in Intercept:</strong> ±${uncertaintyIntercept.toFixed(2)}</p>
+                <div class="equation">
+                    <p><strong>Equations:</strong></p>
+                    <p>Uncertainty in Slope (m): <br> σ<sub>m</sub> = s √(N / (NΣx<sup>2</sup> - (Σx)<sup>2</sup>))</p>
+                    <p>Uncertainty in Intercept (b): <br> σ<sub>b</sub> = s √(Σx<sup>2</sup> / (NΣx<sup>2</sup> - (Σx)<sup>2</sup>))</p>
+                    <p>where s = √((Σy<sup>2</sup> - mΣxy - bΣy) / (N - 2))</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
