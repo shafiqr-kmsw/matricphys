@@ -16,6 +16,7 @@
     <input type="text" id="yValues">
     
     <button onclick="generateTrendline()">Generate Trendline</button>
+    <button onclick="refreshPage()">Refresh Page</button> <!-- Refresh Button -->
 
     <canvas id="myChart"></canvas>
     
@@ -111,6 +112,10 @@
                 link.download = 'trendline.png';
                 link.click();
             };
+        }
+
+        function refreshPage() {
+            location.reload();  // Refresh the webpage
         }
     </script>
 </body>
