@@ -7,43 +7,39 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            max-width: 400px;
+            padding: 10px;
         }
         input {
-            margin: 10px 0;
-            padding: 10px;
             width: 100%;
-            box-sizing: border-box;
+            margin: 5px 0;
+            padding: 8px;
         }
         button {
-            padding: 10px;
+            padding: 8px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
+            width: 100%;
         }
         button:hover {
             background-color: #45a049;
         }
         .result {
-            margin-top: 20px;
-            font-size: 1.2em;
+            margin-top: 10px;
+            font-size: 1em;
         }
     </style>
 </head>
 <body>
-    <h2>Student Merit Calculator</h2>
-    <label for="cgpa">Enter CGPA (out of 4.00):</label>
+    <h3>Merit Calculator</h3>
+    <label for="cgpa">CGPA (out of 4.00):</label>
     <input type="number" id="cgpa" step="0.01" max="4.00" min="0" required>
 
-    <label for="cocurricular">Enter Cocurricular Marks (out of 10):</label>
+    <label for="cocurricular">Cocurricular Marks (out of 10):</label>
     <input type="number" id="cocurricular" step="0.1" max="10" min="0" required>
 
-    <button onclick="calculateMerit()">Calculate Merit</button>
+    <button onclick="calculateMerit()">Calculate</button>
 
     <div class="result" id="result"></div>
 
@@ -52,7 +48,7 @@
             const x1 = parseFloat(document.getElementById('cgpa').value);
             const x2 = parseFloat(document.getElementById('cocurricular').value);
             const merit = ((x1 / 4.00) * 90) + x2;
-            document.getElementById('result').innerText = 'Calculated Merit: ' + merit.toFixed(2);
+            document.getElementById('result').innerText = 'Merit: ' + merit.toFixed(2);
         }
     </script>
 </body>
