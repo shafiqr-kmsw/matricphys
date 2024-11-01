@@ -1,0 +1,36 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.faq-item {
+    margin-bottom: 10px;
+}
+.faq-question {
+    background-color: #007acc;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    border: none;
+    width: 100%;
+    text-align: left;
+    outline: none;
+    font-size: 18px;
+    border-radius: 5px;
+}
+.faq-answer {
+    padding: 10px;
+    display: none;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.faq-question:after {
+    content: "\002B"; /* Plus sign */
+    float: right;
+    font-weight: bold;
+}
+.faq-question.active:after {
+    content: "\2212"; /* Minus sign */
+}
