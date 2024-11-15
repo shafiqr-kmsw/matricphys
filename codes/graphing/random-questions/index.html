@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Question Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+      background-color: #f4f4f9;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .output {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .question {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .answer {
+      font-size: 16px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Random Question Generator</h1>
+  <button onclick="loadRandomQuestions()">Get Random Questions</button>
+
+  <div id="output" class="output"></div>
+
+  <script>
+    function loadRandomQuestions() {
+      fetch('questions.html')
+        .then(response => response.text())
+        .then(data => {
+          // Parse the HTML content from questions.html
+          let doc = new DOMParser().parseFromString(data, 'text/html');
+          let questions = Array.from(doc.querySelectorAll('.question-container'));
+          
+          // Shuffle the questions array and pick the first 3
+          questions = shuffleArray(questions).slice(0, 3);
+          
+          // Display the selected questions in the output div
+          let outputDiv = document.getElementById('output');
+          outputDiv.innerHTML = ''; // Clear previous output
+          questions.forEach((q, index) => {
+            const questionText = q.querySelector('.question').textContent;
+            const answerText = q.querySelector('.answer').textContent;
+            outputDiv.innerHTML += `<div><p class="question">Q${index + 1}: ${questionText}</p><p class="answer">A: ${answerText}</p></div><hr>`;
+          });
+        })
+        .catch(error => console.error('Error fetching questions:', error));
+    }
+
+    // Helper function to shuffle an array
+    function shuffleArray(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+  </script>
+</body>
+</html>
