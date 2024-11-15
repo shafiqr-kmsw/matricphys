@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendline Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Trendline Calculator</h1>
+
+    <label for="xValues">X Values (comma separated):</label>
+    <input type="text" id="xValues"><br>
+    
+    <label for="yValues">Y Values (comma separated):</label>
+    <input type="text" id="yValues"><br>
+
+    <label for="xLabel">X Axis Label:</label>
+    <input type="text" id="xLabel" placeholder="Enter label for X axis"><br>
+
+    <label for="yLabel">Y Axis Label:</label>
+    <input type="text" id="yLabel" placeholder="Enter label for Y axis"><br>
+
+    <button onclick="generateTrendline()">Generate Trendline</button>
+    <button onclick="refreshPage()">Refresh Page</button> <!-- Refresh Button -->
+
+    <canvas id="myChart"></canvas>
+    
+    <p id="output"></p>
+    
+    <button id="downloadJPG" style="display:none;">Download JPG</button>
+    <button id="downloadPNG" style="display:none;">Download PNG</button>
+
+    <script>
+        function generateTrendline() {
+            // Get the X and Y values from the input fields
+            const xData = document.getElementById('xValues').value.split(',').map(Number);
+            const yData = document.getElementById('yValues').value.split(',').map(Number);
+
+            // Get the X and Y axis labels from the input fields
+            const xLabel = document.getElementById('xLabel').value || 'X Values';
+            const yLabel = document.getElementById('yLabel').value || 'Y Values';
+
+            // Calculate the means of X and Y
+            const meanX = xData.reduce((a, b) => a + b, 0) / xData.length;
+            const meanY = yData.reduce((a, b) => a + b, 0) / yData.length;
+
+            // Calculate the slope (gradient) and intercept
+            const numerator = xData.map((x, i) => (x - meanX) * (yData[i] - meanY)).reduce((a, b) => a + b, 0);
+            const denominator = xData.map(x => (x - meanX) ** 2).reduce((a, b) => a + b, 0);
+            const gradient = numerator / denominator;
+            const intercept = meanY - gradient * meanX;
+
+            // Calculate uncertainties
+            const yFit = xData.map(x => gradient * x + intercept);
+            const residuals = yData.map((y, i) => y - yFit[i]);
+            const residualSumSquares = residuals.map(r => r ** 2).reduce((a, b) => a + b, 0);
+            const residualVariance = residualSumSquares / (xData.length - 2);
+
+            const uncertaintyGradient = Math.sqrt(residualVariance / denominator);
+            const uncertaintyIntercept = Math.sqrt(
+                residualVariance * (1 / xData.length + (meanX ** 2 / denominator))
+            );
+
+            // Calculate the centroid
+            const centroidX = meanX;
+            const centroidY = meanY;
+
+            // Display the output
+            document.getElementById('output').innerHTML = `
+                Trendline: y = ${gradient.toFixed(2)}x + ${intercept.toFixed(2)}<br>
+                Uncertainty in Gradient: ±${uncertaintyGradient.toFixed(2)}<br>
+                Uncertainty in Intercept: ±${uncertaintyIntercept.toFixed(2)}<br>
+                Centroid: (${centroidX.toFixed(2)}, ${centroidY.toFixed(2)})<br>
+            `;
+
+            // Generate the chart
+            const ctx = document.getElementById('myChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Data Points',
+                        data: xData.map((x, i) => ({ x: x, y: yData[i] })),
+                        backgroundColor: 'rgba(75, 192, 192, 1)',
+                    },
+                    {
+                        label: 'Trendline',
+                        type: 'line',
+                        data: xData.map(x => ({ x: x, y: gradient * x + intercept })),
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        showLine: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: xLabel } },
+                        y: { title: { display: true, text: yLabel } }
+                    }
+                }
+            });
+
+            // Display download buttons
+            document.getElementById('downloadJPG').style.display = 'block';
+            document.getElementById('downloadPNG').style.display = 'block';
+
+            // Save as JPG
+            document.getElementById('downloadJPG').onclick = function () {
+                const link = document.createElement('a');
+                link.href = ctx.canvas.toDataURL('image/jpeg');
+                link.download = 'trendline.jpg';
+                link.click();
+            };
+
+            // Save as PNG
+            document.getElementById('downloadPNG').onclick = function () {
+                const link = document.createElement('a');
+                link.href = ctx.canvas.toDataURL('image/png');
+                link.download = 'trendline.png';
+                link.click();
+            };
+        }
+
+        function refreshPage() {
+            location.reload();  // Refresh the webpage
+        }
+    </script>
+</body>
+</html>

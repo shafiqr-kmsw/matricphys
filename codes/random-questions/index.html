@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Question Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+      background-color: #f4f4f9;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .output {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .question {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .answer {
+      font-size: 16px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Coulomb's Law and Electric Field Strength<br>Random Question Generator</h1>
+  <button onclick="loadRandomQuestions()">Get Random Questions</button>
+
+  <div id="output" class="output"></div>
+
+  <script>
+    // Question library stored directly in the JavaScript
+    const questionsLibrary = [
+  { question: "Two point charges of +3 μC and -4 μC are placed 0.5 m apart. What is the electrostatic force between them?", answer: "–2.16 N" },
+  { question: "A charge of +5 μC is placed in an electric field of 200 N/C. What is the force on the charge?", answer: "1.0 N" },
+  { question: "What is the electric force between two charges of 2 μC and 3 μC separated by 0.1 m?", answer: "1.8 × 10^3 N" },
+  { question: "If the distance between two charges is doubled, how does the electrostatic force between them change?", answer: "The force is reduced by a factor of 4." },
+  { question: "Two charges of +2 μC and +5 μC are placed 0.3 m apart. What is the magnitude of the electrostatic force between them?", answer: "3.0 × 10^4 N" },
+  { question: "A charge of -6 μC and a charge of +3 μC are placed 0.2 m apart. What is the force between them?", answer: "9.0 × 10^3 N" },
+  { question: "What is the electric force between two charges of +1 μC and -2 μC when they are 0.15 m apart?", answer: "-1.6 × 10^4 N" },
+  { question: "A charge of +5 μC is at the origin, and a charge of +10 μC is 0.25 m away. What is the force between them?", answer: "2.88 × 10^5 N" },
+  { question: "What is the electrostatic force between two charges of +4 μC and -6 μC separated by a distance of 0.4 m?", answer: "-1.35 × 10^4 N" },
+  { question: "If the magnitude of two charges is each doubled, how does the electrostatic force between them change?", answer: "The force increases by a factor of 4." },
+  { question: "Two charges of -8 μC and -12 μC are placed 0.5 m apart. What is the force between them?", answer: "2.59 × 10^4 N" },
+  { question: "What is the electric force between a +10 μC charge and a -15 μC charge separated by 1.0 m?", answer: "-1.35 × 10^5 N" },
+  { question: "Two charges of +7 μC and +3 μC are placed 0.2 m apart. What is the magnitude of the force between them?", answer: "6.3 × 10^4 N" },
+  { question: "A charge of -10 μC is placed at a point in space. What is the electric field strength at a distance of 0.5 m from the charge?", answer: "1.8 × 10^6 N/C" },
+  { "question": "Two point charges, +4 μC and -9 μC, are placed 0.4 m apart. What is the force between them?", answer: "-8.1 × 10^4 N" }
+]
+;
+
+    function loadRandomQuestions() {
+      // Shuffle the questions array and pick the first 3
+      const shuffledQuestions = shuffleArray(questionsLibrary).slice(0, 3);
+
+      // Display the selected questions in the output div
+      let outputDiv = document.getElementById('output');
+      outputDiv.innerHTML = ''; // Clear previous output
+      shuffledQuestions.forEach((q, index) => {
+        outputDiv.innerHTML += `<div><p class="question">Q${index + 1}: ${q.question}</p><p class="answer">Ans: ${q.answer}</p></div><hr>`;
+      });
+    }
+
+    // Helper function to shuffle an array
+    function shuffleArray(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+  </script>
+</body>
+</html>
