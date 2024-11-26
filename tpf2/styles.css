@@ -1,0 +1,110 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+}
+
+header {
+    background-color: #003566;
+    color: white;
+    padding: 1em 0;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5em;
+}
+
+header p {
+    margin: 0;
+    font-size: 1em;
+}
+
+main {
+    max-width: 1200px;
+    margin: 2em auto;
+    padding: 0 1em;
+}
+
+.search-bar {
+    display: flex;
+    margin-bottom: 1.5em;
+}
+
+.search-bar input[type="text"] {
+    flex: 1;
+    padding: 0.8em;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+}
+
+.search-bar button {
+    padding: 0.8em 1.5em;
+    font-size: 1em;
+    background-color: #0077b6;
+    color: white;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #005f8a;
+}
+
+.document-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5em;
+}
+
+.document-card {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 1em;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.document-card h3 {
+    margin: 0 0 0.5em;
+    font-size: 1.2em;
+    color: #003566;
+}
+
+.document-card p {
+    margin: 0 0 1em;
+    color: #555;
+}
+
+.document-card a {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    background-color: #0077b6;
+    padding: 0.5em 1em;
+    border-radius: 5px;
+    font-size: 0.9em;
+    margin: 0.5em 0.5em 0 0; /* Add margin to separate buttons */
+    text-align: center; /* Center-align text */
+}
+.document-card a:hover {
+    background-color: #005f8a;
+}
+
+.document-card .button-group {
+    display: flex;
+    flex-wrap: wrap; /* Ensure buttons wrap to the next row if necessary */
+    gap: 0.5em; /* Add spacing between buttons */
+}
+
+footer {
+    text-align: center;
+    padding: 1em;
+    background-color: #003566;
+    color: white;
+    margin-top: 2em;
+}
