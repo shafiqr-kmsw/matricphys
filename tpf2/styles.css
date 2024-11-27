@@ -101,6 +101,11 @@ main {
     gap: 0.5em; /* Add spacing between buttons */
 }
 
+div {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
 footer {
     text-align: center;
     padding: 1em;
