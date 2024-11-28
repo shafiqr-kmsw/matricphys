@@ -84,7 +84,7 @@ main {
     display: inline-block;
     text-decoration: none;
     color: white;
-    background-color: #0077b6;
+    background-color: /*#b6001c*/#0077b6;
     padding: 0.5em 1em;
     border-radius: 5px;
     font-size: 0.9em;
@@ -100,7 +100,12 @@ main {
     flex-wrap: wrap; /* Ensure buttons wrap to the next row if necessary */
     gap: 0.5em; /* Add spacing between buttons */
 }
-
+.document-card a.red {
+    background-color: #b6001c; /* Red background */
+}
+.document-card a.blue {
+    background-color: #0077b6c; /* Blue background */
+}
 div {
   text-align: justify;
   text-justify: inter-word;
