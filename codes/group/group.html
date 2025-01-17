@@ -6,7 +6,9 @@
     <title>Group Students</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .group { margin-bottom: 20px; }
+        .group-container { display: flex; flex-wrap: wrap; gap: 20px; }
+        .group { flex: 1 1 calc(33.333% - 20px); box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; padding: 10px; }
+        .group h3 { margin-top: 0; }
         .student-list { list-style-type: none; padding: 0; }
         .student-list li { margin: 5px 0; }
         button { margin: 5px; padding: 10px; cursor: pointer; border: none; border-radius: 5px; }
@@ -27,12 +29,12 @@
     <button onclick="generateGroups()">Generate Groups</button>
     <button onclick="resetGroups()">Reset</button>
 
-    <div id="groups"></div>
+    <div id="groups" class="group-container"></div>
 
     <script>
         // Sample data from the transformed CSV
         const students = [
-{ name:"ALBERT SINCLAIR BERMA ANAK SEKERIES BERMA", class:"K3T5A"},
+            { name:"ALBERT SINCLAIR BERMA ANAK SEKERIES BERMA", class:"K3T5A"},
 { name:"ALEXANDRA ANAK ADOWEN", class:"K3T5A"},
 { name:"AMISHA AQIDA BINTI MOHMAD ZAMBRI", class:"K3T5A"},
 { name:"BENNY BROKLYN ANAK TEDI", class:"K3T5A"},
