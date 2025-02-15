@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-    <h1>Group Students</h1>
+    <h1>K3 Students Groupings 2024/2025</h1>
 
     <label for="classFilter">Filter by Class:</label>
     <div id="classButtons">
@@ -29,16 +29,10 @@
     <button onclick="generateGroups()">Generate Groups</button>
     <button onclick="resetGroups()">Reset</button>
     <button onclick="reshuffleNames()">Reshuffle Names</button>
-    <button onclick="downloadAsPDF()">Download as PDF</button>
-    <button onclick="downloadAsJPG()">Download as JPG</button>
-    <button onclick="downloadAsPNG()">Download as PNG</button>
 
     <div id="groups" class="group-container"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script>
-        // Sample data from the transformed CSV
         const students = [
             { name:"ALBERT SINCLAIR BERMA ANAK SEKERIES BERMA", class:"K3T5A"},
 { name:"ALEXANDRA ANAK ADOWEN", class:"K3T5A"},
@@ -100,131 +94,74 @@
 
         ];
 
-        // Extract unique classes
-        const classes = [...new Set(students.map(student => student.class))];
-
-        // Populate class filter buttons
         const classButtons = document.getElementById("classButtons");
-        classes.forEach(cls => {
-            const button = document.createElement("button");
-            button.textContent = cls;
-            button.onclick = () => filterStudents(cls, button);
-            classButtons.appendChild(button);
+        const uniqueClasses = [...new Set(students.map(s => s.class))];
+        const groupedClasses = { "K3T5": ["K3T5A", "K3T5B"], "K3T6": ["K3T6A", "K3T6B"] };
+
+        uniqueClasses.forEach(cls => {
+            const btn = document.createElement("button");
+            btn.textContent = cls;
+            btn.onclick = () => filterStudents(cls, btn);
+            classButtons.appendChild(btn);
+        });
+        Object.keys(groupedClasses).forEach(group => {
+            const btn = document.createElement("button");
+            btn.textContent = group;
+            btn.onclick = () => filterGroupedStudents(groupedClasses[group], btn);
+            classButtons.appendChild(btn);
         });
 
         let filteredStudents = students;
         let activeButton = document.getElementById("allStudentsButton");
 
-        // Highlight the selected button
         function setActiveButton(button) {
-            if (activeButton) {
-                activeButton.classList.remove("active");
-            }
+            if (activeButton) activeButton.classList.remove("active");
             activeButton = button;
             activeButton.classList.add("active");
         }
 
-        // Filter students by class
         function filterStudents(cls, button) {
-            filteredStudents = students.filter(student => student.class === cls);
+            filteredStudents = students.filter(s => s.class === cls);
             setActiveButton(button);
-            alert(`Filtered to class: ${cls}`);
         }
 
-        // Include all students
+        function filterGroupedStudents(classes, button) {
+            filteredStudents = students.filter(s => classes.includes(s.class));
+            setActiveButton(button);
+        }
+
         function filterAllStudents() {
             filteredStudents = students;
             setActiveButton(document.getElementById("allStudentsButton"));
-            alert("All students included");
         }
 
-        // Generate groups
         function generateGroups() {
             const numGroups = parseInt(document.getElementById("numGroups").value, 10);
             const groups = Array.from({ length: numGroups }, () => []);
 
-            // Distribute students into groups
             filteredStudents.forEach((student, index) => {
                 groups[index % numGroups].push(student.name);
             });
 
-            // Render groups
             const groupsContainer = document.getElementById("groups");
-            groupsContainer.innerHTML = ""; // Clear previous groups
-
+            groupsContainer.innerHTML = "";
             groups.forEach((group, idx) => {
                 const groupDiv = document.createElement("div");
                 groupDiv.classList.add("group");
-
-                const groupTitle = document.createElement("h3");
-                groupTitle.textContent = `Group ${idx + 1}`;
-                groupDiv.appendChild(groupTitle);
-
-                const studentList = document.createElement("ul");
-                studentList.classList.add("student-list");
-                group.forEach(student => {
-                    const listItem = document.createElement("li");
-                    listItem.textContent = student;
-                    studentList.appendChild(listItem);
-                });
-
-                groupDiv.appendChild(studentList);
+                groupDiv.innerHTML = `<h3>Group ${idx + 1}</h3><ul class='student-list'>${group.map(name => `<li>${name}</li>`).join('')}</ul>`;
                 groupsContainer.appendChild(groupDiv);
             });
         }
 
-        // Reshuffle student names
         function reshuffleNames() {
-            filteredStudents = filteredStudents.sort(() => Math.random() - 0.5);
+            filteredStudents.sort(() => Math.random() - 0.5);
             generateGroups();
-            alert("Names reshuffled");
         }
 
-        // Reset groups and filters
         function resetGroups() {
             document.getElementById("numGroups").value = 2;
             filterAllStudents();
             document.getElementById("groups").innerHTML = "";
-            alert("Reset successful");
-        }
-
-        // Download webpage as PDF
-        async function downloadAsPDF() {
-            const { jsPDF } = window.jspdf;
-            const groupsContainer = document.getElementById("groups");
-            const canvas = await html2canvas(groupsContainer);
-            const imgData = canvas.toDataURL("image/png");
-
-            const pdf = new jsPDF("p", "mm", "a4");
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-            pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-            pdf.save("groups.pdf");
-        }
-
-        // Download webpage as JPG
-        async function downloadAsJPG() {
-            const groupsContainer = document.getElementById("groups");
-            const canvas = await html2canvas(groupsContainer);
-            const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-            const link = document.createElement("a");
-            link.href = imgData;
-            link.download = "groups.jpg";
-            link.click();
-        }
-
-        // Download webpage as PNG
-        async function downloadAsPNG() {
-            const groupsContainer = document.getElementById("groups");
-            const canvas = await html2canvas(groupsContainer);
-            const imgData = canvas.toDataURL("image/png");
-
-            const link = document.createElement("a");
-            link.href = imgData;
-            link.download = "groups.png";
-            link.click();
         }
     </script>
 </body>
