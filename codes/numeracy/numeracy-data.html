@@ -30,13 +30,21 @@
 </head>
 <body>
     <h2>Numeracy Data Generator for Lecturers</h2>
-    <label for="coilA">Diameter of coil A:</label>
+	<p>Instructions to Lecturers:</p>
+	<p>1. Define the desired range of coil radius.</p>
+	<p>2. In the section below, input a value within that range in one of the coil (A or B)</p>
+	<p>3. Click Generate!</p>
+    <label for="coilA">Diameter of coil A (cm):</label>
     <input type="number" id="coilA" step="0.0001">
     <br>
-    <label for="coilB">Diameter of coil B:</label>
+    <label for="coilB">Diameter of coil B(cm):</label>
     <input type="number" id="coilB" step="0.0001">
     <br>
     <button onclick="randomizeCurrent()">Randomize I and Calculate B</button>
+	 <br>
+	 <br>
+	 <br>       
+
     <table id="dataTable">
         <thead>
             <tr>
@@ -64,7 +72,8 @@
             
             let startIA = Math.floor(Math.random() * 5) + 1;
             let startIB = Math.floor(Math.random() * 5) + 1;
-            
+			
+			
             for (let i = 0; i < 5; i++) {
                 let randomIA = startIA + i * 2;
                 let randomIB = startIB + i * 2;
@@ -81,7 +90,7 @@
                 
                 dataBody.innerHTML += row;
             }
-        }
+		}
     </script>
 </body>
 </html>
