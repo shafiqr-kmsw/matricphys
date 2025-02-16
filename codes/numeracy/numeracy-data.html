@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numeracy Data Generator for Lecturers</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+	<script type="text/javascript" async
+  src="https://polyfill.io/v3/polyfill.min.js?features=es6">
+</script>
+<script type="text/javascript" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+</head>
+<body>
+    <h2>Numeracy Data Generator for Lecturers</h2>
+    <label for="coilA">Diameter of coil A:</label>
+    <input type="number" id="coilA" step="0.0001">
+    <br>
+    <label for="coilB">Diameter of coil B:</label>
+    <input type="number" id="coilB" step="0.0001">
+    <br>
+    <button onclick="randomizeCurrent()">Randomize I and Calculate B</button>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Index</th>
+                <th>Random I for Coil A (mA)</th>
+                <th>Calculated B for Coil A (\(\times 10^{-8} T\))</th>
+                <th>Random I for Coil B (mA)</th>
+                <th>Calculated B for Coil B (\(\times 10^{-8} T\))</th>
+            </tr>
+        </thead>
+        <tbody id="dataBody"></tbody>
+    </table>
+    
+    <script>
+        function randomizeCurrent() {
+            const permeability = 0.00000125664;
+            let coilADiameter = parseFloat(document.getElementById("coilA").value) || 0;
+            let coilBDiameter = parseFloat(document.getElementById("coilB").value) || 0;
+            
+            let coilAGradient = coilADiameter ? (permeability / coilADiameter) : 0;
+            let coilBGradient = coilBDiameter ? (permeability / coilBDiameter) : 0;
+            
+            let dataBody = document.getElementById("dataBody");
+            dataBody.innerHTML = "";
+            
+            let startIA = Math.floor(Math.random() * 5) + 1;
+            let startIB = Math.floor(Math.random() * 5) + 1;
+            
+            for (let i = 0; i < 5; i++) {
+                let randomIA = startIA + i * 2;
+                let randomIB = startIB + i * 2;
+                let calculatedBA = (randomIA * coilAGradient * 10000).toFixed(2);
+                let calculatedBB = (randomIB * coilBGradient * 10000).toFixed(2);
+                
+                let row = `<tr>
+                    <td>${i + 1}</td>
+                    <td>${randomIA}</td>
+                    <td>${calculatedBA}</td>
+                    <td>${randomIB}</td>
+                    <td>${calculatedBB}</td>
+                </tr>`;
+                
+                dataBody.innerHTML += row;
+            }
+        }
+    </script>
+</body>
+</html>
