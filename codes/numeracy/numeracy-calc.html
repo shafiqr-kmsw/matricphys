@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Linear Regression and Radius Calculation</title>
+    <script>
+        function parseInput(inputId) {
+            return document.getElementById(inputId).value.split(',').map(Number);
+        }
+
+        function linearRegression(x, y) {
+            let n = x.length;
+            let sumX = x.reduce((a, b) => a + b, 0);
+            let sumY = y.reduce((a, b) => a + b, 0);
+            let sumXY = x.map((xi, i) => xi * y[i]).reduce((a, b) => a + b, 0);
+            let sumX2 = x.map(xi => xi * xi).reduce((a, b) => a + b, 0);
+
+            let m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            return m;
+        }
+
+        function calculate() {
+            let xA = parseInput("xA");
+            let yA = parseInput("yA");
+            let xB = parseInput("xB");
+            let yB = parseInput("yB");
+
+            let mA = linearRegression(xA, yA);
+            let mB = linearRegression(xB, yB);
+
+            let rA = (1.26 * Math.pow(10, 5)) / (2 * mA);
+            let rB = (1.26 * Math.pow(10, 5)) / (2 * mB);
+
+            let dA = 2 * rA;
+            let dB = 2 * rB;
+
+            document.getElementById("result").innerHTML = `
+                <table border="1">
+                    <tr>
+                        <th>Set</th>
+                        <th>Current I (×10⁻³)A</th>
+                        <th>Magnetic field B (×10⁻⁸)T</th>
+                        <th>Gradient (m)</th>
+                        <th>Radius (r)</th>
+                        <th>Diameter (d)</th>
+                    </tr>
+                    <tr>
+                        <td>A</td>
+                        <td>${xA.join(', ')}</td>
+                        <td>${yA.join(', ')}</td>
+                        <td>${mA.toFixed(4)}</td>
+                        <td>${rA.toFixed(4)}</td>
+                        <td>${dA.toFixed(4)}</td>
+                    </tr>
+                    <tr>
+                        <td>B</td>
+                        <td>${xB.join(', ')}</td>
+                        <td>${yB.join(', ')}</td>
+                        <td>${mB.toFixed(4)}</td>
+                        <td>${rB.toFixed(4)}</td>
+                        <td>${dB.toFixed(4)}</td>
+                    </tr>
+                </table>
+            `;
+        }
+    </script>
+</head>
+<body>
+    <h2>Linear Regression and Radius Calculation</h2>
+    <p>Enter comma-separated values:</p>
+    <label>Set A - Current I (×10⁻³)A: <input type="text" id="xA"></label><br>
+    <label>Set A - Magnetic field B (×10⁻⁸)T: <input type="text" id="yA"></label><br>
+    <label>Set B - Current I (×10⁻³)A: <input type="text" id="xB"></label><br>
+    <label>Set B - Magnetic field B (×10⁻⁸)T: <input type="text" id="yB"></label><br>
+    <button onclick="calculate()">Calculate</button>
+    <div id="result"></div>
+</body>
+</html>
