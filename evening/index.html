@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter Image Viewer</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        .button-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        button { padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 10px; cursor: pointer; transition: background-color 0.2s; }
+        button:hover { background-color: #2980b9; }
+        img { max-width: 100%; max-height: 500px; margin-top: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body>
+    <h1>Chapter Image Viewer</h1>
+    <div class="button-grid">
+        <button onclick="showImage(1)">Chapter 1</button>
+        <button onclick="showImage(2)">Chapter 2</button>
+        <button onclick="showImage(3)">Chapter 3</button>
+        <button onclick="showImage(4)">Chapter 4</button>
+        <button onclick="showImage(5)">Chapter 5</button>
+        <button onclick="showImage(6)">Chapter 6</button>
+        <button onclick="showImage(7)">Chapter 7</button>
+        <button onclick="showImage(8)">Chapter 8</button>
+        <button onclick="showImage(9)">Chapter 9</button>
+    </div>
+    <img id="chapterImage" src="" alt="Random Chapter Image" />
+
+    <script>
+        function showImage(chapter) {
+            const randomIndex = Math.floor(Math.random() * 10) + 1; // Assuming 10 images per folder
+            const imgElement = document.getElementById('chapterImage');
+            imgElement.src = `c${chapter}/${randomIndex}.jpg`;
+        }
+    </script>
+</body>
+</html>
