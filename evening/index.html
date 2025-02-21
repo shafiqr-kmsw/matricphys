@@ -99,7 +99,7 @@
         function showImage(chapter) {
             const randomIndex = Math.floor(Math.random() * 10) + 1; // Assuming 10 images per folder
             const imgElement = document.getElementById('chapterImage');
-            imgElement.src = `./c${chapter}/${randomIndex}.jpg`;
+            imgElement.src = `./c${chapter}/${randomIndex}.JPG`;
 
             const timestamp = new Date().toLocaleString();
             document.getElementById('timestampImage').textContent = `Image Displayed: ${timestamp}`;
