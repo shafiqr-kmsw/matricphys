@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Student Merit Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 300px;
+        }
+        input {
+            margin: 10px 0;
+            padding: 10px;
+            width: 50%; /* Set the width to 50% */
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 2em; /* Set font size to 2em (similar to h1) */
+            font-weight: bold; /* Optional: make it bold */
+        }
+    </style>
+</head>
+<body>
+    <h2>Student Merit Calculator</h2>
+    <label for="cgpa">Enter CGPA (out of 4.00):</label>
+    <input type="number" id="cgpa" step="0.01" max="4.00" min="0" required>
+<br>
+    <label for="cocurricular">Enter Koku Marks (out of 10):</label>
+    <input type="number" id="cocurricular" step="0.1" max="10" min="0" required>
+<br>
+    <button onclick="calculateMerit()">Calculate Merit</button>
+
+    <div class="result" id="result"></div>
+    <footer>
+        &copy; sr 2024
+    </footer>
+    <script>
+        function calculateMerit() {
+            const x1 = parseFloat(document.getElementById('cgpa').value);
+            const x2 = parseFloat(document.getElementById('cocurricular').value);
+            const merit = ((x1 / 4.00) * 90) + x2;
+            document.getElementById('result').innerText = 'Calculated Merit: ' + merit.toFixed(2);
+        }
+    </script>
+</body>
+</html>
