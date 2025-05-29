@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Physics Course Portal</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="header">
+    <h1>Mr Sha's Physics Course Portal</h1>
+    <p>Welcome to the Matriculation Physics learning hub</p>
+  </div>
+  <div class="theme-toggle">
+    <button onclick="toggleTheme()">Toggle Dark/Light Mode</button>
+  </div>
+  <div class="container">
+    <details class="dropdown">
+		<summary>Course Info</summary>
+		<table border="0">
+			<caption>SP015 Course Assessments</caption>
+			<tr><th>Name of Assessment</th><th>Percentage(%)</th></tr>
+			<tr><td>Chapter 6 Assignment</td><td>10</td></tr>
+			<tr><td>Practical Test</td><td>15</td></tr>
+			<tr><td>Lab Report</td><td>15</td></tr>
+			<tr><td>Summative Assessment Test (UPS)</td><td>20</td></tr>
+			<tr><td>Examination (PSPM)</td><td>40</td></tr>
+		</table>
+		<br>
+		<table border="0">
+			<caption>SP025 Course Assessments</caption>
+			<tr><th>Name of Assessment</th><th>Percentage(%)</th></tr>
+			<tr><td>Chapter 4 Assignment</td><td>10</td></tr>
+			<tr><td>Practical Test</td><td>10</td></tr>
+			<tr><td>Lab Report</td><td>15</td></tr>
+			<tr><td>Numeracy Assignment</td><td>5</td></tr>
+			<tr><td>Summative Assessment Test (UPS)</td><td>20</td></tr>
+			<tr><td>Examination (PSPM)</td><td>40</td></tr>
+		</table>
+    </details>
+
+    <details class="dropdown">
+      <summary>Notes & Online Resources</summary>
+      <h3>SP015</h3>
+	  <ul>
+        <li><a href="notes/2025-26.pdf" target="_blank">2025/2026 Lecture Notes</a></li>
+        <li><a href="notes/2025-26-summ.pdf" target="_blank">2025/2026 Colourful Topical Summary</a></li>
+		<li><a href="notes/2022-24.pdf" target="_blank">2022-2024 Lecture Notes</a></li>
+		<li><a href="notes/old-notes.pdf" target="_blank">2021/2022 Old Lecture Notes</a></li>
+        <li><a href="#"target="_blank"> N/A</a></li>
+      </ul>
+	  <h3>SP025</h3>
+	  <ul>
+        <li><a href="#"target="_blank"> N/A</a></li>
+        <li><a href="#"target="_blank"> N/A</a></li>
+      </ul>
+    </details>
+
+    <details class="dropdown">
+      <summary>Worksheets</summary>
+      <ul>
+        <li>Week 1: Vectors and Dimensions Worksheet</li>
+        <li>Week 2: Kinematics and Projectile Motion Worksheet</li>
+        <li>... More weekly worksheets coming soon</li>
+      </ul>
+    </details>
+
+    <details class="dropdown">
+      <summary>Courseworks</summary>
+      <ul>
+        <li>Lab Report: Projectile Motion Analysis</li>
+        <li>Presentation: Centripetal Motion in Real-Life Scenarios</li>
+        <li>Essay: Applications of the First Law of Thermodynamics</li>
+      </ul>
+    </details>
+
+    <details class="dropdown">
+      <summary>Past Year Questions</summary>
+      <ul>
+        <li>2022 Semester Exam - PDF</li>
+        <li>2023 Midterm Exam - PDF</li>
+        <li>Mock Test Compilation</li>
+      </ul>
+    </details>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      if (currentTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", "light");
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    }
+  </script>
+</body>
+</html>
