@@ -103,3 +103,15 @@ document.addEventListener('DOMContentLoaded', () => {
     renderDocuments();
     document.getElementById('search').addEventListener('keyup', filterDocuments);
 });
+// Update document count when page loads
+function updateDocumentCount() {
+    // Only count buttons with links (has-link class)
+    const availableDocs = document.querySelectorAll('.document-btn.has-link').length;
+    document.getElementById('docCount').textContent = availableDocs;
+}
+
+// Initialize counter when page loads
+document.addEventListener('DOMContentLoaded', updateDocumentCount);
+
+// If you dynamically load documents, call this after rendering:
+// updateDocumentCount();

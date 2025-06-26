@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2 inch File Documents</title>
+    <title>2 Inch File Documents | MOE Malaysia</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="https://www.moe.gov.my/images/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <header>
-        <h1>2 inch File Documents</h1>
+        <div class="logo-container">
+            <img src="logo.png" alt="KMSw Logo" class="logo">
+        </div>
+        <h1>2 Inch File Documents</h1>
         <p class="author">by Shafiq Bin Rasulan</p>
     </header>
-
+	<section class="document-meta">
+		<div class="last-updated">Last updated: <time datetime="2023-11-15">26 June 2025</time></div>
+		<div class="document-counter"> Total documents: <span id="docCount">0</span> </div>
+	</section>
     <div class="search-container">
         <input type="text" id="search" placeholder="Search documents...">
     </div>
-
     <div class="document-list" id="documentList">
         <!-- Documents will be dynamically inserted here -->
     </div>
