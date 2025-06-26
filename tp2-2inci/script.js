@@ -16,7 +16,7 @@ const documents = [
   { name: "14) Bengkel Pemeriksaan Skrip Jawaban", link: "files/14.pdf" },
   { name: "15) Kolokium Praktis STEM", link: "files/15.pdf" },
   { name: "16) Bengkel Pemeriksaan Skrip Fizik", link: "files/16.pdf" },
-  { name: "17) Bengkel Pemurnian Bahan Amali", link: "" },
+  { name: "17) Bengkel Pemurnian Bahan Amali", link: "files/17.pdf" },
   { name: "18) Bengkel Pemeriksaan Borang Jawapan", link: "files/18.pdf" },
   { name: "19) PROGRAM MATH & SCIENCE", link: "files/19.pdf" },
   { name: "20) MATRIX EXCELLENCE PROGRAMME 2024", link: "files/20.pdf" },
