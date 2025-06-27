@@ -43,7 +43,7 @@ const documents = [
   { name: "41) KOLOKIUM PENDIDIKAN", link: "files/15.pdf" },
   { name: "42) Bengkel Pemurnian Bahan Amali", link: "files/42.pdf" },
   { name: "43) GLASSBOARD Pendekatan Baharu", link: "files/43.pdf" },
-  { name: "44) Kertas Kerja SmartPhysics", link: "" },
+  { name: "44) Kertas Kerja SmartPhysics", link: "files/44.pdf" },
   { name: "45) IMPACT OF PHET SIMULATIONS", link: "files/45.pdf" },
   { name: "46) IMPACT OF PEER TEACHING", link: "files/46.pdf" },
   { name: "47) 2023/2024 PSPM2 Physics Results Report", link: "files/47.pdf" },
@@ -56,10 +56,10 @@ const documents = [
   { name: "54) e-Penilaian PelajarTertinggi", link: "files/54.pdf" },
   { name: "55) Pensyarah Terbaik", link: "files/55.pdf" },
   { name: "56) LESSON CRAFTER", link: "files/56.pdf" },
-  { name: "57) MERIT MATRIX MATCH", link: "" },
-  { name: "58) PHYSICS II ANALYZER", link: "" },
-  { name: "59) SP025 TEST SCHEDULER", link: "" },
-  { name: "60) E-PHYLAB", link: "" }
+  { name: "57) MERIT MATRIX MATCH", link: "files/57.pdf" },
+  { name: "58) PHYSICS II COURSEWORK ANALYZER", link: "files/58.pdf" },
+  { name: "59) SP025 TEST SCHEDULER", link: "files/59.pdf" },
+  { name: "60) E-PHYLAB", link: "files/60.pdf" }
 ]
 ;
 
