@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analysis Tool (Linear Regression)</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Linear Regression Analyzer</h1>
+
+        <div class="input-section">
+            <label for="xDataInput">X Values (comma-separated, e.g., 1,2,3,4,5,6):</label>
+            <input type="text" id="xDataInput" value="1,2,3,4,5,6" placeholder="Enter comma-separated X values">
+
+            <label for="yDataInput">Y Values (comma-separated, e.g., 6.00,13.00,17.263,25.12,29.1,37):</label>
+            <input type="text" id="yDataInput" value="6.00,13.00,17.263,25.12,29.1,37" placeholder="Enter comma-separated Y values">
+
+            <label for="graphTitle">Graph Title:</label>
+            <input type="text" id="graphTitle" value="My Regression Graph" placeholder="Enter graph title">
+
+            <label for="xAxisTitle">X-Axis Title:</label>
+            <input type="text" id="xAxisTitle" value="X Values" placeholder="Enter X-axis title">
+
+            <label for="yAxisTitle">Y-Axis Title:</label>
+            <input type="text" id="yAxisTitle" value="Y Values" placeholder="Enter Y-axis title">
+
+            <button id="analyzeButton">Analyze Data</button>
+            <button id="exportPdfButton" class="export-button">Export PDF</button>
+        </div>
+
+        <div id="contentToExport">
+            <div class="chart-section">
+                <canvas id="regressionChart"></canvas>
+            </div>
+
+            <div class="output-section">
+                <h2>Results:</h2>
+                <p>Trendline Equation: <span id="trendlineEquation"></span></p>
+                <p>Uncertainty of Gradient: <span id="gradientUncertainty"></span></p>
+                <p>Uncertainty of Y-intercept: <span id="yInterceptUncertainty"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
