@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Pendulum: T² vs Length</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <h1>Pendulum Experiment Simulator: T² vs L</h1>
+  <button onclick="generateData()">Generate Data</button>
+
+  <table id="dataTable">
+    <thead>
+      <tr><th>Length (m)</th><th>Time for 10 Oscillations (s)</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="chart-container">
+    <canvas id="dataChart"></canvas>
+  </div>
+
+  <div class="result" id="equation"></div>
+  <div class="result" id="uncertainties"></div>
+  <div class="result" id="gravity"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
