@@ -1,0 +1,39 @@
+I am an educator preparing to document a teaching intervention. I would like you to generate a template report based on a 5-chapter structure adapted from the TIDieR (Template for Intervention Description and Replication) checklist. The purpose is to make the intervention report clear, structured, and research-compliant, but also practical for use in an educational setting (specifically pre-university physics).
+
+Please include the following five chapters with section headings and short guiding descriptions or placeholders for content:
+
+Chapter 1: Introduction – Include fields for the title, context/background of the intervention, the target group of students, and the learning objectives.
+
+Chapter 2: Intervention Design – Include sections for instructional strategies, planned activities, materials/resources used, and any planned adaptations.
+
+Chapter 3: Implementation – Include delivery method (e.g., in-person/online), session schedule, people involved, and any notes on fidelity (e.g., deviations from plan).
+
+Chapter 4: Evaluation & Results – Include assessment methods, data collection tools, summary of findings (e.g., pre/post results), and student feedback (optional).
+
+Chapter 5: Reflection & Recommendations – Include reflections on the effectiveness of the intervention, lessons learned, and recommendations for future implementation.
+
+Please structure it like a professional report template, with clear section titles and placeholder text or guiding questions for each part.
+
+Here are the details:
+
+
+Problem: 
+Incorrect intuition relating frequency with amplitude. Many students thought that amplitude depends on frequency or period. 
+
+Proposed Intervention:
+usage of PhET simulation and scaffolding problems
+
+Instructional Approach:
+Student explore simple pendulum simulation on PhET and collects data on amplitude and period. 
+Think-Pair-Share session.
+Scaffolded problems practice.
+
+
+Duration: 
+- Three 1 hour lessons with students, face to face. 
+
+students? 6 semester 1 Malaysian matriculation physics students. 
+
+Assessment: 
+- Pre and post test. 
+- 7 item self-reflection questionnaire. 
