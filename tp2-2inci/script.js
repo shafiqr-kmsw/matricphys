@@ -22,7 +22,7 @@ const documents = [
   { name: "20) MATRIX EXCELLENCE PROGRAMME 2024", link: "files/20.pdf" },
   { name: "21) MATRIX EXCELLENCE PROGRAMME 2023", link: "files/21.pdf" },
   { name: "22) PROGRAM SINERGI INKUBATOR STEM", link: "files/22.pdf" },
-  { name: "23) Bengkel Pemeriksaan Tugasan Fizik", link: "" },
+  { name: "23) Bengkel Pemeriksaan Tugasan Fizik", link: "files/23.pdf" },
   { name: "24) PROGRAM SMARTPHYSICS", link: "files/24.pdf" },
   { name: "25) PROGRAM 'HOW TO READ A BOOK'", link: "files/25.pdf" },
   { name: "26) Bengkel Pembinaan Buku Tutorial SP025", link: "files/26.pdf" },
