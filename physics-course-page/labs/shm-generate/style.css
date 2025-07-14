@@ -7,6 +7,9 @@ body {
 h1 {
   text-align: center;
 }
+h2 {
+  text-align: center;
+}
 
 #chart-container {
   width: 80%;
@@ -35,4 +38,21 @@ button {
   margin: 20px auto;
   padding: 10px 20px;
   font-size: 16px;
+}
+#data-and-chart {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px; /* spacing between table and chart */
+  margin-top: 20px;
+  flex-wrap: wrap; /* allows wrapping on smaller screens */
+}
+
+#dataTable {
+  flex: 1;
+  max-width: 400px;
+}
+
+#chart-container {
+  flex: 2;
 }
