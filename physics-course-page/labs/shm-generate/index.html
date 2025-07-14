@@ -9,14 +9,22 @@
 <body>
 
   <h1>Pendulum Experiment Simulator: T² vs L</h1>
+  <h2>By Shafiq Rasulan</h2>
   <button onclick="generateData()">Generate Data</button>
 
+<div id="data-and-chart">
   <table id="dataTable">
     <thead>
       <tr><th>Length (m)</th><th>Time for 10 Oscillations (s)</th></tr>
     </thead>
     <tbody></tbody>
   </table>
+
+  <div id="chart-container">
+    <canvas id="dataChart"></canvas>
+  </div>
+</div>
+
 
   <div id="chart-container">
     <canvas id="dataChart"></canvas>
