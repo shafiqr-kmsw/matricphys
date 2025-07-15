@@ -1,0 +1,26 @@
+--- Overall Student Test Analysis Results ---
+Metric,Value
+Max Possible Score,25
+Average Pre-test Score (Overall),11.67 raw (46.67%)
+Average Post-test Score (Overall),17.69 raw (70.76%)
+Overall Normalized Gain,0.43 (42.94%)
+Effect Size (Cohen's d),1.77
+
+--- Combined Descriptive Statistics (Overall Scores) ---
+Statistic,Pre-test Scores,Post-test Scores
+Mean,11.67,17.69
+Median,12.00,18.00
+Standard Deviation,2.42,2.25
+Min,7.00,12.00
+Max,17.00,23.00
+
+--- Average Scores by Question Cluster ---
+Question Cluster,Average Pre-test Score,Average Post-test Score
+Energy concepts,1.66 raw (41.39%),2.80 raw (70.00%)
+Work done by gravitational force,1.96 raw (48.89%),2.81 raw (70.28%)
+Work done by nonconservative forces,1.89 raw (47.22%),2.81 raw (70.28%)
+Conservation of mechanical energy and related issues,0.86 raw (42.78%),1.38 raw (68.89%)
+Momentum concepts,0.33 raw (33.33%),0.68 raw (67.78%)
+Identifying conservation of momentum,1.13 raw (56.67%),1.43 raw (71.67%)
+Momentum conservation in inelastic collisions and explosions,0.91 raw (45.56%),1.48 raw (73.89%)
+Impulse-momentum theorem,1.07 raw (53.33%),1.56 raw (77.78%)

@@ -1,0 +1,563 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import ttest_ind, gaussian_kde # Added gaussian_kde
+
+# --- Input Data ---
+# Define the answer keys for the pre and post tests.
+# Each item in the array represents the correct answer for a question.
+# Assuming 1 means correct, 0 means incorrect.
+# IMPORTANT: The question clusters imply 25 questions.
+# Please update the answer keys and student answers below with your actual data for 25 questions.
+pre_test_answer_key = np.array([
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1
+])
+post_test_answer_key = np.array([
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1
+])
+
+# Define student answers for pre and post tests.
+# Each inner array represents a student's answers (25 questions per student).
+# Make sure the number of inner arrays (students) is consistent.
+# IMPORTANT: Update this dummy data with your actual student answers for 25 questions.
+pre_test_answers = np.array([
+[0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1],
+[1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1],
+[0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0],
+[1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1],
+[1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0],
+[0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0],
+[0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0],
+[1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0],
+[0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1],
+[0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0],
+[0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+[0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
+[1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0],
+[1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0],
+[1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+[0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1],
+[0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0],
+[1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0],
+[1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1],
+[1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+[1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1],
+[1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1],
+[1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0],
+[0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+[1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1],
+[0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1],
+[0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0],
+[1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0],
+[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1],
+[1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1],
+[1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1],
+[0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1],
+[0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0],
+[0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+[1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+[1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1],
+[1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1],
+[0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1],
+[1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0],
+[1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0],
+[1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0],
+[1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1],
+[1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
+[1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
+[0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1],
+[0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+[0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1],
+[1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0],
+[1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0],
+[1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0],
+[0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
+[0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1],
+[1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+[0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+[1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1],
+[0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0],
+[0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1],
+[1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1],
+[0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0],
+[1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1],
+[1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+[0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0],
+[1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1],
+[1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0],
+[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+[1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+[0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0],
+[0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1],
+[0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0],
+[0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0],
+[1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1],
+[1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0],
+[1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1],
+[1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0],
+[0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+[1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0],
+[1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0],
+[0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+[0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0],
+[1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0],
+[0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0],
+[1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0],
+[0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0],
+[0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0],
+[0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1]])
+
+post_test_answers = np.array([
+[1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1],
+[1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+[1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
+[0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+[1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+[1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1],
+[1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1],
+[1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1],
+[0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1],
+[1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1],
+[0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1],
+[1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+[0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1],
+[1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0],
+[1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0],
+[0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1],
+[1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0],
+[1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0],
+[1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+[0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+[0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0],
+[1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+[1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+[0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0],
+[1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+[1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+[1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1],
+[0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1],
+[1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
+[0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+[0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1],
+[1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
+[1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1],
+[1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1],
+[0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1],
+[0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1],
+[1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0],
+[1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+[1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1],
+[0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0],
+[1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+[1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0],
+[1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+[0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1],
+[0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1],
+[1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+[1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1],
+[1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+[1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+[0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
+[1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0],
+[1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
+[1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0],
+[1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
+[0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
+[0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1],
+[1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1],
+[1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1],
+[1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0],
+[1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0],
+[1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1],
+[0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1],
+[1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1],
+[1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0],
+[1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1],
+[1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1],
+[1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1],
+[0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0],
+[1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1],
+[1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1],
+[0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1]
+])
+
+# Define question clusters (1-indexed question numbers, convert to 0-indexed for array access)
+question_clusters = {
+    'Energy concepts': [q - 1 for q in [2, 4, 15, 22]],
+    'Work done by gravitational force': [q - 1 for q in [1, 6, 8, 20]],
+    'Work done by nonconservative forces': [q - 1 for q in [9, 12, 24, 25]],
+    'Conservation of mechanical energy and related issues': [q - 1 for q in [13, 17]],
+    'Momentum concepts': [q - 1 for q in [5]],
+    'Identifying conservation of momentum': [q - 1 for q in [3, 11]],
+    'Momentum conservation in inelastic collisions and explosions': [q - 1 for q in [10, 21]],
+    'Impulse-momentum theorem': [q - 1 for q in [19, 23]]
+}
+
+
+# Get number of students and number of questions
+num_students = pre_test_answers.shape[0]
+num_questions = pre_test_answer_key.shape[0]
+
+# Max possible score
+max_score = num_questions
+
+# --- Calculations ---
+
+# Initialize arrays to store scores and gains
+pre_test_scores = np.zeros(num_students)
+post_test_scores = np.zeros(num_students)
+gain = np.zeros(num_students)
+normalized_gain = np.zeros(num_students)
+
+# Calculate raw scores for each student
+for i in range(num_students):
+    # For pre-test, compare student's answers with the pre-test answer key
+    pre_test_scores[i] = np.sum(pre_test_answers[i] == pre_test_answer_key)
+
+    # For post-test, compare student's answers with the post-test answer key
+    post_test_scores[i] = np.sum(post_test_answers[i] == post_test_answer_key)
+
+    # Calculate Gain
+    gain[i] = post_test_scores[i] - pre_test_scores[i]
+
+    # Calculate Normalized Gain
+    # Handle cases where pre_test_score is equal to max_score to avoid division by zero
+    if (max_score - pre_test_scores[i]) != 0:
+        normalized_gain[i] = gain[i] / (max_score - pre_test_scores[i])
+    else:
+        normalized_gain[i] = 0 # If student started with perfect score, no room for gain
+
+# --- Additional Calculations ---
+
+# Average scores
+average_pre_score = np.mean(pre_test_scores)
+average_post_score = np.mean(post_test_scores)
+
+# Average scores in percentage
+average_pre_score_percent = (average_pre_score / max_score) * 100
+average_post_score_percent = (average_post_score / max_score) * 100
+
+# Overall Normalized Gain in Percentage
+overall_normalized_gain_percent = np.mean(normalized_gain) * 100
+
+# Descriptive Statistics
+pre_test_median = np.median(pre_test_scores)
+pre_test_std = np.std(pre_test_scores, ddof=1) # Sample standard deviation
+pre_test_min = np.min(pre_test_scores)
+pre_test_max = np.max(pre_test_scores)
+
+post_test_median = np.median(post_test_scores)
+post_test_std = np.std(post_test_scores, ddof=1) # Sample standard deviation
+post_test_min = np.min(post_test_scores)
+post_test_max = np.max(post_test_scores)
+
+
+# Effect Size (Cohen's d for dependent samples, as it's pre-post test on same students)
+# A more robust Cohen's d for paired samples (pre-post for the same individuals) is:
+# d = (mean_diff) / std_diff_scores
+# where mean_diff is the mean of the differences (post-pre)
+# and std_diff_scores is the standard deviation of the differences (post-pre)
+differences = post_test_scores - pre_test_scores
+mean_diff = np.mean(differences)
+std_diff_scores = np.std(differences, ddof=1) # ddof=1 for sample standard deviation
+
+if std_diff_scores != 0:
+    cohens_d = mean_diff / std_diff_scores
+else:
+    cohens_d = 0 # No variability in differences
+
+# Scores according to question clusters
+cluster_pre_scores_by_student = {student_id: {} for student_id in range(num_students)}
+cluster_post_scores_by_student = {student_id: {} for student_id in range(num_students)}
+cluster_pre_percentages_by_student = {student_id: {} for student_id in range(num_students)}
+cluster_post_percentages_by_student = {student_id: {} for student_id in range(num_students)}
+
+average_cluster_pre_scores = {}
+average_cluster_post_scores = {}
+average_cluster_pre_percentages = {}
+average_cluster_post_percentages = {}
+std_cluster_pre_percentages = {} # New: for error bars
+std_cluster_post_percentages = {} # New: for error bars
+
+
+# Dictionary to store max possible score for each cluster
+max_cluster_score_per_cluster = {cluster_name: len(q_indices) for cluster_name, q_indices in question_clusters.items()}
+
+
+for cluster_name, q_indices in question_clusters.items():
+    cluster_pre_scores_all_students = []
+    cluster_post_scores_all_students = []
+
+    # New: Lists to collect percentages for standard deviation calculation
+    cluster_pre_percentages_for_std = []
+    cluster_post_percentages_for_std = []
+
+    current_cluster_max_score = max_cluster_score_per_cluster[cluster_name]
+
+    for i in range(num_students):
+        student_pre_answers = pre_test_answers[i][q_indices]
+        student_post_answers = post_test_answers[i][q_indices]
+
+        cluster_pre_key = pre_test_answer_key[q_indices]
+        cluster_post_key = post_test_answer_key[q_indices]
+
+        # Calculate raw score for the current cluster for this student
+        current_pre_cluster_score = np.sum(student_pre_answers == cluster_pre_key)
+        current_post_cluster_score = np.sum(student_post_answers == cluster_post_key)
+
+        cluster_pre_scores_by_student[i][cluster_name] = current_pre_cluster_score
+        cluster_post_scores_by_student[i][cluster_name] = current_post_cluster_score
+
+        # Calculate percentage score for the current cluster for this student
+        current_pre_cluster_percent = (current_pre_cluster_score / current_cluster_max_score) * 100 if current_cluster_max_score > 0 else 0
+        current_post_cluster_percent = (current_post_cluster_score / current_cluster_max_score) * 100 if current_cluster_max_score > 0 else 0
+
+        cluster_pre_percentages_by_student[i][cluster_name] = current_pre_cluster_percent
+        cluster_post_percentages_by_student[i][cluster_name] = current_post_cluster_percent
+
+        cluster_pre_scores_all_students.append(current_pre_cluster_score)
+        cluster_post_scores_all_students.append(current_post_cluster_score)
+
+        # Add to lists for std dev calculation
+        cluster_pre_percentages_for_std.append(current_pre_cluster_percent)
+        cluster_post_percentages_for_std.append(current_post_cluster_percent)
+
+    average_cluster_pre_scores[cluster_name] = np.mean(cluster_pre_scores_all_students)
+    average_cluster_post_scores[cluster_name] = np.mean(cluster_post_scores_all_students)
+
+    average_cluster_pre_percentages[cluster_name] = np.mean(cluster_pre_percentages_for_std)
+    average_cluster_post_percentages[cluster_name] = np.mean(cluster_post_percentages_for_std)
+
+    # Calculate standard deviations for percentages (ddof=1 for sample std dev)
+    std_cluster_pre_percentages[cluster_name] = np.std(cluster_pre_percentages_for_std, ddof=1) if len(cluster_pre_percentages_for_std) > 1 else 0
+    std_cluster_post_percentages[cluster_name] = np.std(cluster_post_percentages_for_std, ddof=1) if len(cluster_post_percentages_for_std) > 1 else 0
+
+
+# --- Output Results (Console Printouts) ---
+print("--- Student Test Analysis Results ---")
+print(f"Max Possible Score: {max_score}")
+print("-" * 40)
+
+print(f"Average Pre-test Score (Overall): {average_pre_score:.2f} raw ({average_pre_score_percent:.2f}%)")
+print(f"Average Post-test Score (Overall): {average_post_score:.2f} raw ({average_post_score_percent:.2f}%)")
+print(f"Overall Normalized Gain: {np.mean(normalized_gain):.2f} ({overall_normalized_gain_percent:.2f}%)")
+print(f"Effect Size (Cohen's d): {cohens_d:.2f}")
+print("-" * 40)
+
+print("--- Descriptive Statistics (Overall Scores) ---")
+print(f"Pre-test Scores:")
+print(f"  Mean: {average_pre_score:.2f}")
+print(f"  Median: {pre_test_median:.2f}")
+print(f"  Standard Deviation: {pre_test_std:.2f}")
+print(f"  Min: {pre_test_min:.2f}")
+print(f"  Max: {pre_test_max:.2f}")
+print(f"\nPost-test Scores:")
+print(f"  Mean: {average_post_score:.2f}")
+print(f"  Median: {post_test_median:.2f}")
+print(f"  Standard Deviation: {post_test_std:.2f}")
+print(f"  Min: {post_test_min:.2f}")
+print(f"  Max: {post_test_max:.2f}")
+print("-" * 40)
+
+print("\n--- Average Scores by Question Cluster ---")
+for cluster_name in question_clusters:
+    pre_avg_raw = average_cluster_pre_scores[cluster_name]
+    post_avg_raw = average_cluster_post_scores[cluster_name]
+    pre_avg_percent = average_cluster_pre_percentages[cluster_name]
+    post_avg_percent = average_cluster_post_percentages[cluster_name]
+
+    print(f"{cluster_name}:")
+    print(f"  Average Pre-test Score: {pre_avg_raw:.2f} raw ({pre_avg_percent:.2f}%)")
+    print(f"  Average Post-test Score: {post_avg_raw:.2f} raw ({post_avg_percent:.2f}%)")
+    print("-" * 40)
+
+
+# --- Visualization (Plots) ---
+
+# Autolabel function for adding values on top of bars
+def autolabel(rects, ax):
+    for rect in rects:
+        height = rect.get_height()
+        ax.annotate(f'{int(height)}',
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+
+# Autolabel function for percentages
+def autolabel_percent(rects, ax):
+    for rect in rects:
+        height = rect.get_height()
+        ax.annotate(f'{height:.1f}%',
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+
+
+# Plotting 1: Average Pre and Post Test Scores (Raw)
+fig_avg, ax_avg = plt.subplots(figsize=(8, 6))
+
+avg_labels = ['Average Pre-test Score', 'Average Post-test Score']
+avg_scores = [average_pre_score, average_post_score]
+x_avg = np.arange(len(avg_labels))
+
+rects_avg = ax_avg.bar(x_avg, avg_scores, color=['skyblue', 'lightcoral'])
+
+ax_avg.set_xlabel('Test Type')
+ax_avg.set_ylabel('Average Score (Raw)')
+ax_avg.set_title('Average Pre and Post-test Scores (Overall)')
+ax_avg.set_xticks(x_avg)
+ax_avg.set_xticklabels(avg_labels)
+ax_avg.set_ylim(0, max_score + 1) # Set y-axis limit slightly above max score
+
+autolabel(rects_avg, ax_avg)
+
+plt.tight_layout()
+plt.show()
+
+# Plotting 2: Average Pre and Post Test Scores (Percentage)
+fig_avg_percent, ax_avg_percent = plt.subplots(figsize=(8, 6))
+
+avg_labels_percent = ['Average Pre-test Score (%)', 'Average Post-test Score (%)']
+avg_scores_percent = [average_pre_score_percent, average_post_score_percent]
+x_avg_percent = np.arange(len(avg_labels_percent))
+
+rects_avg_percent = ax_avg_percent.bar(x_avg_percent, avg_scores_percent, color=['lightskyblue', 'lightcoral'])
+
+ax_avg_percent.set_xlabel('Test Type')
+ax_avg_percent.set_ylabel('Average Score (%)')
+ax_avg_percent.set_title('Average Pre and Post-test Scores (Overall Percentage)')
+ax_avg_percent.set_xticks(x_avg_percent)
+ax_avg_percent.set_xticklabels(avg_labels_percent)
+ax_avg_percent.set_ylim(0, 80) # Percentage scale
+
+autolabel_percent(rects_avg_percent, ax_avg_percent)
+
+plt.tight_layout()
+plt.show()
+
+
+# Plotting 3: Density Plot (Single Distribution) for Normalized Gain
+fig_density_ng, ax_density_ng = plt.subplots(figsize=(10, 6))
+
+# Ensure enough data and variability for KDE, otherwise use histogram
+if len(normalized_gain) > 1 and np.std(normalized_gain) > 0:
+    kde = gaussian_kde(normalized_gain)
+    # Define a grid for plotting the KDE, covering the typical range of normalized gain
+    x_grid_ng = np.linspace(np.min(normalized_gain) - 0.1, np.max(normalized_gain) + 0.1, 500)
+    ax_density_ng.plot(x_grid_ng, kde(x_grid_ng), color='blue', linewidth=2)
+else:
+    # Fallback for very small or no variance data
+    ax_density_ng.hist(normalized_gain, bins=5, density=True, color='skyblue', alpha=0.7)
+
+
+ax_density_ng.set_xlabel('Normalized Gain')
+ax_density_ng.set_ylabel('Density (Percentage of Students)')
+ax_density_ng.set_title('Distribution of Normalized Gain Across Students')
+ax_density_ng.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
+
+# Plotting 4: Density Plot (Two Distributions for Comparison) for Scores
+fig_density_scores, ax_density_scores = plt.subplots(figsize=(10, 6))
+
+pre_test_percentages_overall = (pre_test_scores / max_score) * 100
+post_test_percentages_overall = (post_test_scores / max_score) * 100
+
+# Plot Pre-test density
+if len(pre_test_percentages_overall) > 1 and np.std(pre_test_percentages_overall) > 0:
+    kde_pre = gaussian_kde(pre_test_percentages_overall)
+    x_grid_scores = np.linspace(0, 100, 500) # Scores are percentages, range 0-100
+    ax_density_scores.plot(x_grid_scores, kde_pre(x_grid_scores), color='blue', linestyle='--', label='Pre-test Score (%)', linewidth=2)
+else:
+    ax_density_scores.hist(pre_test_percentages_overall, bins=10, density=True, color='skyblue', alpha=0.7, label='Pre-test Score (%)')
+
+
+# Plot Post-test density
+if len(post_test_percentages_overall) > 1 and np.std(post_test_percentages_overall) > 0:
+    kde_post = gaussian_kde(post_test_percentages_overall)
+    ax_density_scores.plot(x_grid_scores, kde_post(x_grid_scores), color='blue', linestyle='-', label='Post-test Score (%)', linewidth=2)
+else:
+    ax_density_scores.hist(post_test_percentages_overall, bins=10, density=True, color='lightcoral', alpha=0.7, label='Post-test Score (%)')
+
+
+ax_density_scores.set_xlabel('Score (matched) (%)')
+ax_density_scores.set_ylabel('Density (Percentage of Students)')
+ax_density_scores.set_title('Distribution of Student Scores (Pre vs. Post)')
+ax_density_scores.legend()
+ax_density_scores.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
+
+
+# Plotting 5: Grouped Bar Chart for Clusters (Percentages with Error Bars)
+fig_cluster_percent_error, ax_cluster_percent_error = plt.subplots(figsize=(12, 7))
+
+cluster_names = list(average_cluster_pre_percentages.keys())
+cluster_x = np.arange(len(cluster_names))
+cluster_bar_width = 0.35
+
+# For pre-test percentages
+rects_cluster_pre_percent_error = ax_cluster_percent_error.bar(
+    cluster_x - cluster_bar_width/2,
+    list(average_cluster_pre_percentages.values()),
+    cluster_bar_width,
+    # yerr=yerr_pre, # Removed error bars
+    # capsize=5, # Removed cap size
+    label='Pre', # Label as "Pre" for consistency with user's example
+    color='skyblue'
+)
+
+# For post-test percentages
+rects_cluster_post_percent_error = ax_cluster_percent_error.bar(
+    cluster_x + cluster_bar_width/2,
+    list(average_cluster_post_percentages.values()),
+    cluster_bar_width,
+    # yerr=yerr_post, # Removed error bars
+    # capsize=5, # Removed cap size
+    label='Post', # Label as "Post" for consistency with user's example
+    color='lightcoral'
+)
+
+ax_cluster_percent_error.set_xlabel('Cluster') # Adjusted label to match user's example
+ax_cluster_percent_error.set_ylabel('Percentage of Students (%)')
+ax_cluster_percent_error.set_title('Average Pre and Post-test Percentage Scores by Question Cluster') # Title adjusted as error bars are removed
+ax_cluster_percent_error.set_xticks(cluster_x)
+ax_cluster_percent_error.set_xticklabels(cluster_names, rotation=45, ha='right')
+ax_cluster_percent_error.legend()
+ax_cluster_percent_error.set_ylim(0, 100) # Percentage scale
+
+autolabel_percent(rects_cluster_pre_percent_error, ax_cluster_percent_error)
+autolabel_percent(rects_cluster_post_percent_error, ax_cluster_percent_error)
+plt.tight_layout()
+plt.show()
+
