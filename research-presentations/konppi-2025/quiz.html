@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Tutoring Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#203d5a',
+                        'secondary': '#5b41ec',
+                        'accent': '#d02a83'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .star {
+            font-size: 2rem;
+            color: #ffd700;
+            animation: sparkle 0.6s ease-in-out;
+        }
+        
+        @keyframes sparkle {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+        
+        .drag-item {
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+        
+        .drag-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .drop-zone {
+            min-height: 60px;
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone.drag-over {
+            background-color: rgba(91, 65, 236, 0.1);
+            border-color: #5b41ec;
+        }
+        
+        .question-container {
+            display: none;
+        }
+        
+        .question-container.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-primary via-secondary to-accent min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl font-bold text-white text-center mb-8">AI-Powered Tutoring Quiz</h1>
+            <div class="bg-white rounded-lg shadow-2xl p-8">
+                
+                <!-- Question 1 -->
+                <div class="question-container active" id="question1">
+                    <h2 class="text-2xl font-bold text-primary mb-6">1. Introduction – Why was AI-based tutoring explored for teaching energy and momentum?</h2>
+                    <div class="space-y-4">
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Students commonly misunderstand energy as "consumed" and confuse momentum with mass or force</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>AI tools can provide personalized, interactive support to correct these misconceptions</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>AI's immediate feedback and Socratic questioning enhance student engagement and conceptual reasoning</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="false">
+                            <span>AI tutoring is cheaper than traditional teaching methods</span>
+                        </label>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <button onclick="checkAnswer(1)" class="bg-secondary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all">Check Answer</button>
+                        <div id="result1" class="flex items-center space-x-2"></div>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="question-container" id="question2">
+                    <h2 class="text-2xl font-bold text-primary mb-6">2. Reflection on Past Teaching Practices – What issues in past teaching practices led to using AI tutoring?</h2>
+                    <div class="space-y-4">
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Traditional methods failed to fix misconceptions despite lectures and tutorials</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Students relied on memorization and struggled to explain concepts meaningfully</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>AI tools offer scalable Socratic tutoring and immediate feedback without replacing teachers</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="false">
+                            <span>Teachers were not qualified enough to teach physics concepts</span>
+                        </label>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <button onclick="checkAnswer(2)" class="bg-secondary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all">Check Answer</button>
+                        <div id="result2" class="flex items-center space-x-2"></div>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="question-container" id="question3">
+                    <h2 class="text-2xl font-bold text-primary mb-6">3. Research Focus, Objectives & Target Group – What is the focus of the study, and who were the participants?</h2>
+                    <div class="space-y-4">
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Focus: Address persistent misconceptions in energy and momentum using AI dialogue tutoring</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Objectives: Improve conceptual understanding and measure AI tutoring effectiveness</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Participants: 30 Physics students from Sarawak Matriculation College with Grade B or above in SPM Physics</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="false">
+                            <span>The study focused on replacing traditional teachers with AI systems</span>
+                        </label>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <button onclick="checkAnswer(3)" class="bg-secondary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all">Check Answer</button>
+                        <div id="result3" class="flex items-center space-x-2"></div>
+                    </div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="question-container" id="question4">
+                    <h2 class="text-2xl font-bold text-primary mb-6">4. Action Implementation – How was the teaching approach designed for this study?</h2>
+                    <div class="space-y-4">
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Followed Kemmis and McTaggart's action research model</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Used diagnostic assessments to identify misconceptions and guide AI-based activities</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Included training in Socratic questioning and ICAP framework to improve engagement</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="false">
+                            <span>Used only multiple-choice tests to assess student understanding</span>
+                        </label>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <button onclick="checkAnswer(4)" class="bg-secondary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all">Check Answer</button>
+                        <div id="result4" class="flex items-center space-x-2"></div>
+                    </div>
+                </div>
+
+                <!-- Question 5 -->
+                <div class="question-container" id="question5">
+                    <h2 class="text-2xl font-bold text-primary mb-6">5. Action Implementation – What were the main phases of the AI tutoring process?</h2>
+                    <div class="space-y-4">
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Pre-class AI exploration where students interacted with ChatGPT/Gemini/DeepSeek</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>In-class peer discussions comparing AI explanations with textbook concepts</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Feedback integration with reflection and improved prompt design</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="false">
+                            <span>Students worked individually without any peer interaction</span>
+                        </label>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <button onclick="checkAnswer(5)" class="bg-secondary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all">Check Answer</button>
+                        <div id="result5" class="flex items-center space-x-2"></div>
+                    </div>
+                </div>
+
+                <!-- Question 6 - Drag and Drop -->
+                <div class="question-container" id="question6">
+                    <h2 class="text-2xl font-bold text-primary mb-6">6. Results – How did student performance change after the intervention?</h2>
+                    <p class="text-gray-600 mb-4">Drag the correct answers to the drop zones below:</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="space-y-4">
+                            <h3 class="font-semibold text-primary">Available Options:</h3>
+                            <div class="space-y-2" id="dragItems6">
+                                <div class="drag-item bg-gray-100 p-3 rounded-lg border-2 border-gray-300" draggable="true" data-correct="true">Scores improved from 46.67% to 70.76%</div>
+                                <div class="drag-item bg-gray-100 p-3 rounded-lg border-2 border-gray-300" draggable="true" data-correct="true">Large effect size (Cohen's d = 1.77)</div>
+                                <div class="drag-item bg-gray-100 p-3 rounded-lg border-2 border-gray-300" draggable="true" data-correct="true">Significant gains in inelastic collisions and energy conservation</div>
+                                <div class="drag-item bg-gray-100 p-3 rounded-lg border-2 border-gray-300" draggable="true" data-correct="false">No significant improvement was observed</div>
+                                <div class="drag-item bg-gray-100 p-3 rounded-lg border-2 border-gray-300" draggable="true" data-correct="false">Students performed worse after the intervention</div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h3 class="font-semibold text-primary">Correct Answers:</h3>
+                            <div class="drop-zone border-2 border-dashed border-gray-400 p-4 rounded-lg bg-gray-50" data-question="6"></div>
+                            <div class="drop-zone border-2 border-dashed border-gray-400 p-4 rounded-lg bg-gray-50" data-question="6"></div>
+                            <div class="drop-zone border-2 border-dashed border-gray-400 p-4 rounded-lg bg-gray-50" data-question="6"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-between items-center">
+                        <button onclick="checkDragAnswer(6)" class="bg-secondary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all">Check Answer</button>
+                        <div id="result6" class="flex items-center space-x-2"></div>
+                    </div>
+                </div>
+
+                <!-- Question 7 - Drag and Drop -->
+                <div class="question-container" id="question7">
+                    <h2 class="text-2xl font-bold text-primary mb-6">7. Results – What was students' perception of AI tutoring?</h2>
+                    <p class="text-gray-600 mb-4">Drag the correct answers to the drop zones below:</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="space-y-4">
+                            <h3 class="font-semibold text-primary">Available Options:</h3>
+                            <div class="space-y-2" id="dragItems7">
+                                <div class="drag-item bg-gray-100 p-3 rounded-lg border-2 border-gray-300" draggable="true" data-correct="true">Students rated AI highly for correcting misconceptions (4.77/5)</div>
+                                <div class="drag-item bg-gray-100 p-3 rounded-lg border-2 border-gray-300" draggable="true" data-correct="true">High rating for clarity (4.70/5)</div>
+                                <div class="drag-item bg-gray-100 p-3 rounded-lg border-2 border-gray-300" draggable="true" data-correct="true">Students felt more comfortable asking questions to AI (4.57/5)</div>
+                                <div class="drag-item bg-gray-100 p-3 rounded-lg border-2 border-gray-300" draggable="true" data-correct="false">Students preferred traditional teaching methods</div>
+                                <div class="drag-item bg-gray-100 p-3 rounded-lg border-2 border-gray-300" draggable="true" data-correct="false">AI tutoring received poor ratings overall</div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <h3 class="font-semibold text-primary">Correct Answers:</h3>
+                            <div class="drop-zone border-2 border-dashed border-gray-400 p-4 rounded-lg bg-gray-50" data-question="7"></div>
+                            <div class="drop-zone border-2 border-dashed border-gray-400 p-4 rounded-lg bg-gray-50" data-question="7"></div>
+                            <div class="drop-zone border-2 border-dashed border-gray-400 p-4 rounded-lg bg-gray-50" data-question="7"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-between items-center">
+                        <button onclick="checkDragAnswer(7)" class="bg-secondary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all">Check Answer</button>
+                        <div id="result7" class="flex items-center space-x-2"></div>
+                    </div>
+                </div>
+
+                <!-- Question 8 -->
+                <div class="question-container" id="question8">
+                    <h2 class="text-2xl font-bold text-primary mb-6">8. Reflections & Conclusion – What conclusions were drawn from the study?</h2>
+                    <div class="space-y-4">
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>AI tutoring effectively improved conceptual understanding and was positively received</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Strengths: strong pre/post-test evidence, positive student feedback, and effective misconception correction</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="true">
+                            <span>Limitations: lack of control group and moderate critical thinking stimulation</span>
+                        </label>
+                        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 text-secondary" data-correct="false">
+                            <span>The study concluded that AI should completely replace human teachers</span>
+                        </label>
+                    </div>
+                    <div class="mt-6 flex justify-between items-center">
+                        <button onclick="checkAnswer(8)" class="bg-secondary hover:bg-opacity-90 text-white px-6 py-3 rounded-lg font-semibold transition-all">Check Answer</button>
+                        <div id="result8" class="flex items-center space-x-2"></div>
+                    </div>
+                </div>
+
+                <!-- Completion Message -->
+                <div class="question-container text-center" id="completion">
+                    <div class="bg-gradient-to-r from-secondary to-accent text-white p-8 rounded-lg">
+                        <h2 class="text-3xl font-bold mb-4">🎉 Quiz Completed!</h2>
+                        <p class="text-xl">Congratulations on completing the AI-Powered Tutoring Quiz!</p>
+                        <p class="mt-4">You've demonstrated a solid understanding of the research on AI tutoring for energy and momentum concepts.</p>
+                        
+                        <div class="mt-6 p-4 bg-white bg-opacity-20 rounded-lg">
+                            <p class="text-lg font-semibold mb-2">Thank you for participating!</p>
+                            <p class="text-sm">You can contact me at: <span class="font-mono bg-white bg-opacity-30 px-2 py-1 rounded">bm-3542@moe-dl.edu.my</span></p>
+                        </div>
+                        
+                        <button onclick="restartQuiz()" class="mt-6 bg-white text-secondary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all">Restart Quiz</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        const totalQuestions = 8;
+
+        // Drag and Drop functionality
+        let draggedElement = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+        });
+
+        function setupDragAndDrop() {
+            const dragItems = document.querySelectorAll('.drag-item');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            dragItems.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.style.opacity = '0.5';
+                });
+
+                item.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                });
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                });
+
+                zone.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drag-over');
+                });
+
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    if (draggedElement && this.children.length === 0) {
+                        this.appendChild(draggedElement);
+                        draggedElement = null;
+                    }
+                });
+            });
+        }
+
+        function checkAnswer(questionNum) {
+            const question = document.getElementById(`question${questionNum}`);
+            const checkboxes = question.querySelectorAll('input[type="checkbox"]');
+            const resultDiv = document.getElementById(`result${questionNum}`);
+            
+            let allCorrect = true;
+            let hasCorrectAnswers = false;
+
+            checkboxes.forEach(checkbox => {
+                const isCorrect = checkbox.dataset.correct === 'true';
+                const isChecked = checkbox.checked;
+                
+                if (isCorrect && isChecked) {
+                    hasCorrectAnswers = true;
+                } else if (isCorrect && !isChecked) {
+                    allCorrect = false;
+                } else if (!isCorrect && isChecked) {
+                    allCorrect = false;
+                }
+            });
+
+            if (allCorrect && hasCorrectAnswers) {
+                showSuccess(resultDiv, questionNum);
+            } else {
+                showError(resultDiv);
+            }
+        }
+
+        function checkDragAnswer(questionNum) {
+            const dropZones = document.querySelectorAll(`[data-question="${questionNum}"]`);
+            const resultDiv = document.getElementById(`result${questionNum}`);
+            
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let totalCorrect = 3; // We know there are 3 correct answers for each drag question
+
+            // Count correct and incorrect answers in ALL drop zones
+            dropZones.forEach(zone => {
+                const droppedItem = zone.querySelector('.drag-item');
+                if (droppedItem) {
+                    if (droppedItem.dataset.correct === 'true') {
+                        correctCount++;
+                    } else {
+                        incorrectCount++;
+                    }
+                }
+            });
+
+            // Success if all 3 correct answers are placed and no incorrect ones
+            if (correctCount === totalCorrect && incorrectCount === 0) {
+                showSuccess(resultDiv, questionNum);
+            } else {
+                showError(resultDiv);
+            }
+        }
+
+        function showSuccess(resultDiv, questionNum) {
+            resultDiv.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <span class="star">⭐</span>
+                    <span class="star">⭐</span>
+                    <span class="star">⭐</span>
+                    <button onclick="nextQuestion()" class="ml-4 bg-accent hover:bg-opacity-90 text-white px-4 py-2 rounded-lg font-semibold transition-all">Next Question</button>
+                </div>
+            `;
+        }
+
+        function showError(resultDiv) {
+            resultDiv.innerHTML = `
+                <div class="text-red-600 font-semibold">
+                    ❌ Not quite right. Try again!
+                </div>
+            `;
+        }
+
+        function nextQuestion() {
+            document.getElementById(`question${currentQuestion}`).classList.remove('active');
+            currentQuestion++;
+            
+            if (currentQuestion <= totalQuestions) {
+                document.getElementById(`question${currentQuestion}`).classList.add('active');
+            } else {
+                document.getElementById('completion').classList.add('active');
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 1;
+            
+            // Hide all questions and completion
+            for (let i = 1; i <= totalQuestions; i++) {
+                document.getElementById(`question${i}`).classList.remove('active');
+                document.getElementById(`result${i}`).innerHTML = '';
+                
+                // Reset checkboxes
+                const checkboxes = document.querySelectorAll(`#question${i} input[type="checkbox"]`);
+                checkboxes.forEach(cb => cb.checked = false);
+            }
+            
+            document.getElementById('completion').classList.remove('active');
+            
+            // Reset drag and drop items
+            const dragItems = document.querySelectorAll('.drag-item');
+            dragItems.forEach(item => {
+                const originalContainer = item.dataset.correct === 'true' ? 
+                    (item.textContent.includes('46.67%') || item.textContent.includes('Cohen') || item.textContent.includes('inelastic') ? 
+                        document.getElementById('dragItems6') : document.getElementById('dragItems7')) :
+                    (item.textContent.includes('No significant') || item.textContent.includes('performed worse') ? 
+                        document.getElementById('dragItems6') : document.getElementById('dragItems7'));
+                originalContainer.appendChild(item);
+            });
+            
+            // Show first question
+            document.getElementById('question1').classList.add('active');
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96ab39a1b0f07235',t:'MTc1NDQ0ODYxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
