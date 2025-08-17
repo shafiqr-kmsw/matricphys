@@ -4,6 +4,8 @@ const documents = [
   { name: "Circular Motion Simulation 2", link: "files/circular2.html" },
   { name: "Circular Motion Quiz", link: "files/circular-quiz.html" },
   { name: "Circular Motion Progression", link: "files/circular-levels.html" },
+  { name: "Rotational Kinematics Explorer", link: "files/rot-kine.html" },
+  { name: "Torque Tic-Tac-Toe", link: "files/torque-tictactoe.html" },
 ]
 ;
 

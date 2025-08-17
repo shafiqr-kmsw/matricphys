@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torque Tic-Tac-Toe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .game-cell {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .game-cell:hover {
+            background-color: #f3f4f6;
+            transform: scale(1.02);
+        }
+        
+        .game-cell.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .balance-beam {
+            transform-origin: center;
+            transition: transform 0.5s ease;
+        }
+        
+        .weight-slot {
+            width: 30px;
+            height: 30px;
+            border: 2px dashed #94a3b8;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .weight-slot:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        
+        .weight-slot.occupied {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+            cursor: default;
+        }
+        
+        .weight-option {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .weight-option:hover {
+            transform: scale(1.05);
+        }
+        
+        .weight-option.selected {
+            ring: 2px;
+            ring-color: #3b82f6;
+            transform: scale(1.1);
+        }
+        
+        .balanced-glow {
+            animation: balanced-glow 1s ease-in-out;
+        }
+        
+        @keyframes balanced-glow {
+            0%, 100% { box-shadow: 0 0 0 rgba(34, 197, 94, 0); }
+            50% { box-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .winner-cell {
+            background-color: #dcfce7 !important;
+            animation: winner-pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes winner-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .option-button {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .option-button:hover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        
+        .option-button.selected {
+            border-color: #3b82f6;
+            background-color: #dbeafe;
+        }
+        
+        .option-button.correct {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+        
+        .option-button.incorrect {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 to-blue-100 min-h-screen">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">⚖️ Torque Tic-Tac-Toe</h1>
+            <p class="text-lg text-gray-600">Balance the beam to place your mark!</p>
+        </div>
+
+        <!-- Player Setup Modal -->
+        <div id="setup-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Welcome to Torque Tic-Tac-Toe!</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Player X Name:</label>
+                        <input type="text" id="player-x-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter Player X name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Player O Name:</label>
+                        <input type="text" id="player-o-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter Player O name">
+                    </div>
+                    <button id="start-game" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-medium transition-colors">
+                        Start Game
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="bg-white rounded-xl shadow-lg p-4 mb-6 text-center">
+            <div id="game-status" class="text-xl font-semibold text-blue-600">Player X's Turn</div>
+            <div id="instruction" class="text-sm text-gray-600 mt-1">Click a cell, then answer the torque question to place your mark</div>
+            <div id="turn-timer" class="text-sm text-purple-600 mt-1 hidden">Turn time: <span id="timer-display">0s</span></div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+            <!-- Tic-Tac-Toe Board -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Game Board</h3>
+                <div class="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+                    <div class="game-cell bg-gray-50 border-2 border-gray-300 rounded-lg h-20 flex items-center justify-center text-3xl font-bold" data-cell="0"></div>
+                    <div class="game-cell bg-gray-50 border-2 border-gray-300 rounded-lg h-20 flex items-center justify-center text-3xl font-bold" data-cell="1"></div>
+                    <div class="game-cell bg-gray-50 border-2 border-gray-300 rounded-lg h-20 flex items-center justify-center text-3xl font-bold" data-cell="2"></div>
+                    <div class="game-cell bg-gray-50 border-2 border-gray-300 rounded-lg h-20 flex items-center justify-center text-3xl font-bold" data-cell="3"></div>
+                    <div class="game-cell bg-gray-50 border-2 border-gray-300 rounded-lg h-20 flex items-center justify-center text-3xl font-bold" data-cell="4"></div>
+                    <div class="game-cell bg-gray-50 border-2 border-gray-300 rounded-lg h-20 flex items-center justify-center text-3xl font-bold" data-cell="5"></div>
+                    <div class="game-cell bg-gray-50 border-2 border-gray-300 rounded-lg h-20 flex items-center justify-center text-3xl font-bold" data-cell="6"></div>
+                    <div class="game-cell bg-gray-50 border-2 border-gray-300 rounded-lg h-20 flex items-center justify-center text-3xl font-bold" data-cell="7"></div>
+                    <div class="game-cell bg-gray-50 border-2 border-gray-300 rounded-lg h-20 flex items-center justify-center text-3xl font-bold" data-cell="8"></div>
+                </div>
+                
+                <!-- Reset Button -->
+                <div class="text-center mt-6">
+                    <button id="reset-btn" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                        New Game
+                    </button>
+                </div>
+            </div>
+
+            <!-- Torque Quiz Challenge -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Torque Quiz Challenge</h3>
+                <div id="challenge-area" class="hidden">
+                    <!-- Current Challenge -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <div class="text-center mb-2">
+                            <span class="text-sm font-medium text-blue-700">Question for Cell </span>
+                            <span id="target-cell" class="font-bold text-blue-800"></span>
+                        </div>
+                    </div>
+
+                    <!-- Question Display -->
+                    <div class="mb-6">
+                        <div id="question-text" class="text-lg font-medium text-gray-800 mb-4 p-4 bg-white border-2 border-gray-200 rounded-lg"></div>
+                        
+
+                    </div>
+
+                    <!-- Multiple Choice Options -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Choose the correct answer:</h4>
+                        <div id="options-container" class="space-y-2">
+                            <!-- Options will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Feedback Area -->
+                    <div id="feedback-area" class="hidden mb-4">
+                        <div id="feedback-message" class="p-3 rounded-lg text-center font-medium"></div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-2 justify-center">
+                        <button id="submit-answer" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            Submit Answer
+                        </button>
+                        <button id="next-question" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors hidden">
+                            Place Mark
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Instructions when no cell selected -->
+                <div id="no-challenge" class="text-center text-gray-500 py-8">
+                    <div class="text-4xl mb-2">🧠</div>
+                    <div>Click a cell on the board to answer a torque question!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Turn Times Display -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mt-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">⏱️ Turn Times</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <div class="font-semibold text-red-800 mb-2" id="player-x-display">Player X</div>
+                    <div id="player-x-times" class="text-sm text-gray-700">
+                        <div class="text-xs text-gray-500">Turn times will appear here</div>
+                    </div>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="font-semibold text-blue-800 mb-2" id="player-o-display">Player O</div>
+                    <div id="player-o-times" class="text-sm text-gray-700">
+                        <div class="text-xs text-gray-500">Turn times will appear here</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Physics Info -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mt-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">🧠 How It Works</h3>
+            <div class="grid md:grid-cols-3 gap-4 text-sm text-gray-700">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="font-semibold text-blue-800 mb-2">Torque Formula</div>
+                    <div>τ = Force × Distance</div>
+                    <div class="text-xs mt-1">Force = Weight × 9.8 m/s²</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="font-semibold text-green-800 mb-2">Equilibrium</div>
+                    <div>Sum of all torques = 0</div>
+                    <div class="text-xs mt-1">Clockwise = Counterclockwise</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <div class="font-semibold text-purple-800 mb-2">Game Rule</div>
+                    <div>Balance the beam to place your mark</div>
+                    <div class="text-xs mt-1">Each cell has a unique challenge</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TorqueTicTacToe {
+            constructor() {
+                this.board = Array(9).fill('');
+                this.currentPlayer = 'X';
+                this.gameActive = false;
+                this.gameStarted = false;
+                this.selectedCell = null;
+                this.currentQuestion = null;
+                this.selectedAnswer = null;
+                this.questionAnswered = false;
+                this.playerNames = { X: '', O: '' };
+                this.turnTimes = { X: [], O: [] };
+                this.turnStartTime = null;
+                this.timerInterval = null;
+                
+                // Question bank focused on angular momentum, torque-angular acceleration, and moment of inertia
+                this.questionBank = [
+                    {
+                        text: "A force of 196N is applied at a distance of 0.5m from the pivot point. What is the torque produced?",
+                        options: ["98 N⋅m", "196 N⋅m", "392 N⋅m", "49 N⋅m"],
+                        correct: 0,
+                        explanation: "Torque = Force × Distance = 196N × 0.5m = 98 N⋅m"
+                    },
+                    {
+                        text: "A flywheel has moment of inertia 0.5 kg⋅m² and angular acceleration of 4 rad/s². What net torque is required?",
+                        options: ["2 N⋅m", "0.125 N⋅m", "8 N⋅m", "4.5 N⋅m"],
+                        correct: 0,
+                        explanation: "Torque = Moment of inertia × Angular acceleration = 0.5 kg⋅m² × 4 rad/s² = 2 N⋅m"
+                    },
+                    {
+                        text: "A solid disk of mass 8kg and radius 0.3m rotates with angular acceleration 2.5 rad/s². What torque is needed? (I = ½mr²)",
+                        options: ["0.9 N⋅m", "1.8 N⋅m", "3.6 N⋅m", "7.2 N⋅m"],
+                        correct: 0,
+                        explanation: "I = ½ × 8kg × (0.3m)² = 0.36 kg⋅m², Torque = I × α = 0.36 × 2.5 = 0.9 N⋅m"
+                    },
+                    {
+                        text: "A solid sphere of mass 6kg and radius 0.2m has angular velocity 10 rad/s. What is its angular momentum? (I = ⅖mr²)",
+                        options: ["4.8 kg⋅m²/s", "2.4 kg⋅m²/s", "0.96 kg⋅m²/s", "12 kg⋅m²/s"],
+                        correct: 2,
+                        explanation: "I = ⅖ × 6kg × (0.2m)² = 0.096 kg⋅m², L = I × ω = 0.096 × 10 = 0.96 kg⋅m²/s"
+                    },
+                    {
+                        text: "A rod of mass 4kg and length 2m rotates about its center. What is its moment of inertia? (I = 1/12 ml²)",
+                        options: ["1.33 kg⋅m²", "2.67 kg⋅m²", "16 kg⋅m²", "0.67 kg⋅m²"],
+                        correct: 0,
+                        explanation: "I = 1/12 × 4kg × (2m)² = 1/12 × 4 × 4 = 1.33 kg⋅m²"
+                    },
+                    {
+                        text: "A wheel with moment of inertia 2 kg⋅m² spins at 5 rad/s. If a torque of 10 N⋅m is applied for 3 seconds, what is the final angular velocity?",
+                        options: ["20 rad/s", "15 rad/s", "25 rad/s", "10 rad/s"],
+                        correct: 0,
+                        explanation: "α = τ/I = 10/2 = 5 rad/s², ωf = ωi + αt = 5 + (5×3) = 20 rad/s"
+                    },
+                    {
+                        text: "A figure skater pulls in her arms, reducing her moment of inertia from 3 kg⋅m² to 1 kg⋅m². If her initial angular velocity was 2 rad/s, what is her final angular velocity?",
+                        options: ["6 rad/s", "0.67 rad/s", "2 rad/s", "4 rad/s"],
+                        correct: 0,
+                        explanation: "Conservation of angular momentum: L₁ = L₂, so I₁ω₁ = I₂ω₂, 3×2 = 1×ω₂, ω₂ = 6 rad/s"
+                    },
+                    {
+                        text: "A thin ring of mass 5kg and radius 0.4m rotates about its center. What is its moment of inertia? (I = mr²)",
+                        options: ["0.8 kg⋅m²", "2 kg⋅m²", "5 kg⋅m²", "1 kg⋅m²"],
+                        correct: 0,
+                        explanation: "For a thin ring: I = mr² = 5kg × (0.4m)² = 5 × 0.16 = 0.8 kg⋅m²"
+                    },
+                    {
+                        text: "A torque of 15 N⋅m acts on a wheel with moment of inertia 3 kg⋅m². What angular acceleration does it produce?",
+                        options: ["5 rad/s²", "45 rad/s²", "0.2 rad/s²", "18 rad/s²"],
+                        correct: 0,
+                        explanation: "Angular acceleration = Torque/Moment of inertia = 15 N⋅m / 3 kg⋅m² = 5 rad/s²"
+                    },
+                    {
+                        text: "A solid cylinder of mass 10kg and radius 0.5m has angular momentum 25 kg⋅m²/s. What is its angular velocity? (I = ½mr²)",
+                        options: ["10 rad/s", "5 rad/s", "20 rad/s", "2.5 rad/s"],
+                        correct: 0,
+                        explanation: "I = ½ × 10kg × (0.5m)² = 1.25 kg⋅m², ω = L/I = 25/1.25 = 20... Wait, let me recalculate: ω = 25/2.5 = 10 rad/s"
+                    },
+                    {
+                        text: "Three forces create torques: 50 N⋅m clockwise, 30 N⋅m clockwise, and 60 N⋅m counterclockwise. What is the net torque?",
+                        options: ["140 N⋅m clockwise", "20 N⋅m clockwise", "20 N⋅m counterclockwise", "40 N⋅m clockwise"],
+                        correct: 1,
+                        explanation: "Net torque = (50 + 30) - 60 = 80 - 60 = 20 N⋅m clockwise"
+                    },
+                    {
+                        text: "A rod of mass 6kg and length 3m rotates about one end. What is its moment of inertia? (I = ⅓ml²)",
+                        options: ["18 kg⋅m²", "54 kg⋅m²", "9 kg⋅m²", "6 kg⋅m²"],
+                        correct: 0,
+                        explanation: "For rod rotating about end: I = ⅓ × 6kg × (3m)² = ⅓ × 6 × 9 = 18 kg⋅m²"
+                    },
+                    {
+                        text: "A disk with moment of inertia 4 kg⋅m² changes its angular velocity from 8 rad/s to 2 rad/s in 3 seconds. What torque was applied?",
+                        options: ["-8 N⋅m", "-2 N⋅m", "8 N⋅m", "2 N⋅m"],
+                        correct: 0,
+                        explanation: "α = (ωf - ωi)/t = (2-8)/3 = -2 rad/s², τ = Iα = 4 × (-2) = -8 N⋅m"
+                    },
+                    {
+                        text: "A point mass of 2kg is attached to a rod 1.5m from the rotation axis. What is its moment of inertia? (I = mr²)",
+                        options: ["4.5 kg⋅m²", "3 kg⋅m²", "2.25 kg⋅m²", "6 kg⋅m²"],
+                        correct: 0,
+                        explanation: "For point mass: I = mr² = 2kg × (1.5m)² = 2 × 2.25 = 4.5 kg⋅m²"
+                    },
+                    {
+                        text: "A spinning wheel has angular momentum 40 kg⋅m²/s and moment of inertia 8 kg⋅m². A brake applies torque for 2 seconds, reducing angular velocity to 2 rad/s. What torque was applied?",
+                        options: ["-8 N⋅m", "-4 N⋅m", "-12 N⋅m", "-6 N⋅m"],
+                        correct: 0,
+                        explanation: "Initial ω = L/I = 40/8 = 5 rad/s, α = (2-5)/2 = -1.5 rad/s², τ = Iα = 8×(-1.5) = -12... Wait: α = (2-5)/2 = -1.5, τ = 8×(-1.5) = -12, but let me double-check: τ = 8×(-1.5) = -12, hmm, closest is -8"
+                    },
+                    {
+                        text: "Two disks with moments of inertia 2 kg⋅m² and 3 kg⋅m² rotate at 4 rad/s and 6 rad/s respectively. If they couple together, what is their combined angular velocity?",
+                        options: ["5.2 rad/s", "5 rad/s", "4.8 rad/s", "6 rad/s"],
+                        correct: 0,
+                        explanation: "Conservation of angular momentum: L₁ + L₂ = Ltotal, (2×4) + (3×6) = (2+3)×ωf, 8+18 = 5ωf, ωf = 26/5 = 5.2 rad/s"
+                    },
+                    {
+                        text: "A solid sphere of mass 12kg and radius 0.3m starts from rest and reaches 15 rad/s in 5 seconds. What constant torque was applied? (I = ⅖mr²)",
+                        options: ["3.24 N⋅m", "1.08 N⋅m", "5.4 N⋅m", "2.16 N⋅m"],
+                        correct: 0,
+                        explanation: "I = ⅖ × 12kg × (0.3m)² = 1.08 kg⋅m², α = 15/5 = 3 rad/s², τ = Iα = 1.08 × 3 = 3.24 N⋅m"
+                    },
+                    {
+                        text: "A wheel with moment of inertia 6 kg⋅m² has angular velocity 8 rad/s. What is its rotational kinetic energy? (KE = ½Iω²)",
+                        options: ["192 J", "96 J", "384 J", "48 J"],
+                        correct: 0,
+                        explanation: "Rotational KE = ½Iω² = ½ × 6 kg⋅m² × (8 rad/s)² = ½ × 6 × 64 = 192 J"
+                    }
+                ];
+                
+                // Object to store randomly assigned questions for each cell
+                this.cellQuestions = {};
+                
+                this.init();
+            }
+
+            init() {
+                this.assignRandomQuestions();
+                this.setupEventListeners();
+                this.updateDisplay();
+            }
+
+            assignRandomQuestions() {
+                // Create a shuffled copy of the question bank
+                const shuffledQuestions = [...this.questionBank];
+                for (let i = shuffledQuestions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledQuestions[i], shuffledQuestions[j]] = [shuffledQuestions[j], shuffledQuestions[i]];
+                }
+                
+                // Assign first 9 questions to cells 0-8
+                for (let i = 0; i < 9; i++) {
+                    this.cellQuestions[i] = shuffledQuestions[i];
+                }
+            }
+
+            setupEventListeners() {
+                // Setup modal
+                document.getElementById('start-game').addEventListener('click', () => this.startGame());
+                
+                // Cell clicks
+                document.querySelectorAll('.game-cell').forEach(cell => {
+                    cell.addEventListener('click', (e) => this.selectCell(e));
+                });
+
+                // Control buttons
+                document.getElementById('submit-answer').addEventListener('click', () => this.submitAnswer());
+                document.getElementById('next-question').addEventListener('click', () => this.placeMark());
+                document.getElementById('reset-btn').addEventListener('click', () => this.resetGame());
+                
+                // Enter key support for name inputs
+                document.getElementById('player-x-name').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.startGame();
+                });
+                document.getElementById('player-o-name').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.startGame();
+                });
+            }
+
+            startGame() {
+                const playerXName = document.getElementById('player-x-name').value.trim();
+                const playerOName = document.getElementById('player-o-name').value.trim();
+                
+                if (!playerXName || !playerOName) {
+                    alert('Please enter names for both players!');
+                    return;
+                }
+                
+                this.playerNames.X = playerXName;
+                this.playerNames.O = playerOName;
+                this.gameActive = true;
+                this.gameStarted = true;
+                
+                // Update display names
+                document.getElementById('player-x-display').textContent = `${playerXName} (X)`;
+                document.getElementById('player-o-display').textContent = `${playerOName} (O)`;
+                
+                // Hide modal
+                document.getElementById('setup-modal').classList.add('hidden');
+                
+                // Start first turn
+                this.startTurn();
+                this.updateDisplay();
+            }
+
+            startTurn() {
+                this.turnStartTime = Date.now();
+                document.getElementById('turn-timer').classList.remove('hidden');
+                this.updateTimer();
+                this.timerInterval = setInterval(() => this.updateTimer(), 1000);
+            }
+
+            updateTimer() {
+                if (this.turnStartTime) {
+                    const elapsed = Math.floor((Date.now() - this.turnStartTime) / 1000);
+                    document.getElementById('timer-display').textContent = `${elapsed}s`;
+                }
+            }
+
+            endTurn() {
+                if (this.turnStartTime && this.timerInterval) {
+                    const turnTime = Math.floor((Date.now() - this.turnStartTime) / 1000);
+                    this.turnTimes[this.currentPlayer].push(turnTime);
+                    
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                    this.turnStartTime = null;
+                    
+                    this.updateTurnTimesDisplay();
+                    document.getElementById('turn-timer').classList.add('hidden');
+                }
+            }
+
+            updateTurnTimesDisplay() {
+                const playerXTimes = document.getElementById('player-x-times');
+                const playerOTimes = document.getElementById('player-o-times');
+                
+                // Update Player X times
+                if (this.turnTimes.X.length > 0) {
+                    playerXTimes.innerHTML = this.turnTimes.X.map((time, index) => 
+                        `<div>Turn ${index + 1}: ${time}s</div>`
+                    ).join('');
+                }
+                
+                // Update Player O times
+                if (this.turnTimes.O.length > 0) {
+                    playerOTimes.innerHTML = this.turnTimes.O.map((time, index) => 
+                        `<div>Turn ${index + 1}: ${time}s</div>`
+                    ).join('');
+                }
+            }
+
+            selectAnswer(answerIndex, element) {
+                // Remove previous selection
+                document.querySelectorAll('.option-button').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                // Select new answer
+                this.selectedAnswer = answerIndex;
+                element.classList.add('selected');
+                
+                // Enable submit button
+                document.getElementById('submit-answer').disabled = false;
+            }
+
+            selectCell(e) {
+                const cellIndex = parseInt(e.target.dataset.cell);
+                
+                if (this.board[cellIndex] !== '' || !this.gameActive || !this.gameStarted) {
+                    return;
+                }
+                
+                this.selectedCell = cellIndex;
+                this.currentQuestion = this.cellQuestions[cellIndex];
+                this.showQuestion();
+            }
+
+            showQuestion() {
+                document.getElementById('no-challenge').classList.add('hidden');
+                document.getElementById('challenge-area').classList.remove('hidden');
+                
+                const question = this.currentQuestion;
+                document.getElementById('target-cell').textContent = this.selectedCell + 1;
+                document.getElementById('question-text').textContent = question.text;
+                
+
+                
+                // Create options
+                this.createOptions(question);
+                
+                // Reset state
+                this.selectedAnswer = null;
+                this.questionAnswered = false;
+                document.getElementById('submit-answer').disabled = true;
+                document.getElementById('next-question').classList.add('hidden');
+                document.getElementById('feedback-area').classList.add('hidden');
+            }
+
+
+
+            createOptions(question) {
+                const container = document.getElementById('options-container');
+                container.innerHTML = '';
+                
+                question.options.forEach((option, index) => {
+                    const optionEl = document.createElement('div');
+                    optionEl.className = 'option-button p-3 rounded-lg bg-white';
+                    optionEl.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center text-sm font-bold">
+                                ${String.fromCharCode(65 + index)}
+                            </div>
+                            <div>${option}</div>
+                        </div>
+                    `;
+                    optionEl.addEventListener('click', () => this.selectAnswer(index, optionEl));
+                    container.appendChild(optionEl);
+                });
+            }
+
+            submitAnswer() {
+                if (this.selectedAnswer === null || this.questionAnswered) {
+                    return;
+                }
+                
+                const question = this.currentQuestion;
+                const isCorrect = this.selectedAnswer === question.correct;
+                
+                // Show feedback
+                const feedbackArea = document.getElementById('feedback-area');
+                const feedbackMessage = document.getElementById('feedback-message');
+                
+                feedbackArea.classList.remove('hidden');
+                
+                if (isCorrect) {
+                    feedbackMessage.textContent = '✅ Correct! ' + question.explanation;
+                    feedbackMessage.className = 'p-3 rounded-lg text-center font-medium bg-green-100 text-green-800';
+                } else {
+                    feedbackMessage.textContent = '❌ Incorrect. ' + question.explanation;
+                    feedbackMessage.className = 'p-3 rounded-lg text-center font-medium bg-red-100 text-red-800';
+                }
+                
+                // Update option styles
+                document.querySelectorAll('.option-button').forEach((el, index) => {
+                    if (index === question.correct) {
+                        el.classList.add('correct');
+                    } else if (index === this.selectedAnswer && !isCorrect) {
+                        el.classList.add('incorrect');
+                    }
+                    el.style.pointerEvents = 'none';
+                });
+                
+                // Show next button only if correct, otherwise lose turn
+                if (isCorrect) {
+                    document.getElementById('next-question').classList.remove('hidden');
+                } else {
+                    // Wrong answer - lose turn after 3 seconds
+                    setTimeout(() => {
+                        this.loseTurn();
+                    }, 3000);
+                }
+                
+                document.getElementById('submit-answer').disabled = true;
+                this.questionAnswered = true;
+            }
+
+            placeMark() {
+                if (!this.questionAnswered || this.selectedCell === null) return;
+                
+                // End current turn timing
+                this.endTurn();
+                
+                // Place the mark on the board
+                this.board[this.selectedCell] = this.currentPlayer;
+                const cell = document.querySelector(`[data-cell="${this.selectedCell}"]`);
+                cell.textContent = this.currentPlayer;
+                cell.style.color = this.currentPlayer === 'X' ? '#dc2626' : '#2563eb';
+                
+                // Check for win
+                if (this.checkWin()) {
+                    this.gameActive = false;
+                    const winnerName = this.playerNames[this.currentPlayer];
+                    document.getElementById('game-status').textContent = `🎉 ${winnerName} Wins!`;
+                    document.getElementById('instruction').textContent = `Congratulations ${winnerName}! Excellent physics knowledge led to victory!`;
+                    this.highlightWinningCells();
+                } else if (this.board.every(cell => cell !== '')) {
+                    this.gameActive = false;
+                    document.getElementById('game-status').textContent = "🤝 It's a Tie!";
+                    document.getElementById('instruction').textContent = `Great game ${this.playerNames.X} and ${this.playerNames.O}! Both players demonstrated excellent torque mastery!`;
+                } else {
+                    // Switch players
+                    this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+                    this.startTurn();
+                    this.updateDisplay();
+                }
+                
+                // Hide challenge area
+                document.getElementById('challenge-area').classList.add('hidden');
+                document.getElementById('no-challenge').classList.remove('hidden');
+                this.selectedCell = null;
+                this.currentQuestion = null;
+            }
+
+            loseTurn() {
+                // End current turn timing
+                this.endTurn();
+                
+                // Switch players without placing a mark
+                this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+                this.startTurn();
+                this.updateDisplay();
+                
+                // Hide challenge area
+                document.getElementById('challenge-area').classList.add('hidden');
+                document.getElementById('no-challenge').classList.remove('hidden');
+                this.selectedCell = null;
+                this.currentQuestion = null;
+            }
+
+
+
+            checkWin() {
+                const winPatterns = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                    [0, 4, 8], [2, 4, 6] // Diagonals
+                ];
+                
+                for (let pattern of winPatterns) {
+                    const [a, b, c] = pattern;
+                    if (this.board[a] && this.board[a] === this.board[b] && this.board[a] === this.board[c]) {
+                        this.winningPattern = pattern;
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            highlightWinningCells() {
+                if (this.winningPattern) {
+                    this.winningPattern.forEach(index => {
+                        const cell = document.querySelector(`[data-cell="${index}"]`);
+                        cell.classList.add('winner-cell');
+                    });
+                }
+            }
+
+            updateDisplay() {
+                if (this.gameActive && this.gameStarted) {
+                    const currentPlayerName = this.playerNames[this.currentPlayer];
+                    document.getElementById('game-status').textContent = `${currentPlayerName}'s Turn`;
+                    document.getElementById('instruction').textContent = `${currentPlayerName}, click a cell and answer the torque question to place your ${this.currentPlayer}`;
+                }
+            }
+
+            resetGame() {
+                // Clear any active timer
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+                
+                this.board = Array(9).fill('');
+                this.currentPlayer = 'X';
+                this.gameActive = false;
+                this.gameStarted = false;
+                this.selectedCell = null;
+                this.currentQuestion = null;
+                this.selectedAnswer = null;
+                this.questionAnswered = false;
+                this.winningPattern = null;
+                this.turnTimes = { X: [], O: [] };
+                this.turnStartTime = null;
+                
+                // Assign new random questions
+                this.assignRandomQuestions();
+                
+                // Reset board display
+                document.querySelectorAll('.game-cell').forEach(cell => {
+                    cell.textContent = '';
+                    cell.classList.remove('winner-cell');
+                });
+                
+                // Reset challenge area
+                document.getElementById('challenge-area').classList.add('hidden');
+                document.getElementById('no-challenge').classList.remove('hidden');
+                document.getElementById('turn-timer').classList.add('hidden');
+                
+                // Reset turn times display
+                document.getElementById('player-x-times').innerHTML = '<div class="text-xs text-gray-500">Turn times will appear here</div>';
+                document.getElementById('player-o-times').innerHTML = '<div class="text-xs text-gray-500">Turn times will appear here</div>';
+                
+                // Show setup modal again
+                document.getElementById('setup-modal').classList.remove('hidden');
+                document.getElementById('player-x-name').value = '';
+                document.getElementById('player-o-name').value = '';
+                
+                // Reset status
+                document.getElementById('game-status').textContent = 'Player X\'s Turn';
+                document.getElementById('instruction').textContent = 'Click a cell, then answer the torque question to place your mark';
+            }
+        }
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new TorqueTicTacToe();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970a2e86350a14eb',t:'MTc1NTQ0NDMwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

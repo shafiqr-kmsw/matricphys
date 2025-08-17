@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotational Kinematics Parameter Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spinning {
+            animation: spin linear infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen" style="background: linear-gradient(135deg, #ffa69e 0%, #aed9e0 50%, #b8f2e6 100%); color: #1a202c;">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2">Rotational Kinematics Parameter Explorer</h1>
+            <p class="text-xl" style="color: #2d3748;">by Mr Sha</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Control Panel -->
+            <div class="rounded-2xl p-6 border-2" style="background-color: #faf3dd; border-color: #ffa69e;">
+                <h2 class="text-2xl font-bold mb-6 text-center">🎛️ Control Panel</h2>
+                
+                <!-- Parameter Controls -->
+                <div class="space-y-6">
+                    <!-- Initial Angular Velocity -->
+                    <div>
+                        <label class="block text-lg font-semibold mb-2">
+                            Initial Angular Velocity (ω₀)
+                            <span class="text-sm" style="color: #2d3748;">rad/s</span>
+                        </label>
+                        <input type="range" id="omega0" min="0" max="10" step="0.5" value="2" 
+                               class="w-full h-3 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-sm mt-1" style="color: #2d3748;">
+                            <span>0</span>
+                            <span id="omega0-value" class="font-bold" style="color: #1a202c;">2.0</span>
+                            <span>10</span>
+                        </div>
+                    </div>
+
+                    <!-- Angular Acceleration -->
+                    <div>
+                        <label class="block text-lg font-semibold mb-2">
+                            Angular Acceleration (α)
+                            <span class="text-sm" style="color: #2d3748;">rad/s²</span>
+                        </label>
+                        <input type="range" id="alpha" min="-5" max="5" step="0.1" value="1" 
+                               class="w-full h-3 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-sm mt-1" style="color: #2d3748;">
+                            <span>-5</span>
+                            <span id="alpha-value" class="font-bold" style="color: #1a202c;">1.0</span>
+                            <span>5</span>
+                        </div>
+                    </div>
+
+                    <!-- Time -->
+                    <div>
+                        <label class="block text-lg font-semibold mb-2">
+                            Time (t)
+                            <span class="text-sm" style="color: #2d3748;">seconds</span>
+                        </label>
+                        <input type="range" id="time" min="0" max="10" step="0.1" value="3" 
+                               class="w-full h-3 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-sm mt-1" style="color: #2d3748;">
+                            <span>0</span>
+                            <span id="time-value" class="font-bold" style="color: #1a202c;">3.0</span>
+                            <span>10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Equation Display -->
+                <div class="mt-8 p-4 rounded-xl border-2" style="background-color: #b8f2e6; border-color: #aed9e0;">
+                    <h3 class="text-lg font-bold mb-3" style="color: #1a202c;">📐 Kinematic Equations</h3>
+                    <div class="space-y-2 text-sm">
+                        <div>ω = ω₀ + αt</div>
+                        <div>θ = ω₀t + ½αt²</div>
+                        <div>ω² = ω₀² + 2αθ</div>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="flex gap-4 mt-6">
+                    <button id="start-btn" class="flex-1 px-4 py-3 rounded-xl font-bold transition-colors text-white" style="background-color: #b8f2e6; color: #1a202c;" onmouseover="this.style.backgroundColor='#aed9e0'" onmouseout="this.style.backgroundColor='#b8f2e6'">
+                        ▶️ Start Motion
+                    </button>
+                    <button id="reset-btn" class="flex-1 px-4 py-3 rounded-xl font-bold transition-colors text-white" style="background-color: #ffa69e; color: #1a202c;" onmouseover="this.style.backgroundColor='#ff9a8b'" onmouseout="this.style.backgroundColor='#ffa69e'">
+                        🔄 Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visualization Panel -->
+            <div class="rounded-2xl p-6 border-2" style="background-color: #faf3dd; border-color: #ffa69e;">
+                <h2 class="text-2xl font-bold mb-6 text-center">🎯 Motion Visualization</h2>
+                
+                <!-- Spinning Object -->
+                <div class="flex justify-center mb-8">
+                    <div class="relative">
+                        <div id="spinner" class="w-32 h-32 border-4 rounded-full relative" style="border-color: #ffa69e; background: linear-gradient(45deg, #ffa69e, #aed9e0);">
+                            <div class="absolute top-2 left-1/2 w-1 h-12 transform -translate-x-1/2 rounded-full" style="background-color: #2d3748;"></div>
+                            <div class="absolute top-1/2 left-2 w-12 h-1 transform -translate-y-1/2 rounded-full" style="background-color: #b8f2e6;"></div>
+                        </div>
+                        <div class="text-center mt-2 text-sm" style="color: #1a202c;">Rotating Object</div>
+                    </div>
+                </div>
+
+                <!-- Real-time Values -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="p-4 rounded-xl text-center border-2" style="background-color: #b8f2e6; border-color: #aed9e0;">
+                        <div class="text-2xl font-bold" id="current-omega" style="color: #1a202c;">0.0</div>
+                        <div class="text-sm" style="color: #1a202c;">Current ω (rad/s)</div>
+                    </div>
+                    <div class="p-4 rounded-xl text-center border-2" style="background-color: #b8f2e6; border-color: #aed9e0;">
+                        <div class="text-2xl font-bold" id="current-theta" style="color: #1a202c;">0.0</div>
+                        <div class="text-sm" style="color: #1a202c;">Total θ (rad)</div>
+                    </div>
+                </div>
+
+                <!-- Challenge Section -->
+                <div class="p-4 rounded-xl border-2" style="background-color: #faf3dd; border-color: #ffa69e;">
+                    <h3 class="text-lg font-bold mb-3" style="color: #1a202c;">🎯 Challenge Mode</h3>
+                    <div id="challenge-text" class="text-sm mb-3">
+                        Try to make the object complete exactly 2 full rotations (12.57 rad) in 4 seconds!
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button id="new-challenge" class="px-3 py-2 rounded-lg text-sm font-bold transition-colors" style="background-color: #aed9e0; color: #1a202c;" onmouseover="this.style.backgroundColor='#b8f2e6'" onmouseout="this.style.backgroundColor='#aed9e0'">
+                            New Challenge
+                        </button>
+                        <div id="challenge-result" class="text-sm font-bold"></div>
+                    </div>
+                </div>
+
+                <!-- Learning Tips -->
+                <div class="mt-6 p-4 bg-blue-900/50 rounded-xl border border-blue-400/50">
+                    <h3 class="text-lg font-bold mb-2 text-blue-300">💡 Learning Tips</h3>
+                    <ul class="text-sm space-y-1 text-blue-100">
+                        <li>• Positive α speeds up rotation</li>
+                        <li>• Negative α slows down rotation</li>
+                        <li>• Higher ω₀ means faster initial spin</li>
+                        <li>• θ shows total angle rotated</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const omega0Slider = document.getElementById('omega0');
+        const alphaSlider = document.getElementById('alpha');
+        const timeSlider = document.getElementById('time');
+        const omega0Value = document.getElementById('omega0-value');
+        const alphaValue = document.getElementById('alpha-value');
+        const timeValue = document.getElementById('time-value');
+        const spinner = document.getElementById('spinner');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const currentOmega = document.getElementById('current-omega');
+        const currentTheta = document.getElementById('current-theta');
+        const newChallengeBtn = document.getElementById('new-challenge');
+        const challengeText = document.getElementById('challenge-text');
+        const challengeResult = document.getElementById('challenge-result');
+
+        let animationId;
+        let startTime;
+        let isAnimating = false;
+        let currentChallenge = null;
+
+        // Update slider values
+        function updateValues() {
+            omega0Value.textContent = parseFloat(omega0Slider.value).toFixed(1);
+            alphaValue.textContent = parseFloat(alphaSlider.value).toFixed(1);
+            timeValue.textContent = parseFloat(timeSlider.value).toFixed(1);
+        }
+
+        // Calculate kinematic values
+        function calculateKinematics(t) {
+            const omega0 = parseFloat(omega0Slider.value);
+            const alpha = parseFloat(alphaSlider.value);
+            
+            const omega = omega0 + alpha * t;
+            const theta = omega0 * t + 0.5 * alpha * t * t;
+            
+            return { omega, theta };
+        }
+
+        // Animation function
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = (timestamp - startTime) / 1000; // Convert to seconds
+            const maxTime = parseFloat(timeSlider.value);
+            
+            if (elapsed <= maxTime) {
+                const { omega, theta } = calculateKinematics(elapsed);
+                
+                // Update display values
+                currentOmega.textContent = omega.toFixed(2);
+                currentTheta.textContent = theta.toFixed(2);
+                
+                // Rotate the spinner (convert rad to degrees)
+                const degrees = (theta * 180 / Math.PI) % 360;
+                spinner.style.transform = `rotate(${degrees}deg)`;
+                
+                animationId = requestAnimationFrame(animate);
+            } else {
+                // Animation complete
+                const finalValues = calculateKinematics(maxTime);
+                currentOmega.textContent = finalValues.omega.toFixed(2);
+                currentTheta.textContent = finalValues.theta.toFixed(2);
+                
+                // Check challenge
+                if (currentChallenge) {
+                    checkChallenge(finalValues.theta, maxTime);
+                }
+                
+                isAnimating = false;
+                startBtn.textContent = '▶️ Start Motion';
+            }
+        }
+
+        // Start animation
+        function startAnimation() {
+            if (isAnimating) {
+                // Stop animation
+                cancelAnimationFrame(animationId);
+                isAnimating = false;
+                startBtn.textContent = '▶️ Start Motion';
+                return;
+            }
+            
+            startTime = null;
+            isAnimating = true;
+            startBtn.textContent = '⏸️ Stop Motion';
+            challengeResult.textContent = '';
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Reset animation
+        function resetAnimation() {
+            cancelAnimationFrame(animationId);
+            isAnimating = false;
+            startTime = null;
+            spinner.style.transform = 'rotate(0deg)';
+            currentOmega.textContent = '0.0';
+            currentTheta.textContent = '0.0';
+            startBtn.textContent = '▶️ Start Motion';
+            challengeResult.textContent = '';
+        }
+
+        // Generate new challenge
+        function generateChallenge() {
+            const challenges = [
+                { target: 12.57, time: 4, description: "Complete exactly 2 full rotations (12.57 rad) in 4 seconds!" },
+                { target: 6.28, time: 3, description: "Complete exactly 1 full rotation (6.28 rad) in 3 seconds!" },
+                { target: 18.85, time: 5, description: "Complete exactly 3 full rotations (18.85 rad) in 5 seconds!" },
+                { target: 31.42, time: 6, description: "Complete exactly 5 full rotations (31.42 rad) in 6 seconds!" }
+            ];
+            
+            currentChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+            challengeText.textContent = currentChallenge.description;
+            challengeResult.textContent = '';
+        }
+
+        // Check challenge completion
+        function checkChallenge(finalTheta, finalTime) {
+            if (!currentChallenge) return;
+            
+            const thetaError = Math.abs(finalTheta - currentChallenge.target);
+            const timeError = Math.abs(finalTime - currentChallenge.time);
+            
+            if (thetaError < 0.5 && timeError < 0.1) {
+                challengeResult.textContent = '🎉 Perfect! Challenge completed!';
+                challengeResult.className = 'text-sm font-bold text-green-400';
+            } else if (thetaError < 1.0 && timeError < 0.2) {
+                challengeResult.textContent = '👍 Good! Very close!';
+                challengeResult.className = 'text-sm font-bold text-yellow-400';
+            } else {
+                challengeResult.textContent = `❌ Try again! Off by ${thetaError.toFixed(2)} rad`;
+                challengeResult.className = 'text-sm font-bold text-red-400';
+            }
+        }
+
+        // Event listeners
+        omega0Slider.addEventListener('input', updateValues);
+        alphaSlider.addEventListener('input', updateValues);
+        timeSlider.addEventListener('input', updateValues);
+        startBtn.addEventListener('click', startAnimation);
+        resetBtn.addEventListener('click', resetAnimation);
+        newChallengeBtn.addEventListener('click', generateChallenge);
+
+        // Initialize
+        updateValues();
+        generateChallenge();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9709f3af320bb4dc',t:'MTc1NTQ0MTg5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
