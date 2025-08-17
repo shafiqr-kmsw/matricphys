@@ -1,21 +1,21 @@
 :root {
-  --bg-color: #f4f4f9;
-  --text-color: #000;
-  --header-bg: #2c3e50;
-  --header-text: #fff;
-  --card-bg: #fff;
-  --summary-bg: #ecf0f1;
-  --summary-hover: #d0d7de;
+  --bg-color: #edf6f9;       /* Light background */
+  --text-color: #006d77;     /* Deep teal text */
+  --header-bg: #006d77;      /* Teal header */
+  --header-text: #edf6f9;    /* Light text on header */
+  --card-bg: #ffffff;        /* White cards */
+  --summary-bg: #83c5be;     /* Aqua background */
+  --summary-hover: #ffddd2;  /* Peach hover */
 }
 
 [data-theme="dark"] {
-  --bg-color: #121212;
-  --text-color: #e0e0e0;
-  --header-bg: #1e1e1e;
-  --header-text: #ffffff;
-  --card-bg: #1f1f1f;
-  --summary-bg: #2c2c2c;
-  --summary-hover: #3a3a3a;
+  --bg-color: #006d77;       /* Teal background */
+  --text-color: #edf6f9;     /* Light text */
+  --header-bg: #004f52;      /* Darker teal for header */
+  --header-text: #ffffff;    /* White header text */
+  --card-bg: #083d41;        /* Very dark teal for cards */
+  --summary-bg: #83c5be;     /* Aqua still works as accent */
+  --summary-hover: #ffddd2;  /* Peach hover for contrast */
 }
 
 body {
@@ -24,18 +24,23 @@ body {
   padding: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
 .header {
   background-color: var(--header-bg);
   color: var(--header-text);
   padding: 1em;
   text-align: center;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
 .theme-toggle {
   display: flex;
   justify-content: center;
   margin: 1em;
 }
+
 .theme-toggle button {
   padding: 0.5em 1em;
   font-size: 1em;
@@ -44,51 +49,67 @@ body {
   border-radius: 5px;
   background-color: var(--summary-bg);
   color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
 .theme-toggle button:hover {
   background-color: var(--summary-hover);
+  color: #006d77;
 }
+
 .container {
   padding: 2em;
   max-width: 800px;
   margin: auto;
 }
+
 .dropdown {
   margin: 1em 0;
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: var(--card-bg);
+  transition: background-color 0.3s ease;
 }
+
 .dropdown summary {
   font-weight: bold;
   cursor: pointer;
   padding: 1em;
   background-color: var(--summary-bg);
   border-radius: 5px;
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
 .dropdown summary:hover {
   background-color: var(--summary-hover);
+  color: #006d77;
 }
+
 .dropdown p,
 .dropdown ul {
   padding: 1em;
   margin: 0;
 }
-  table {
-    border-collapse: collapse;
-    margin: 1em;
-    display: inline-block;
-	font-size: 14px;
-  }
-  table, th, td {
-    border: 1px solid black;
-  }
-  th, td {
-    padding: 6px 12px;
-    text-align: left;
-  }
-  caption {
-    caption-side: top;
-    font-weight: bold;
-    margin-bottom: 4px;
-  }
+
+table {
+  border-collapse: collapse;
+  margin: 1em;
+  display: inline-block;
+  font-size: 14px;
+}
+
+table, th, td {
+  border: 1px solid var(--text-color);
+}
+
+th, td {
+  padding: 6px 12px;
+  text-align: left;
+}
+
+caption {
+  caption-side: top;
+  font-weight: bold;
+  margin-bottom: 4px;
+}

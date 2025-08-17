@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circular Motion Physics Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .rotating { animation: rotate 4s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .pulse-success { animation: pulse-success 0.6s ease-in-out; }
+        @keyframes pulse-success { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .shake { animation: shake 0.5s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .bg-coral { background-color: #ffa69e; }
+        .bg-mint { background-color: #b8f2e6; }
+        .bg-light-blue { background-color: #aed9e0; }
+        .text-navy { color: #003049; }
+        .border-coral { border-color: #ffa69e; }
+        .border-mint { border-color: #b8f2e6; }
+        .border-light-blue { border-color: #aed9e0; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-mint via-light-blue to-coral min-h-screen text-navy" style="background: linear-gradient(135deg, #b8f2e6 0%, #aed9e0 50%, #ffa69e 100%);">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2 text-navy">
+                🌀 Circular Motion Physics Challenge
+            </h1>
+            <p class="text-xl text-navy opacity-80">Master the concepts through 6 progressive levels!</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="max-w-2xl mx-auto mb-8">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-navy">Progress</span>
+                <span class="text-sm font-medium text-navy" id="progressText">Level 1 of 6</span>
+            </div>
+            <div class="w-full bg-white bg-opacity-50 rounded-full h-3">
+                <div class="bg-coral h-3 rounded-full transition-all duration-500" 
+                     id="progressBar" style="width: 16.67%"></div>
+            </div>
+        </div>
+
+        <!-- Game Container -->
+        <div class="max-w-4xl mx-auto">
+            <!-- Level Display -->
+            <div class="bg-white bg-opacity-80 backdrop-blur-sm rounded-2xl p-8 mb-6 border border-white border-opacity-50">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-coral rounded-full flex items-center justify-center">
+                            <span class="text-xl font-bold text-white" id="levelNumber">1</span>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-navy" id="levelTitle">Angular Displacement & Basic Concepts</h2>
+                            <p class="text-navy opacity-70" id="levelDescription">Learn the fundamental definitions</p>
+                        </div>
+                    </div>
+                    <div class="rotating text-4xl">🌀</div>
+                </div>
+
+                <!-- Question Area -->
+                <div class="bg-light-blue bg-opacity-30 rounded-xl p-6 mb-6">
+                    <div class="mb-4">
+                        <span class="text-sm bg-coral text-white px-3 py-1 rounded-full" id="questionType">Definition</span>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4 text-navy" id="questionText">
+                        If a wheel rotates through 3.5 complete revolutions, what is the angular displacement in radians?
+                    </h3>
+                    <div class="text-navy opacity-70 mb-4" id="questionHint">
+                        Hint: 1 revolution = 2π radians
+                    </div>
+                </div>
+
+                <!-- Answer Input -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2 text-navy">Your Answer:</label>
+                    <div class="flex space-x-4">
+                        <input type="number" 
+                               id="answerInput" 
+                               class="flex-1 bg-white border-2 border-light-blue rounded-lg px-4 py-3 text-navy focus:ring-2 focus:ring-coral focus:border-coral"
+                               placeholder="Enter your numerical answer"
+                               step="any">
+                        <button onclick="checkAnswer()" 
+                                class="bg-coral hover:bg-opacity-80 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feedback Area -->
+                <div id="feedback" class="hidden mb-6 p-4 rounded-lg"></div>
+
+                <!-- Next Level Button -->
+                <button id="nextButton" 
+                        onclick="nextLevel()" 
+                        class="hidden w-full bg-mint hover:bg-opacity-80 text-navy py-3 rounded-lg font-semibold transition-all duration-200">
+                    Continue to Next Level →
+                </button>
+            </div>
+
+            <!-- Score Display -->
+            <div class="text-center">
+                <div class="inline-flex items-center space-x-6 bg-white bg-opacity-80 backdrop-blur-sm rounded-xl px-6 py-3 border border-white border-opacity-50">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-coral" id="score">0</div>
+                        <div class="text-sm text-navy opacity-70">Score</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-light-blue" id="attempts">0</div>
+                        <div class="text-sm text-navy opacity-70">Attempts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificate Modal -->
+        <div id="certificateModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div class="bg-white text-navy rounded-2xl p-8 max-w-2xl w-full transform scale-95 transition-transform duration-300">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🏆</div>
+                    <h2 class="text-3xl font-bold mb-2 text-navy">
+                        Certificate of Completion
+                    </h2>
+                    <div class="w-24 h-1 bg-coral mx-auto mb-6"></div>
+                    
+                    <p class="text-lg mb-4 text-navy">This certifies that</p>
+                    <div class="text-2xl font-bold mb-4 text-coral" id="studentName">Physics Student</div>
+                    <p class="text-lg mb-6 text-navy">has successfully completed the</p>
+                    <div class="text-xl font-semibold mb-6 text-navy">Circular Motion Physics Challenge</div>
+                    
+                    <div class="bg-mint bg-opacity-30 rounded-lg p-4 mb-6">
+                        <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                            <div>
+                                <div class="font-semibold text-navy">Final Score</div>
+                                <div class="text-coral font-bold" id="finalScore">0</div>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-navy">Total Attempts</div>
+                                <div class="text-navy font-bold" id="finalAttempts">0</div>
+                            </div>
+                            <div class="col-span-2">
+                                <div class="font-semibold text-navy">Completion Date</div>
+                                <div class="text-navy opacity-70" id="completionDate"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-navy border-opacity-20 pt-4">
+                            <div class="font-semibold mb-2 text-navy">Time per Level:</div>
+                            <div class="grid grid-cols-2 gap-2 text-xs text-navy" id="levelTimesDisplay">
+                                <!-- Level times will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm text-navy mb-6">
+                        <p class="font-semibold mb-2">Learning Outcomes Mastered:</p>
+                        <ul class="text-left space-y-1 opacity-80">
+                            <li>✓ Angular displacement, period, frequency and angular velocity</li>
+                            <li>✓ Uniform circular motion description</li>
+                            <li>✓ Unit conversion between degrees, radians and revolutions</li>
+                            <li>✓ Centripetal acceleration and centripetal force</li>
+                            <li>✓ Problem solving for circular motion cases</li>
+                        </ul>
+                    </div>
+                    
+                    <button onclick="downloadCertificate()" 
+                            class="bg-coral text-white px-8 py-3 rounded-lg font-semibold hover:bg-opacity-80 transition-all duration-200 mr-4">
+                        Download Certificate
+                    </button>
+                    <button onclick="restartGame()" 
+                            class="bg-light-blue text-navy px-8 py-3 rounded-lg font-semibold hover:bg-opacity-80 transition-all duration-200">
+                        Play Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLevel = 1;
+        let score = 0;
+        let attempts = 0;
+        let studentName = "Physics Student";
+        let levelStartTime = Date.now();
+        let levelTimes = [];
+
+        const levels = [
+            {
+                title: "Angular Displacement & Basic Concepts",
+                description: "Learn the fundamental definitions",
+                type: "Unit Conversion",
+                question: "If a wheel rotates through 3.5 complete revolutions, what is the angular displacement in radians?",
+                hint: "Hint: 1 revolution = 2π radians",
+                answer: 21.99,
+                tolerance: 0.1,
+                explanation: "Angular displacement = 3.5 × 2π = 7π ≈ 21.99 radians"
+            },
+            {
+                title: "Period and Frequency",
+                description: "Understanding time relationships in circular motion",
+                type: "Calculation",
+                question: "A fan blade completes 1200 revolutions in 2 minutes. What is its frequency in Hz?",
+                hint: "Hint: Frequency = revolutions per second",
+                answer: 10,
+                tolerance: 0.1,
+                explanation: "Frequency = 1200 rev ÷ 120 s = 10 Hz"
+            },
+            {
+                title: "Angular Velocity",
+                description: "Rate of change of angular displacement",
+                type: "Problem Solving",
+                question: "A wheel with angular velocity 15 rad/s rotates for 8 seconds. How many complete revolutions does it make?",
+                hint: "Hint: θ = ωt, then convert radians to revolutions",
+                answer: 19.1,
+                tolerance: 0.2,
+                explanation: "θ = 15 × 8 = 120 rad. Revolutions = 120 ÷ 2π ≈ 19.1 revolutions"
+            },
+            {
+                title: "Centripetal Acceleration",
+                description: "Acceleration toward the center",
+                type: "Physics Concept",
+                question: "A car travels at 20 m/s around a circular track of radius 50 m. What is the centripetal acceleration in m/s²?",
+                hint: "Hint: ac = v²/r",
+                answer: 8,
+                tolerance: 0.1,
+                explanation: "ac = v²/r = (20)²/50 = 400/50 = 8 m/s²"
+            },
+            {
+                title: "Centripetal Force",
+                description: "Force required for circular motion",
+                type: "Advanced Problem",
+                question: "A 2 kg object moves in a circle of radius 3 m with speed 6 m/s. What centripetal force is required in Newtons?",
+                hint: "Hint: Fc = mv²/r",
+                answer: 24,
+                tolerance: 0.1,
+                explanation: "Fc = mv²/r = 2 × (6)²/3 = 2 × 36/3 = 24 N"
+            },
+            {
+                title: "Vertical Circular Motion",
+                description: "Advanced circular motion applications",
+                type: "Complex Problem",
+                question: "A 0.5 kg ball on a 1.2 m string moves in a vertical circle. What minimum speed at the top ensures the string stays taut? (g = 9.8 m/s²)",
+                hint: "Hint: At the top, mg + T = mv²/r. For minimum speed, T = 0",
+                answer: 3.43,
+                tolerance: 0.1,
+                explanation: "At minimum speed: mg = mv²/r, so v = √(gr) = √(9.8 × 1.2) ≈ 3.43 m/s"
+            }
+        ];
+
+        function updateDisplay() {
+            const level = levels[currentLevel - 1];
+            document.getElementById('levelNumber').textContent = currentLevel;
+            document.getElementById('levelTitle').textContent = level.title;
+            document.getElementById('levelDescription').textContent = level.description;
+            document.getElementById('questionType').textContent = level.type;
+            document.getElementById('questionText').textContent = level.question;
+            document.getElementById('questionHint').textContent = level.hint;
+            document.getElementById('progressText').textContent = `Level ${currentLevel} of 6`;
+            document.getElementById('progressBar').style.width = `${(currentLevel / 6) * 100}%`;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('nextButton').classList.add('hidden');
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseFloat(document.getElementById('answerInput').value);
+            const level = levels[currentLevel - 1];
+            const feedback = document.getElementById('feedback');
+            
+            attempts++;
+            document.getElementById('attempts').textContent = attempts;
+
+            if (isNaN(userAnswer)) {
+                feedback.className = 'mb-6 p-4 rounded-lg bg-red-900/50 border border-red-500 shake';
+                feedback.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-2xl">❌</span>
+                        <div>
+                            <div class="font-semibold">Please enter a valid number!</div>
+                        </div>
+                    </div>
+                `;
+                feedback.classList.remove('hidden');
+                return;
+            }
+
+            if (Math.abs(userAnswer - level.answer) <= level.tolerance) {
+                score += Math.max(100 - (attempts - currentLevel) * 10, 50);
+                document.getElementById('score').textContent = score;
+                
+                feedback.className = 'mb-6 p-4 rounded-lg bg-green-900/50 border border-green-500 pulse-success';
+                feedback.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-2xl">✅</span>
+                        <div>
+                            <div class="font-semibold">Excellent! Correct answer!</div>
+                            <div class="text-sm text-gray-300 mt-1">${level.explanation}</div>
+                        </div>
+                    </div>
+                `;
+                feedback.classList.remove('hidden');
+                
+                if (currentLevel < 6) {
+                    document.getElementById('nextButton').classList.remove('hidden');
+                } else {
+                    setTimeout(showCertificate, 1500);
+                }
+            } else {
+                feedback.className = 'mb-6 p-4 rounded-lg bg-red-900/50 border border-red-500 shake';
+                feedback.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-2xl">❌</span>
+                        <div>
+                            <div class="font-semibold">Not quite right. Try again!</div>
+                        </div>
+                    </div>
+                `;
+                feedback.classList.remove('hidden');
+            }
+        }
+
+        function nextLevel() {
+            // Record time for completed level
+            const levelTime = (Date.now() - levelStartTime) / 1000;
+            levelTimes.push(levelTime);
+            
+            currentLevel++;
+            levelStartTime = Date.now(); // Start timing next level
+            updateDisplay();
+        }
+
+        function showCertificate() {
+            // Record time for final level
+            const finalLevelTime = (Date.now() - levelStartTime) / 1000;
+            levelTimes.push(finalLevelTime);
+            
+            const name = prompt("Enter your name for the certificate:") || "Physics Student";
+            studentName = name;
+            
+            document.getElementById('studentName').textContent = name;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalAttempts').textContent = attempts;
+            document.getElementById('completionDate').textContent = new Date().toLocaleDateString();
+            
+            // Display level times
+            const levelTimesDisplay = document.getElementById('levelTimesDisplay');
+            levelTimesDisplay.innerHTML = '';
+            levelTimes.forEach((time, index) => {
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'flex justify-between';
+                timeDiv.innerHTML = `
+                    <span>Level ${index + 1}:</span>
+                    <span class="font-medium">${formatTime(time)}</span>
+                `;
+                levelTimesDisplay.appendChild(timeDiv);
+            });
+            
+            document.getElementById('certificateModal').classList.remove('hidden');
+            
+            setTimeout(() => {
+                document.querySelector('#certificateModal > div').classList.remove('scale-95');
+                document.querySelector('#certificateModal > div').classList.add('scale-100');
+            }, 100);
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            if (mins > 0) {
+                return `${mins}m ${secs}s`;
+            }
+            return `${secs}s`;
+        }
+
+        function downloadCertificate() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1200;
+            canvas.height = 800;
+
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 1200, 800);
+            gradient.addColorStop(0, '#b8f2e6');
+            gradient.addColorStop(0.5, '#aed9e0');
+            gradient.addColorStop(1, '#ffa69e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1200, 800);
+
+            // Decorative circles
+            ctx.fillStyle = '#ffffff';
+            ctx.globalAlpha = 0.3;
+            ctx.beginPath();
+            ctx.arc(100, 100, 80, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(1100, 150, 60, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(150, 650, 70, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(1050, 650, 90, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Main border with rounded corners
+            ctx.strokeStyle = '#003049';
+            ctx.lineWidth = 12;
+            ctx.lineCap = 'round';
+            ctx.strokeRect(40, 40, 1120, 720);
+
+            // Inner decorative border
+            ctx.strokeStyle = '#ffa69e';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(60, 60, 1080, 680);
+
+            // Trophy and stars
+            ctx.font = '80px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffa69e';
+            ctx.fillText('🏆', 600, 150);
+            
+            // Decorative stars
+            ctx.font = '40px Arial';
+            ctx.fillText('⭐', 200, 200);
+            ctx.fillText('⭐', 1000, 200);
+            ctx.fillText('🌟', 150, 400);
+            ctx.fillText('🌟', 1050, 400);
+
+            // Title with shadow effect
+            ctx.fillStyle = '#003049';
+            ctx.font = 'bold 48px Comic Sans MS, cursive';
+            ctx.textAlign = 'center';
+            ctx.fillText('Certificate of Completion', 602, 222);
+            ctx.fillStyle = '#ffa69e';
+            ctx.fillText('Certificate of Completion', 600, 220);
+
+            // Decorative line
+            ctx.strokeStyle = '#003049';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(300, 250);
+            ctx.lineTo(900, 250);
+            ctx.stroke();
+
+            // "This certifies that" text
+            ctx.fillStyle = '#003049';
+            ctx.font = '24px Comic Sans MS, cursive';
+            ctx.fillText('This certifies that', 600, 300);
+
+            // Student name with decorative background
+            ctx.fillStyle = '#b8f2e6';
+            ctx.fillRect(350, 320, 500, 60);
+            ctx.strokeStyle = '#003049';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(350, 320, 500, 60);
+            
+            ctx.fillStyle = '#003049';
+            ctx.font = 'bold 36px Comic Sans MS, cursive';
+            ctx.fillText(studentName, 600, 360);
+
+            // "has successfully completed" text
+            ctx.font = '24px Comic Sans MS, cursive';
+            ctx.fillText('has successfully completed the', 600, 420);
+
+            // Course name
+            ctx.fillStyle = '#003049';
+            ctx.font = 'bold 32px Comic Sans MS, cursive';
+            ctx.fillText('Circular Motion Physics Challenge', 600, 470);
+
+            // Left side - Performance stats
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(80, 520, 300, 180);
+            ctx.strokeStyle = '#003049';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(80, 520, 300, 180);
+            
+            ctx.fillStyle = '#003049';
+            ctx.font = 'bold 20px Comic Sans MS, cursive';
+            ctx.textAlign = 'left';
+            ctx.fillText('🎯 Performance Stats', 100, 550);
+            
+            ctx.font = '16px Comic Sans MS, cursive';
+            ctx.fillText(`Final Score: ${score}`, 100, 580);
+            ctx.fillText(`Total Attempts: ${attempts}`, 100, 605);
+            ctx.fillText(`Completion Date:`, 100, 630);
+            ctx.fillText(`${new Date().toLocaleDateString()}`, 100, 650);
+            
+            const totalTime = levelTimes.reduce((sum, time) => sum + time, 0);
+            ctx.fillText(`Total Time: ${formatTime(totalTime)}`, 100, 680);
+
+            // Right side - Level times
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(820, 520, 300, 180);
+            ctx.strokeStyle = '#003049';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(820, 520, 300, 180);
+            
+            ctx.fillStyle = '#003049';
+            ctx.font = 'bold 20px Comic Sans MS, cursive';
+            ctx.textAlign = 'left';
+            ctx.fillText('⏱️ Level Times', 840, 550);
+            
+            ctx.font = '14px Comic Sans MS, cursive';
+            levelTimes.forEach((time, index) => {
+                const y = 575 + (index * 20);
+                ctx.fillText(`Level ${index + 1}: ${formatTime(time)}`, 840, y);
+            });
+
+            // Physics symbols decoration
+            ctx.font = '30px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#003049';
+            ctx.fillText('🌀', 500, 550);
+            ctx.fillText('⚡', 700, 580);
+            ctx.fillText('🔄', 650, 650);
+
+            // Bottom decorative elements
+            ctx.fillStyle = '#ffa69e';
+            ctx.font = '20px Arial';
+            ctx.fillText('🎉', 200, 750);
+            ctx.fillText('🎊', 1000, 750);
+            ctx.fillText('✨', 400, 730);
+            ctx.fillText('✨', 800, 730);
+
+            // Download
+            const link = document.createElement('a');
+            link.download = `${studentName}_Physics_Certificate.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function restartGame() {
+            currentLevel = 1;
+            score = 0;
+            attempts = 0;
+            levelTimes = [];
+            levelStartTime = Date.now();
+            document.getElementById('score').textContent = score;
+            document.getElementById('attempts').textContent = attempts;
+            document.getElementById('certificateModal').classList.add('hidden');
+            updateDisplay();
+        }
+
+        // Event listeners
+        document.getElementById('answerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // Initialize game
+        updateDisplay();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970824a110b5b4dc',t:'MTc1NTQyMjkyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
