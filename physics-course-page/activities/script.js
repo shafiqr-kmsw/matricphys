@@ -6,6 +6,8 @@ const documents = [
   { name: "Circular Motion Progression", link: "files/circular-levels.html" },
   { name: "Rotational Kinematics Explorer", link: "files/rot-kine.html" },
   { name: "Torque Tic-Tac-Toe", link: "files/torque-tictactoe.html" },
+  { name: "SHM cases", link: "files/shm.html" },
+  { name: "Standing Waves cases", link: "files/standing-waves.html" },
 ]
 ;
 

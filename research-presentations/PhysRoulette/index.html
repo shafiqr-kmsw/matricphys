@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhysRoulette</title>
+    <style>
+        /* Body & General */
+        body { 
+            font-family: 'Helvetica Neue', Arial, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            background-color: #f9f7f6; /* soft off-white background */
+            color: #4a4a4a;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            color: #6c5b7b; /* pastel purple */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* Container layout */
+        .container { 
+            display: flex; 
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90vw; 
+            max-height: 80vh; 
+            gap: 20px;
+        }
+
+        /* Side panel for buttons */
+        .side-panel { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background-color: #fef6f0; /* pastel cream */
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        }
+
+        .button-grid { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+        }
+
+        /* Buttons */
+        button { 
+            padding: 10px 20px; 
+            background-color: #ffd6d6; /* pastel pink */
+            color: #4a4a4a;
+            border: none; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: 500;
+            transition: all 0.25s ease; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        button:hover { 
+            background-color: #ffb3b3; /* darker pastel pink */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Shuffle All Button */
+        .shuffle-btn {
+            background-color: #a3d5ff; /* pastel blue */
+        }
+        .shuffle-btn:hover {
+            background-color: #7ec0ff;
+        }
+
+        /* Image container */
+        .image-container { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            background-color: #fff0f5; /* pastel lavender */
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        }
+
+        img { 
+            max-width: 100%; 
+            max-height: 70vh; 
+            border-radius: 15px; 
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08); 
+            transition: transform 0.3s ease;
+        }
+
+        img:hover {
+            transform: scale(1.02);
+        }
+
+        /* Timestamp text */
+        .timestamp { 
+            margin-bottom: 15px; 
+            font-weight: 600; 
+            color: #6c5b7b; 
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .button-grid {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            button {
+                margin: 4px;
+            }
+
+            .image-container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>PhysRoulette</h1>
+
+    <div class="container">
+        <!-- Left Side: Buttons -->
+        <div class="side-panel">
+            <div class="button-grid" id="buttonGrid">
+                <!-- Buttons generated dynamically -->
+            </div>
+        </div>
+
+        <!-- Right Side: Image + Timestamp -->
+        <div class="image-container">
+            <div id="timestampImage" class="timestamp">Image will display here with the timestamp...</div>
+            <img id="chapterImage" src="" alt="Random Chapter Image" />
+        </div>
+    </div>
+
+    <script>
+        // Chapters data structure
+        const chapters = {
+            1: { name: "Chapter 1", slides: 10 },
+            2: { name: "Chapter 2", slides: 8 },
+            3: { name: "Chapter 3", slides: 10 },
+            5: { name: "Chapter 5", slides: 7 },
+            6: { name: "(N/A) Chapter 6", slides: 0 },
+            7: { name: "Chapter 7 (G.O.)", slides: 10 },
+            8: { name: "Chapter 7 (P.O.)", slides: 9 },
+            9: { name: "Chapter 8", slides: 11 },
+            10: { name: "(N/A) Chapter 9", slides: 0 }
+        };
+
+        const buttonGrid = document.getElementById("buttonGrid");
+
+        // Generate chapter buttons dynamically
+        for (let chapterNum in chapters) {
+            const chapter = chapters[chapterNum];
+            const btn = document.createElement("button");
+            btn.textContent = chapter.name;
+            btn.onclick = () => showImage(chapterNum);
+            buttonGrid.appendChild(btn);
+        }
+
+        // Add Shuffle All button
+        const shuffleAllBtn = document.createElement("button");
+        shuffleAllBtn.textContent = "Shuffle All Chapters 🎲";
+        shuffleAllBtn.className = "shuffle-btn";
+        shuffleAllBtn.onclick = () => shuffleAll();
+        buttonGrid.appendChild(shuffleAllBtn);
+
+        // Function to show a slide from a specific chapter
+        function showImage(chapter) {
+            const chapterData = chapters[chapter];
+            
+            if (!chapterData || chapterData.slides === 0) {
+                document.getElementById("timestampImage").textContent = "⚠️ This chapter has no images available.";
+                document.getElementById("chapterImage").src = "";
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * chapterData.slides) + 1;
+            displayImage(chapter, chapterData, randomIndex);
+        }
+
+        // Function to shuffle across all chapters
+        function shuffleAll() {
+            const availableChapters = Object.entries(chapters).filter(([num, data]) => data.slides > 0);
+            const [randomChapterNum, chapterData] = availableChapters[Math.floor(Math.random() * availableChapters.length)];
+            const randomIndex = Math.floor(Math.random() * chapterData.slides) + 1;
+            displayImage(randomChapterNum, chapterData, randomIndex);
+        }
+
+        // Helper function to display image and timestamp
+        function displayImage(chapterNum, chapterData, slideNum) {
+            const imgElement = document.getElementById('chapterImage');
+            imgElement.src = `./c${chapterNum}/Slide${slideNum}.JPG`;
+            imgElement.alt = `${chapterData.name} Slide ${slideNum}`;
+
+            imgElement.onerror = () => {
+                document.getElementById('timestampImage').textContent = "⚠️ Image not found!";
+                imgElement.src = "";
+            };
+
+            const timestamp = new Date().toLocaleString();
+            document.getElementById('timestampImage').textContent =
+                `${chapterData.name}, Slide ${slideNum} — Displayed: ${timestamp}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Harmonic Motion - Pendulum & Mass-Spring System</title>
+    <style>
+        /* Rewritten Code 1 to match the color palette of Code 2 */
+
+:root {
+    /* Refined Color Palette from Code 2 */
+    --primary-dark: #5ca4a9; /* Teal Blue */
+    --primary-light: #f4f1bb; /* Warm Beige */
+    --accent: #ed6a5a; /* Coral Red */
+    --accent-secondary: #9bc1bc; /* Muted Aqua */
+    --neutral: #333333; /* Dark Gray */
+    --shadow: rgba(92, 164, 169, 0.25); /* Teal shadow */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--primary-light);
+    min-height: 100vh;
+    padding: 10px;
+    color: var(--neutral);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px var(--shadow);
+    overflow: hidden;
+}
+
+.header {
+    background-color: var(--primary-dark);
+    color: var(--text-light);
+    padding: 15px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.header p {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.system-selector {
+    background: var(--accent-secondary);
+    padding: 15px;
+    text-align: center;
+    border-bottom: 2px solid var(--primary-dark);
+}
+
+.toggle-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.toggle-btn {
+    padding: 10px 20px;
+    border: 2px solid var(--primary-dark);
+    border-radius: 8px;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn.active {
+    background: var(--primary-dark);
+    color: var(--text-light);
+}
+
+.toggle-btn:hover {
+    transform: translateY(-2px);
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 15px;
+    padding: 15px;
+}
+
+.simulation-panel {
+    background: var(--primary-light);
+    border-radius: 10px;
+    padding: 15px;
+    border: 2px solid var(--accent-secondary);
+}
+
+.controls {
+    margin-bottom: 15px;
+}
+
+.control-group {
+    margin-bottom: 12px;
+}
+
+.control-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--neutral);
+}
+
+.control-group input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: var(--accent-secondary);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.control-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-dark);
+    cursor: pointer;
+}
+
+.value-display {
+    font-weight: bold;
+    color: var(--primary-dark);
+    margin-left: 10px;
+}
+
+.simulation-container {
+    width: 100%;
+    height: 250px;
+    border: 2px solid var(--accent-secondary);
+    border-radius: 8px;
+    background: var(--primary-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: var(--primary-dark);
+    color: var(--text-light);
+}
+
+.btn-primary:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--neutral);
+    color: var(--text-light);
+}
+
+.btn-secondary:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+}
+
+.graphs-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.graph-container {
+    background: var(--primary-light);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--accent-secondary);
+}
+
+.graph-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.graph-title {
+    font-weight: 600;
+    color: var(--neutral);
+    font-size: 0.9rem;
+}
+
+.current-value {
+    background: var(--primary-dark);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.graph {
+    width: 100%;
+    height: 120px;
+    border: 1px solid var(--accent-secondary);
+    border-radius: 4px;
+    background: white;
+}
+
+.system-values {
+    grid-column: 1 / -1;
+    background: var(--accent-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.system-values h4 {
+    margin-bottom: 10px;
+    color: var(--primary-light);
+    text-align: center;
+}
+
+.system-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.value-item {
+    background: white;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .graphs-panel {
+        grid-template-columns: 1fr;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Simple Harmonic Motion Simulation</h1>
+            <p>Interactive Learning Tool for Pendulum & Mass-Spring Systems</p>
+        </div>
+        
+        <div class="system-selector">
+            <div class="toggle-buttons">
+                <button class="toggle-btn active" id="pendulumBtn">Pendulum</button>
+                <button class="toggle-btn" id="springBtn">Mass-Spring System</button>
+            </div>
+            <p id="systemDescription">Study the oscillatory motion of a simple pendulum</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="simulation-panel">
+                <h3 style="margin-bottom: 20px; color: #495057;" id="controlsTitle">Pendulum Controls</h3>
+                
+                <!-- Pendulum Controls -->
+                <div class="controls" id="pendulumControls">
+                    <div class="control-group">
+                        <label>Length (L): <span class="value-display" id="lengthValue">1.0 m</span></label>
+                        <input type="range" id="lengthSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Release Angle (θ₀): <span class="value-display" id="angleValue">15°</span></label>
+                        <input type="range" id="angleSlider" min="5" max="90" step="5" value="15">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Mass (m): <span class="value-display" id="massValue">1.0 kg</span></label>
+                        <input type="range" id="massSlider" min="0.5" max="3.0" step="0.1" value="1.0">
+                    </div>
+                </div>
+                
+                <!-- Spring Controls -->
+                <div class="controls hidden" id="springControls">
+                    <div class="control-group">
+                        <label>Spring Constant (k): <span class="value-display" id="springConstantValue">10.0 N/m</span></label>
+                        <input type="range" id="springConstantSlider" min="1" max="50" step="1" value="10">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Initial Displacement (x₀): <span class="value-display" id="displacementValue">0.5 m</span></label>
+                        <input type="range" id="displacementSlider" min="0.1" max="1.0" step="0.1" value="0.5">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Mass (m): <span class="value-display" id="springMassValue">1.0 kg</span></label>
+                        <input type="range" id="springMassSlider" min="0.5" max="3.0" step="0.1" value="1.0">
+                    </div>
+                </div>
+                
+                <div class="simulation-container">
+                    <canvas id="simulationCanvas" width="320" height="250"></canvas>
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn btn-primary" id="startBtn">Start</button>
+                    <button class="btn btn-primary" id="pauseBtn">Pause</button>
+                    <button class="btn btn-primary" id="resetBtn">Reset</button>
+                </div>
+            </div>
+            
+            <div class="graphs-panel">
+                <div class="graph-container">
+                    <div class="graph-header">
+                        <div class="graph-title" id="positionTitle">Displacement vs Time</div>
+                        <div class="current-value" id="currentPosition">0.00 m</div>
+                    </div>
+                    <canvas class="graph" id="positionGraph" width="280" height="120"></canvas>
+                </div>
+                
+                <div class="graph-container">
+                    <div class="graph-header">
+                        <div class="graph-title">Velocity vs Time</div>
+                        <div class="current-value" id="currentVelocity">0.00 m/s</div>
+                    </div>
+                    <canvas class="graph" id="velocityGraph" width="280" height="120"></canvas>
+                </div>
+                
+                <div class="graph-container">
+                    <div class="graph-header">
+                        <div class="graph-title">Acceleration vs Time</div>
+                        <div class="current-value" id="currentAcceleration">0.00 m/s²</div>
+                    </div>
+                    <canvas class="graph" id="accelerationGraph" width="280" height="120"></canvas>
+                </div>
+                
+                <div class="graph-container">
+                    <div class="graph-header">
+                        <div class="graph-title">Energy vs Time</div>
+                        <div class="current-value">
+                            KE: <span id="currentKE">0.00</span> | PE: <span id="currentPE">0.00</span> J
+                        </div>
+                    </div>
+                    <canvas class="graph" id="energyGraph" width="280" height="120"></canvas>
+                </div>
+                
+                <div class="system-values">
+                    <h4 id="systemPropertiesTitle">System Properties</h4>
+                    <div class="system-grid">
+                        <div class="value-item">
+                            <div>Period (T)</div>
+                            <div id="periodValue">2.01 s</div>
+                        </div>
+                        <div class="value-item">
+                            <div>Frequency (f)</div>
+                            <div id="frequencyValue">0.50 Hz</div>
+                        </div>
+                        <div class="value-item">
+                            <div>Angular Freq (ω)</div>
+                            <div id="omegaValue">3.13 rad/s</div>
+                        </div>
+                        <div class="value-item">
+                            <div>Total Energy</div>
+                            <div id="currentTE">0.00 J</div>
+                        </div>
+                        <div class="value-item" id="systemTypeStatus">
+                            <div id="systemTypeLabel">Motion Type</div>
+                            <div id="systemTypeValue">Simple Harmonic</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class HarmonicMotionSimulation {
+            constructor() {
+                this.canvas = document.getElementById('simulationCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                
+                // Graph canvases
+                this.posGraph = document.getElementById('positionGraph');
+                this.velGraph = document.getElementById('velocityGraph');
+                this.accGraph = document.getElementById('accelerationGraph');
+                this.energyGraph = document.getElementById('energyGraph');
+                
+                this.posCtx = this.posGraph.getContext('2d');
+                this.velCtx = this.velGraph.getContext('2d');
+                this.accCtx = this.accGraph.getContext('2d');
+                this.energyCtx = this.energyGraph.getContext('2d');
+                
+                // System type
+                this.systemType = 'pendulum'; // 'pendulum' or 'spring'
+                
+                // Pendulum parameters
+                this.length = 1.0; // meters
+                this.releaseAngle = 15; // degrees
+                this.mass = 1.0; // kg
+                this.g = 9.81; // m/s²
+                
+                // Spring parameters
+                this.springConstant = 10.0; // N/m
+                this.initialDisplacement = 0.5; // m
+                this.springMass = 1.0; // kg
+                
+                this.time = 0;
+                this.isRunning = false;
+                this.animationId = null;
+                
+                // Graph data
+                this.timeData = [];
+                this.posData = [];
+                this.velData = [];
+                this.accData = [];
+                this.keData = [];
+                this.peData = [];
+                this.teData = [];
+                
+                this.maxDataPoints = 200;
+                
+                this.setupEventListeners();
+                this.updateCalculations();
+                this.draw();
+                this.drawGraphs();
+            }
+            
+            setupEventListeners() {
+                // System toggle buttons
+                document.getElementById('pendulumBtn').addEventListener('click', () => this.switchSystem('pendulum'));
+                document.getElementById('springBtn').addEventListener('click', () => this.switchSystem('spring'));
+                
+                // Pendulum controls
+                document.getElementById('lengthSlider').addEventListener('input', (e) => {
+                    this.length = parseFloat(e.target.value);
+                    document.getElementById('lengthValue').textContent = this.length.toFixed(1) + ' m';
+                    this.updateCalculations();
+                    this.reset();
+                });
+                
+                document.getElementById('angleSlider').addEventListener('input', (e) => {
+                    this.releaseAngle = parseFloat(e.target.value);
+                    document.getElementById('angleValue').textContent = this.releaseAngle.toFixed(0) + '°';
+                    this.updateCalculations();
+                    this.reset();
+                });
+                
+                document.getElementById('massSlider').addEventListener('input', (e) => {
+                    this.mass = parseFloat(e.target.value);
+                    document.getElementById('massValue').textContent = this.mass.toFixed(1) + ' kg';
+                    this.updateCalculations();
+                    this.reset();
+                });
+                
+                // Spring controls
+                document.getElementById('springConstantSlider').addEventListener('input', (e) => {
+                    this.springConstant = parseFloat(e.target.value);
+                    document.getElementById('springConstantValue').textContent = this.springConstant.toFixed(1) + ' N/m';
+                    this.updateCalculations();
+                    this.reset();
+                });
+                
+                document.getElementById('displacementSlider').addEventListener('input', (e) => {
+                    this.initialDisplacement = parseFloat(e.target.value);
+                    document.getElementById('displacementValue').textContent = this.initialDisplacement.toFixed(1) + ' m';
+                    this.updateCalculations();
+                    this.reset();
+                });
+                
+                document.getElementById('springMassSlider').addEventListener('input', (e) => {
+                    this.springMass = parseFloat(e.target.value);
+                    document.getElementById('springMassValue').textContent = this.springMass.toFixed(1) + ' kg';
+                    this.updateCalculations();
+                    this.reset();
+                });
+                
+                // Control buttons
+                document.getElementById('startBtn').addEventListener('click', () => this.start());
+                document.getElementById('pauseBtn').addEventListener('click', () => this.pause());
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+            }
+            
+            switchSystem(type) {
+                this.systemType = type;
+                this.reset();
+                
+                // Update UI
+                const pendulumBtn = document.getElementById('pendulumBtn');
+                const springBtn = document.getElementById('springBtn');
+                const pendulumControls = document.getElementById('pendulumControls');
+                const springControls = document.getElementById('springControls');
+                
+                if (type === 'pendulum') {
+                    pendulumBtn.classList.add('active');
+                    springBtn.classList.remove('active');
+                    pendulumControls.classList.remove('hidden');
+                    springControls.classList.add('hidden');
+                    
+                    document.getElementById('controlsTitle').textContent = 'Pendulum Controls';
+                    document.getElementById('systemDescription').textContent = 'Study the oscillatory motion of a simple pendulum';
+                    document.getElementById('positionTitle').textContent = 'Displacement vs Time';
+                    document.getElementById('systemTypeLabel').textContent = 'Motion Type';
+                } else {
+                    springBtn.classList.add('active');
+                    pendulumBtn.classList.remove('active');
+                    springControls.classList.remove('hidden');
+                    pendulumControls.classList.add('hidden');
+                    
+                    document.getElementById('controlsTitle').textContent = 'Spring Controls';
+                    document.getElementById('systemDescription').textContent = 'Study the oscillatory motion of a mass-spring system';
+                    document.getElementById('positionTitle').textContent = 'Position vs Time';
+                    document.getElementById('systemTypeLabel').textContent = 'System Type';
+                }
+                
+                this.updateCalculations();
+                this.draw();
+                this.drawGraphs();
+            }
+            
+            updateCalculations() {
+                if (this.systemType === 'pendulum') {
+                    // Pendulum calculations
+                    this.isSmallAngle = this.releaseAngle <= 15;
+                    this.releaseAngleRad = this.releaseAngle * Math.PI / 180;
+                    
+                    if (this.isSmallAngle) {
+                        this.omega = Math.sqrt(this.g / this.length);
+                        this.period = 2 * Math.PI / this.omega;
+                        this.amplitude = this.length * this.releaseAngleRad;
+                    } else {
+                        const k = Math.sin(this.releaseAngleRad / 2);
+                        const T0 = 2 * Math.PI * Math.sqrt(this.length / this.g);
+                        this.period = T0 * (1 + (1/4) * k * k + (9/64) * k * k * k * k);
+                        this.omega = 2 * Math.PI / this.period;
+                        this.amplitude = this.length * this.releaseAngleRad;
+                    }
+                    
+                    this.totalEnergy = this.mass * this.g * this.length * (1 - Math.cos(this.releaseAngleRad));
+                    document.getElementById('systemTypeValue').textContent = this.isSmallAngle ? 'Simple Harmonic' : 'General Harmonic';
+                    
+                    const statusElement = document.getElementById('systemTypeStatus');
+                    if (this.isSmallAngle) {
+                        statusElement.style.backgroundColor = '#d4edda';
+                    } else {
+                        statusElement.style.backgroundColor = '#fff3cd';
+                    }
+                } else {
+                    // Spring calculations
+                    this.omega = Math.sqrt(this.springConstant / this.springMass);
+                    this.period = 2 * Math.PI / this.omega;
+                    this.amplitude = this.initialDisplacement;
+                    this.totalEnergy = 0.5 * this.springConstant * this.initialDisplacement * this.initialDisplacement;
+                    
+                    document.getElementById('systemTypeValue').textContent = 'Simple Harmonic';
+                    document.getElementById('systemTypeStatus').style.backgroundColor = '#d4edda';
+                }
+                
+                this.frequency = 1 / this.period;
+                
+                // Update display values
+                document.getElementById('periodValue').textContent = this.period.toFixed(2) + ' s';
+                document.getElementById('frequencyValue').textContent = this.frequency.toFixed(2) + ' Hz';
+                document.getElementById('omegaValue').textContent = this.omega.toFixed(2) + ' rad/s';
+            }
+            
+            start() {
+                this.isRunning = true;
+                this.animate();
+            }
+            
+            pause() {
+                this.isRunning = false;
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                }
+            }
+            
+            reset() {
+                this.pause();
+                this.time = 0;
+                this.timeData = [];
+                this.posData = [];
+                this.velData = [];
+                this.accData = [];
+                this.keData = [];
+                this.peData = [];
+                this.teData = [];
+                this.draw();
+                this.drawGraphs();
+                this.updateCurrentValues();
+            }
+            
+            animate() {
+                if (!this.isRunning) return;
+                
+                this.time += 0.02;
+                
+                // Store data for graphs
+                this.timeData.push(this.time);
+                this.posData.push(this.getPosition());
+                this.velData.push(this.getVelocity());
+                this.accData.push(this.getAcceleration());
+                this.keData.push(this.getKineticEnergy());
+                this.peData.push(this.getPotentialEnergy());
+                this.teData.push(this.totalEnergy);
+                
+                // Limit data points
+                if (this.timeData.length > this.maxDataPoints) {
+                    this.timeData.shift();
+                    this.posData.shift();
+                    this.velData.shift();
+                    this.accData.shift();
+                    this.keData.shift();
+                    this.peData.shift();
+                    this.teData.shift();
+                }
+                
+                this.draw();
+                this.drawGraphs();
+                this.updateCurrentValues();
+                
+                this.animationId = requestAnimationFrame(() => this.animate());
+            }
+            
+            getPosition() {
+                if (this.systemType === 'pendulum') {
+                    if (this.isSmallAngle) {
+                        return this.amplitude * Math.sin(this.omega * this.time);
+                    } else {
+                        const phase = this.omega * this.time;
+                        const correction = 1 - (this.releaseAngleRad * this.releaseAngleRad / 16) * Math.sin(phase) * Math.sin(phase);
+                        return this.amplitude * Math.sin(phase) * correction;
+                    }
+                } else {
+                    // Spring system
+                    return this.amplitude * Math.cos(this.omega * this.time);
+                }
+            }
+            
+            getVelocity() {
+                if (this.systemType === 'pendulum') {
+                    if (this.isSmallAngle) {
+                        return this.amplitude * this.omega * Math.cos(this.omega * this.time);
+                    } else {
+                        const dt = 0.001;
+                        const pos1 = this.getPositionAtTime(this.time - dt);
+                        const pos2 = this.getPositionAtTime(this.time + dt);
+                        return (pos2 - pos1) / (2 * dt);
+                    }
+                } else {
+                    // Spring system
+                    return -this.amplitude * this.omega * Math.sin(this.omega * this.time);
+                }
+            }
+            
+            getPositionAtTime(t) {
+                if (this.systemType === 'pendulum') {
+                    const phase = this.omega * t;
+                    const correction = 1 - (this.releaseAngleRad * this.releaseAngleRad / 16) * Math.sin(phase) * Math.sin(phase);
+                    return this.amplitude * Math.sin(phase) * correction;
+                } else {
+                    return this.amplitude * Math.cos(this.omega * t);
+                }
+            }
+            
+            getAcceleration() {
+                if (this.systemType === 'pendulum') {
+                    if (this.isSmallAngle) {
+                        return -this.amplitude * this.omega * this.omega * Math.sin(this.omega * this.time);
+                    } else {
+                        const currentAngle = this.getPosition() / this.length;
+                        return -(this.g / this.length) * Math.sin(currentAngle) * this.length;
+                    }
+                } else {
+                    // Spring system: a = -ω²x
+                    return -this.omega * this.omega * this.getPosition();
+                }
+            }
+            
+            getKineticEnergy() {
+                const v = this.getVelocity();
+                const mass = this.systemType === 'pendulum' ? this.mass : this.springMass;
+                return 0.5 * mass * v * v;
+            }
+            
+            getPotentialEnergy() {
+                if (this.systemType === 'pendulum') {
+                    if (this.isSmallAngle) {
+                        const y = this.getPosition();
+                        return 0.5 * this.mass * this.omega * this.omega * y * y;
+                    } else {
+                        const currentAngle = this.getPosition() / this.length;
+                        const height = this.length * (1 - Math.cos(currentAngle));
+                        return this.mass * this.g * height;
+                    }
+                } else {
+                    // Spring system: PE = ½kx²
+                    const x = this.getPosition();
+                    return 0.5 * this.springConstant * x * x;
+                }
+            }
+            
+            draw() {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+                
+                // Draw background
+                ctx.fillStyle = '#f8f9fa';
+                ctx.fillRect(0, 0, width, height);
+                
+                if (this.systemType === 'pendulum') {
+                    this.drawPendulum();
+                } else {
+                    this.drawSpring();
+                }
+            }
+            
+            drawPendulum() {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                const centerX = width / 2;
+                const centerY = 30;
+                const scale = 100;
+                const displacement = this.getPosition();
+                const angle = displacement / this.length;
+                
+                const bobX = centerX + this.length * scale * Math.sin(angle);
+                const bobY = centerY + this.length * scale * Math.cos(angle);
+                
+                // Draw pendulum string
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(bobX, bobY);
+                ctx.stroke();
+                
+                // Draw pivot point
+                ctx.fillStyle = '#666';
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Draw pendulum bob
+                ctx.fillStyle = '#ff6b6b';
+                ctx.strokeStyle = '#e55555';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(bobX, bobY, 20, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.stroke();
+                
+                // Draw equilibrium line
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX, centerY + this.length * scale);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Draw angle indicator
+                if (Math.abs(angle) > 0.01) {
+                    const maxArcAngle = Math.PI / 2;
+                    const arcRadius = 40;
+                    const displayAngle = Math.min(Math.abs(angle), maxArcAngle);
+                    
+                    ctx.strokeStyle = angle > 0 ? '#4facfe' : '#ff6b6b';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    
+                    const verticalAngle = Math.PI / 2;
+                    
+                    if (angle > 0) {
+                        const endAngle = verticalAngle - displayAngle;
+                        ctx.arc(centerX, centerY, arcRadius, verticalAngle, endAngle, true);
+                    } else {
+                        const endAngle = verticalAngle + displayAngle;
+                        ctx.arc(centerX, centerY, arcRadius, endAngle, verticalAngle, true);
+                    }
+                    ctx.stroke();
+                    
+                    // Labels
+                    ctx.fillStyle = '#4facfe';
+                    ctx.font = '12px Arial';
+                    ctx.textAlign = 'center';
+                    const labelX = angle > 0 ? centerX + 60 : centerX - 60;
+                    const displayAngleDegrees = angle * 180 / Math.PI;
+                    ctx.fillText(`θ = ${displayAngleDegrees.toFixed(1)}°`, labelX, centerY + 15);
+                    ctx.fillText(`y = ${displacement.toFixed(2)} m`, (centerX + bobX) / 2, centerY + this.length * scale + 20);
+                    
+                    if (Math.abs(angle) > maxArcAngle) {
+                        ctx.fillStyle = '#ff6b6b';
+                        ctx.font = 'bold 10px Arial';
+                        ctx.fillText('Arc limited to 90°', centerX, centerY - 15);
+                    }
+                }
+            }
+            
+            drawSpring() {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                const centerX = width / 2;
+                const topY = 30;
+                const scale = 100;
+                const position = this.getPosition();
+                const equilibriumY = topY + 100;
+                const massY = equilibriumY + position * scale;
+                
+                // Draw ceiling
+                ctx.fillStyle = '#666';
+                ctx.fillRect(centerX - 50, topY - 10, 100, 10);
+                
+                // Draw spring
+                ctx.strokeStyle = '#4facfe';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                const springCoils = 12;
+                const springWidth = 20;
+                const springLength = massY - topY - 20;
+                
+                ctx.moveTo(centerX, topY);
+                
+                for (let i = 0; i <= springCoils; i++) {
+                    const y = topY + (i / springCoils) * springLength;
+                    const x = centerX + (i % 2 === 0 ? 0 : (i % 4 === 1 ? springWidth : -springWidth));
+                    ctx.lineTo(x, y);
+                }
+                
+                ctx.lineTo(centerX, massY - 20);
+                ctx.stroke();
+                
+                // Draw mass
+                ctx.fillStyle = '#ff6b6b';
+                ctx.strokeStyle = '#e55555';
+                ctx.lineWidth = 3;
+                ctx.fillRect(centerX - 25, massY - 20, 50, 40);
+                ctx.strokeRect(centerX - 25, massY - 20, 50, 40);
+                
+                // Draw equilibrium line
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(centerX - 40, equilibriumY);
+                ctx.lineTo(centerX + 40, equilibriumY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Draw position indicator
+                ctx.strokeStyle = '#4facfe';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(centerX + 40, equilibriumY);
+                ctx.lineTo(centerX + 40, massY);
+                ctx.stroke();
+                
+                // Labels
+                ctx.fillStyle = '#4facfe';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(`x = ${position.toFixed(2)} m`, centerX + 50, massY);
+                ctx.fillText('Equilibrium', centerX + 50, equilibriumY);
+                
+                // Mass label
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText(`${this.springMass.toFixed(1)} kg`, centerX, massY + 5);
+            }
+            
+            drawGraph(ctx, data, color, yMin, yMax, title) {
+                const width = ctx.canvas.width;
+                const height = ctx.canvas.height;
+                
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw grid
+                ctx.strokeStyle = '#f0f0f0';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= 10; i++) {
+                    const y = (i / 10) * height;
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+                
+                // Draw zero line
+                ctx.strokeStyle = '#ddd';
+                ctx.lineWidth = 2;
+                const zeroY = height * (yMax / (yMax - yMin));
+                ctx.beginPath();
+                ctx.moveTo(0, zeroY);
+                ctx.lineTo(width, zeroY);
+                ctx.stroke();
+                
+                // Draw data
+                if (data.length > 1) {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    
+                    for (let i = 0; i < data.length; i++) {
+                        const x = (i / (this.maxDataPoints - 1)) * width;
+                        const y = height - ((data[i] - yMin) / (yMax - yMin)) * height;
+                        
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                    ctx.stroke();
+                }
+                
+                // Draw current value point
+                if (data.length > 0) {
+                    const currentValue = data[data.length - 1];
+                    const x = ((data.length - 1) / (this.maxDataPoints - 1)) * width;
+                    const y = height - ((currentValue - yMin) / (yMax - yMin)) * height;
+                    
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+            
+            drawGraphs() {
+                // Position graph
+                this.drawGraph(this.posCtx, this.posData, '#4facfe', -this.amplitude * 1.1, this.amplitude * 1.1, 'Position');
+                
+                // Velocity graph
+                const maxVel = this.amplitude * this.omega * 1.1;
+                this.drawGraph(this.velCtx, this.velData, '#28a745', -maxVel, maxVel, 'Velocity');
+                
+                // Acceleration graph
+                const maxAcc = this.amplitude * this.omega * this.omega * 1.1;
+                this.drawGraph(this.accCtx, this.accData, '#dc3545', -maxAcc, maxAcc, 'Acceleration');
+                
+                // Energy graph
+                this.drawGraph(this.energyCtx, this.keData, '#ff6b6b', 0, this.totalEnergy * 1.1, 'KE');
+                
+                // Add PE and TE to energy graph
+                const ctx = this.energyCtx;
+                if (this.peData.length > 1) {
+                    ctx.strokeStyle = '#28a745';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    
+                    for (let i = 0; i < this.peData.length; i++) {
+                        const x = (i / (this.maxDataPoints - 1)) * ctx.canvas.width;
+                        const y = ctx.canvas.height - (this.peData[i] / (this.totalEnergy * 1.1)) * ctx.canvas.height;
+                        
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                    ctx.stroke();
+                }
+                
+                // Total energy line
+                ctx.strokeStyle = '#6c757d';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+                const teY = ctx.canvas.height - (this.totalEnergy / (this.totalEnergy * 1.1)) * ctx.canvas.height;
+                ctx.beginPath();
+                ctx.moveTo(0, teY);
+                ctx.lineTo(ctx.canvas.width, teY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            
+            updateCurrentValues() {
+                document.getElementById('currentPosition').textContent = this.getPosition().toFixed(3) + ' m';
+                document.getElementById('currentVelocity').textContent = this.getVelocity().toFixed(3) + ' m/s';
+                document.getElementById('currentAcceleration').textContent = this.getAcceleration().toFixed(3) + ' m/s²';
+                document.getElementById('currentKE').textContent = this.getKineticEnergy().toFixed(3);
+                document.getElementById('currentPE').textContent = this.getPotentialEnergy().toFixed(3);
+                document.getElementById('currentTE').textContent = this.totalEnergy.toFixed(3) + ' J';
+            }
+        }
+        
+        // Initialize simulation when page loads
+        window.addEventListener('load', () => {
+            new HarmonicMotionSimulation();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'971b24ccb27a473c',t:'MTc1NTYyMjE2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
