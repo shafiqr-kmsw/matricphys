@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Fizik Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 40px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #file-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        #file-list li {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Unit Fizik Files</h1>
+    <p>Click the button to see available files:</p>
+    <button onclick="loadFiles()">Show Files</button>
+    <ul id="file-list"></ul>
+
+    <script>
+        function loadFiles() {
+            fetch('unitfizik/filelist.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load file list');
+                    }
+                    return response.json();
+                })
+                .then(files => {
+                    const list = document.getElementById('file-list');
+                    list.innerHTML = '';
+                    files.forEach(file => {
+                        const li = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.href = 'unitfizik/' + file.name; // actual file
+                        link.target = '_blank'; // open in new tab
+                        link.textContent = file.display; // friendly name
+                        li.appendChild(link);
+                        list.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+        }
+    </script>
+</body>
+</html>
