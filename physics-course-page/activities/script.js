@@ -8,7 +8,7 @@ const documents = [
   { name: "Torque Tic-Tac-Toe", link: "files/torque-tictactoe.html" },
   { name: "SHM cases", link: "files/shm.html" },
   { name: "Standing Waves cases", link: "files/standing-waves.html" },
-  { name: "Standing Waves Practice (Quick & Easy)", link: "files/standing-wave-practice.html" },
+  { name: "Standing Waves Practice (Quick & Easy)", link: "files/tube-practice.html" },
 ]
 ;
 
