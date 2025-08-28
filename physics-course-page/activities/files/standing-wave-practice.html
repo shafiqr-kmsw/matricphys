@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standing Wave Resonance Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .timer-pulse { animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .certificate-bg {
+            background: linear-gradient(135deg, #00bfff 0%, #8a2be2 50%, #ff1493 100%);
+            border: 8px solid #ff6600;
+        }
+        .question-card {
+            background: linear-gradient(135deg, #ef233c 0%, #d90429 100%);
+        }
+        .primary-bg { background-color: #2b2d42; }
+        .secondary-bg { background-color: #8d99ae; }
+        .light-bg { background-color: #edf2f4; }
+        .accent-bg { background-color: #ef233c; }
+        .accent-dark-bg { background-color: #d90429; }
+        .primary-text { color: #2b2d42; }
+        .secondary-text { color: #8d99ae; }
+        .light-text { color: #edf2f4; }
+        .accent-text { color: #ef233c; }
+    </style>
+</head>
+<body class="min-h-screen" style="background: linear-gradient(135deg, #edf2f4 0%, #8d99ae 100%);">
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="light-bg rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold primary-text mb-2">🌊 Standing Wave Quiz</h1>
+                <p class="secondary-text">Test your knowledge of resonant frequencies!</p>
+            </div>
+            <div class="mb-6">
+                <label class="block text-left text-sm font-medium primary-text mb-2">Your Name:</label>
+                <input type="text" id="studentName" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:border-transparent primary-text" style="focus:ring-color: #ef233c;" placeholder="Enter your full name" required>
+            </div>
+            <button onclick="startQuiz()" class="w-full text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105" style="background: linear-gradient(135deg, #ef233c 0%, #d90429 100%); hover:opacity: 0.9;">
+                Start Quiz 🚀
+            </button>
+            <div class="mt-4 text-xs secondary-text">
+                <p>• 5 questions about standing wave resonance</p>
+                <p>• Must answer correctly to proceed</p>
+                <p>• Timer tracks your performance</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quizScreen" class="hidden min-h-screen p-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="light-bg rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold primary-text">Standing Wave Quiz</h2>
+                        <p class="secondary-text">Question <span id="currentQ">1</span> of 5</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-bold accent-text timer-pulse" id="timer">00:00</div>
+                        <p class="text-sm secondary-text">Question Time</p>
+                    </div>
+                </div>
+                <div class="mt-4 rounded-full h-2" style="background-color: #8d99ae;">
+                    <div id="progressBar" class="h-2 rounded-full transition-all duration-300" style="width: 20%; background: linear-gradient(135deg, #ef233c 0%, #d90429 100%);"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="question-card rounded-xl shadow-lg p-8 text-white mb-6">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold mb-4" id="questionText">Loading question...</h3>
+                    <div class="bg-white/20 rounded-lg p-4 backdrop-blur-sm">
+                        <p class="text-lg" id="questionDetails"></p>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Your Answer:</label>
+                    <div class="flex gap-3">
+                        <input type="number" id="answerInput" class="flex-1 px-4 py-3 rounded-lg border-2 border-white/30 focus:border-white focus:ring-2 focus:ring-white/50" style="background-color: #edf2f4; color: #2b2d42;" placeholder="Enter your numerical answer" step="any">
+                        <span class="flex items-center px-4 py-3 bg-white/20 rounded-lg font-medium" id="unitDisplay">Hz</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <button onclick="submitAnswer()" class="flex-1 py-3 px-6 rounded-lg font-semibold transition-all duration-200 transform hover:scale-105" style="background-color: #edf2f4; color: #2b2d42; hover:background-color: #d1d5db;">
+                        Submit Answer ✓
+                    </button>
+                    <button onclick="showHint()" class="px-6 py-3 bg-white/20 text-white rounded-lg font-medium hover:bg-white/30 transition-all duration-200">
+                        💡 Hint
+                    </button>
+                </div>
+
+                <div id="feedback" class="mt-4 p-4 rounded-lg hidden"></div>
+                <div id="hintBox" class="mt-4 p-4 bg-white/20 rounded-lg hidden backdrop-blur-sm">
+                    <p class="font-medium">💡 Hint:</p>
+                    <p id="hintText"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Certificate Screen -->
+    <div id="certificateScreen" class="hidden min-h-screen flex items-center justify-center p-4">
+        <div class="certificate-bg rounded-2xl shadow-2xl p-8 max-w-2xl w-full text-white text-center">
+            <div class="mb-6">
+                <h1 class="text-5xl font-bold mb-2" style="color: #ffff00; text-shadow: 3px 3px 6px rgba(0,0,0,0.5);">CONGRATULATIONS!</h1>
+                <h2 class="text-3xl font-bold mb-2" style="color: #00ff00;">Certificate of Excellence</h2>
+                <p class="text-xl" style="color: #ffffff;">Standing Wave Resonance Quiz</p>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, rgba(255, 20, 147, 0.4), rgba(255, 165, 0, 0.4)); border: 3px solid #00ff00;" class="rounded-xl p-6 mb-6 backdrop-blur-sm">
+                <p class="text-xl mb-2" style="color: #ffff00;">This certifies with great pride that</p>
+                <h2 class="text-4xl font-bold mb-4" style="color: #00ffff; text-shadow: 3px 3px 6px rgba(0,0,0,0.5);" id="certName">Student Name</h2>
+                <p class="text-xl" style="color: #ffff00;">has demonstrated exceptional mastery of</p>
+                <p class="text-2xl font-bold" style="color: #00ff00;">Standing Wave Resonance Physics</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mb-6">
+                <div style="background: linear-gradient(135deg, rgba(255, 0, 255, 0.4), rgba(0, 255, 255, 0.4)); border: 3px solid #ff6600;" class="rounded-lg p-4 backdrop-blur-sm">
+                    <h3 class="font-bold text-lg mb-2" style="color: #ffff00;">ACHIEVEMENT SUMMARY</h3>
+                    <div id="performanceDetails" class="text-sm space-y-1" style="color: #ffffff;"></div>
+                </div>
+                <div style="background: linear-gradient(135deg, rgba(50, 205, 50, 0.4), rgba(255, 69, 0, 0.4)); border: 3px solid #ff1493;" class="rounded-lg p-4 backdrop-blur-sm">
+                    <h3 class="font-bold text-lg mb-2" style="color: #ffff00;">EXCELLENCE METRICS</h3>
+                    <div id="timingDetails" class="text-sm space-y-1" style="color: #ffffff;"></div>
+                </div>
+            </div>
+
+            <div class="text-lg mb-6" style="color: #00ff00; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                <p class="font-semibold">TRIUMPHANTLY COMPLETED ON</p>
+                <p class="text-xl font-bold" style="color: #ffff00;" id="completionDate"></p>
+                <p class="mt-2 font-semibold">TOTAL MASTERY TIME: <span class="font-bold" style="color: #00ffff;" id="totalTime"></span></p>
+            </div>
+
+            <div class="flex gap-4 justify-center">
+                <button onclick="downloadCertificate()" class="py-4 px-8 rounded-lg font-bold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg" style="background: linear-gradient(135deg, #ff1493, #ff6600); color: #ffffff; border: 3px solid #00ff00; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                    DOWNLOAD CERTIFICATE
+                </button>
+                <button onclick="restartQuiz()" class="py-4 px-8 rounded-lg font-bold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg" style="background: linear-gradient(135deg, #8a2be2, #00bfff); color: #ffffff; border: 3px solid #ffff00; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                    RETAKE CHALLENGE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Question Bank
+        const questionBank = [
+            {
+                question: "Calculate the fundamental frequency of a closed tube",
+                setup: "A closed tube has a length of {L} m. The speed of sound is {v} m/s.",
+                formula: "f = v / (4L)",
+                variables: { L: [0.5, 0.8, 1.0, 1.2, 1.5], v: [340, 343, 350] },
+                unit: "Hz",
+                hint: "For a closed tube, the fundamental frequency is f = v/(4L), where v is wave speed and L is tube length."
+            },
+            {
+                question: "Find the frequency of the 3rd harmonic in an open tube",
+                setup: "An open tube is {L} m long. Sound travels at {v} m/s.",
+                formula: "f = 3v / (2L)",
+                variables: { L: [0.6, 0.9, 1.1, 1.4], v: [340, 343, 350] },
+                unit: "Hz",
+                hint: "For an open tube, the nth harmonic frequency is f = n×v/(2L). The 3rd harmonic means n=3."
+            },
+            {
+                question: "Calculate the tube length for a specific resonant frequency",
+                setup: "A closed tube resonates at {f} Hz (fundamental). The wave speed is {v} m/s.",
+                formula: "L = v / (4f)",
+                variables: { f: [85, 100, 125, 150, 170], v: [340, 343, 350] },
+                unit: "m",
+                hint: "Rearrange f = v/(4L) to solve for L: L = v/(4f)"
+            },
+            {
+                question: "Find the wave speed from resonance data",
+                setup: "An open tube ({L} m) has its fundamental frequency at {f} Hz.",
+                formula: "v = 2Lf",
+                variables: { L: [0.5, 0.7, 1.0, 1.3], f: [240, 280, 320, 360] },
+                unit: "m/s",
+                hint: "For an open tube fundamental: f = v/(2L), so v = 2Lf"
+            },
+            {
+                question: "Calculate the 5th overtone frequency in a closed tube",
+                setup: "A closed tube is {L} m long. Sound speed is {v} m/s.",
+                formula: "f = 11v / (4L)",
+                variables: { L: [0.4, 0.6, 0.8, 1.0], v: [340, 343, 350] },
+                unit: "Hz",
+                hint: "The 5th overtone is the 6th harmonic. For closed tubes, only odd harmonics exist: f = (2n-1)×v/(4L). So 6th harmonic = 11th odd = 11×v/(4L)"
+            },
+            {
+                question: "Find the fundamental frequency of an open tube",
+                setup: "An open tube has length {L} m. Wave speed is {v} m/s.",
+                formula: "f = v / (2L)",
+                variables: { L: [0.3, 0.5, 0.8, 1.2], v: [340, 343, 350] },
+                unit: "Hz",
+                hint: "For an open tube, fundamental frequency is f = v/(2L)"
+            },
+            {
+                question: "Calculate the 2nd overtone in an open tube",
+                setup: "An open tube ({L} m long) with wave speed {v} m/s.",
+                formula: "f = 3v / (2L)",
+                variables: { L: [0.4, 0.7, 1.0, 1.5], v: [340, 343, 350] },
+                unit: "Hz",
+                hint: "The 2nd overtone is the 3rd harmonic. For open tubes: f = n×v/(2L), so f = 3v/(2L)"
+            },
+            {
+                question: "Find tube length for the 2nd harmonic resonance",
+                setup: "A closed tube's 2nd harmonic resonates at {f} Hz. Wave speed is {v} m/s.",
+                formula: "L = 3v / (4f)",
+                variables: { f: [255, 300, 375, 450], v: [340, 343, 350] },
+                unit: "m",
+                hint: "For closed tubes, 2nd harmonic is 3rd odd harmonic: f = 3v/(4L), so L = 3v/(4f)"
+            }
+        ];
+
+        // Quiz state
+        let currentQuestion = 0;
+        let selectedQuestions = [];
+        let questionStartTime = 0;
+        let questionTimes = [];
+        let wrongAttempts = [];
+        let studentName = '';
+        let timerInterval;
+        let quizStartTime = 0;
+
+        function startQuiz() {
+            studentName = document.getElementById('studentName').value.trim();
+            if (!studentName) {
+                alert('Please enter your name to start the quiz!');
+                return;
+            }
+
+            // Select 5 random questions
+            selectedQuestions = [];
+            const shuffled = [...questionBank].sort(() => 0.5 - Math.random());
+            selectedQuestions = shuffled.slice(0, 5);
+
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            
+            currentQuestion = 0;
+            questionTimes = [];
+            wrongAttempts = [];
+            quizStartTime = Date.now();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= 5) {
+                showCertificate();
+                return;
+            }
+
+            const q = selectedQuestions[currentQuestion];
+            questionStartTime = Date.now();
+            
+            // Generate random values for variables
+            const values = {};
+            for (const [key, options] of Object.entries(q.variables)) {
+                values[key] = options[Math.floor(Math.random() * options.length)];
+            }
+
+            // Calculate correct answer
+            let answer;
+            switch (q.formula) {
+                case "f = v / (4L)": answer = values.v / (4 * values.L); break;
+                case "f = 3v / (2L)": answer = 3 * values.v / (2 * values.L); break;
+                case "L = v / (4f)": answer = values.v / (4 * values.f); break;
+                case "v = 2Lf": answer = 2 * values.L * values.f; break;
+                case "f = 11v / (4L)": answer = 11 * values.v / (4 * values.L); break;
+                case "f = v / (2L)": answer = values.v / (2 * values.L); break;
+                case "L = 3v / (4f)": answer = 3 * values.v / (4 * values.f); break;
+            }
+
+            // Store correct answer
+            selectedQuestions[currentQuestion].correctAnswer = Math.round(answer * 100) / 100;
+            selectedQuestions[currentQuestion].generatedValues = values;
+
+            // Update UI
+            document.getElementById('currentQ').textContent = currentQuestion + 1;
+            document.getElementById('progressBar').style.width = ((currentQuestion + 1) / 5) * 100 + '%';
+            document.getElementById('questionText').textContent = q.question;
+            
+            let setupText = q.setup;
+            for (const [key, value] of Object.entries(values)) {
+                setupText = setupText.replace(new RegExp(`{${key}}`, 'g'), value);
+            }
+            document.getElementById('questionDetails').textContent = setupText;
+            document.getElementById('unitDisplay').textContent = q.unit;
+            document.getElementById('hintText').textContent = q.hint;
+
+            // Reset input and feedback
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('hintBox').classList.add('hidden');
+            
+            // Initialize wrong attempts for this question
+            wrongAttempts[currentQuestion] = 0;
+
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function submitAnswer() {
+            const answerInput = document.getElementById('answerInput').value.trim();
+            
+            // Check if input is empty or just whitespace
+            if (answerInput === '') {
+                showFeedback('Please enter an answer before submitting!', 'error');
+                return;
+            }
+            
+            const userAnswer = parseFloat(answerInput);
+            const correctAnswer = selectedQuestions[currentQuestion].correctAnswer;
+            const tolerance = Math.abs(correctAnswer * 0.02); // 2% tolerance
+
+            const questionTime = Math.floor((Date.now() - questionStartTime) / 1000);
+            
+            if (isNaN(userAnswer)) {
+                showFeedback('Please enter a valid number!', 'error');
+                return;
+            }
+
+            if (Math.abs(userAnswer - correctAnswer) <= tolerance) {
+                questionTimes.push(questionTime);
+                showFeedback(`Correct! The answer is ${correctAnswer} ${selectedQuestions[currentQuestion].unit}`, 'success');
+                setTimeout(() => {
+                    currentQuestion++;
+                    loadQuestion();
+                }, 2000);
+            } else {
+                wrongAttempts[currentQuestion]++;
+                const tip = generateTip(selectedQuestions[currentQuestion], userAnswer, correctAnswer);
+                showFeedback(`Incorrect. ${tip} Try again!`, 'error');
+            }
+        }
+
+        function generateTip(question, userAnswer, correctAnswer) {
+            const ratio = userAnswer / correctAnswer;
+            const unit = question.unit;
+            
+            // General tips based on how far off the answer is
+            if (ratio > 2) {
+                return "Your answer is much too high. Double-check your formula and calculations.";
+            } else if (ratio < 0.5) {
+                return "Your answer is much too low. Make sure you're using the right formula.";
+            } else if (ratio > 1.2) {
+                return "Close, but a bit too high. Check your arithmetic carefully.";
+            } else if (ratio < 0.8) {
+                return "Close, but a bit too low. Review your calculation steps.";
+            }
+            
+            // Specific tips based on question type
+            if (question.formula.includes("4L")) {
+                return "Remember: closed tubes use 4L in the denominator. Check if you used the right tube type.";
+            } else if (question.formula.includes("2L")) {
+                return "Remember: open tubes use 2L in the denominator. Verify you're using the open tube formula.";
+            } else if (unit === "m") {
+                return "You're solving for length. Make sure you rearranged the frequency formula correctly.";
+            } else if (unit === "m/s") {
+                return "You're solving for wave speed. Remember v = frequency × wavelength relationships.";
+            }
+            
+            return "Check your formula and make sure you're using the right values from the problem.";
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `mt-4 p-4 rounded-lg ${type === 'success' ? 'bg-green-500/20 text-white' : 'bg-red-500/20 text-white'}`;
+            feedback.classList.remove('hidden');
+        }
+
+        function showHint() {
+            document.getElementById('hintBox').classList.toggle('hidden');
+        }
+
+        function showCertificate() {
+            clearInterval(timerInterval);
+            
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('certificateScreen').classList.remove('hidden');
+
+            const totalTime = Math.floor((Date.now() - quizStartTime) / 1000);
+            const avgTime = Math.floor(questionTimes.reduce((a, b) => a + b, 0) / questionTimes.length);
+
+            document.getElementById('certName').textContent = studentName;
+            document.getElementById('completionDate').textContent = new Date().toLocaleString();
+            document.getElementById('totalTime').textContent = formatTime(totalTime);
+
+            // Performance details
+            let performanceHTML = '';
+            let totalWrongAttempts = 0;
+            questionTimes.forEach((time, i) => {
+                const wrongCount = wrongAttempts[i] || 0;
+                totalWrongAttempts += wrongCount;
+                performanceHTML += `<p>Question ${i + 1}: ${formatTime(time)} (${wrongCount} wrong)</p>`;
+            });
+            performanceHTML += `<p class="font-bold mt-2">Average: ${formatTime(avgTime)}</p>`;
+            performanceHTML += `<p class="font-bold">Total Wrong Attempts: ${totalWrongAttempts}</p>`;
+            document.getElementById('performanceDetails').innerHTML = performanceHTML;
+
+            // Timing details
+            const fastestTime = Math.min(...questionTimes);
+            const slowestTime = Math.max(...questionTimes);
+            document.getElementById('timingDetails').innerHTML = `
+                <p>Fastest Question: ${formatTime(fastestTime)}</p>
+                <p>Slowest Question: ${formatTime(slowestTime)}</p>
+                <p>Total Questions: 5</p>
+                <p>Success Rate: 100%</p>
+            `;
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function downloadCertificate() {
+            // Create a canvas to draw the certificate
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = 1000;
+            canvas.height = 700;
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#00bfff');
+            gradient.addColorStop(0.3, '#8a2be2');
+            gradient.addColorStop(0.7, '#ff1493');
+            gradient.addColorStop(1, '#ff6600');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Decorative border
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 12;
+            ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+            
+            // Inner decorative border
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 100);
+            
+            // Main title
+            ctx.fillStyle = '#ffff00';
+            ctx.font = 'bold 48px Inter, Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.shadowColor = 'rgba(0,0,0,0.7)';
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            ctx.fillText('CONGRATULATIONS!', canvas.width / 2, 120);
+            
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            ctx.fillStyle = '#00ff00';
+            ctx.font = 'bold 32px Inter, Arial, sans-serif';
+            ctx.fillText('Certificate of Excellence', canvas.width / 2, 170);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '24px Inter, Arial, sans-serif';
+            ctx.fillText('Standing Wave Resonance Physics', canvas.width / 2, 210);
+            
+            // Decorative line
+            ctx.strokeStyle = '#ff1493';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(200, 240);
+            ctx.lineTo(800, 240);
+            ctx.stroke();
+            
+            // Student name section
+            ctx.fillStyle = '#ffff00';
+            ctx.font = '22px Inter, Arial, sans-serif';
+            ctx.fillText('This certifies with great pride that', canvas.width / 2, 280);
+            
+            ctx.fillStyle = '#00ffff';
+            ctx.font = 'bold 40px Inter, Arial, sans-serif';
+            ctx.shadowColor = 'rgba(0,0,0,0.7)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 3;
+            ctx.fillText(studentName, canvas.width / 2, 330);
+            
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            ctx.fillStyle = '#ffff00';
+            ctx.font = '22px Inter, Arial, sans-serif';
+            ctx.fillText('has demonstrated exceptional mastery of', canvas.width / 2, 370);
+            ctx.fillStyle = '#00ff00';
+            ctx.font = 'bold 26px Inter, Arial, sans-serif';
+            ctx.fillText('Standing Wave Resonance Physics', canvas.width / 2, 410);
+            
+            // Performance stats
+            const totalTime = Math.floor((Date.now() - quizStartTime) / 1000);
+            const totalWrongAttempts = wrongAttempts.reduce((sum, count) => sum + (count || 0), 0);
+            const avgTime = Math.floor(questionTimes.reduce((a, b) => a + b, 0) / questionTimes.length);
+            
+            // Achievement box
+            ctx.fillStyle = 'rgba(255, 0, 255, 0.4)';
+            ctx.fillRect(150, 450, 700, 120);
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(150, 450, 700, 120);
+            
+            ctx.fillStyle = '#ffff00';
+            ctx.font = 'bold 18px Inter, Arial, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('ACHIEVEMENT SUMMARY:', 170, 480);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '16px Inter, Arial, sans-serif';
+            ctx.fillText(`Total Mastery Time: ${formatTime(totalTime)}`, 170, 510);
+            ctx.fillText(`Average Question Time: ${formatTime(avgTime)}`, 170, 535);
+            ctx.fillText(`Total Wrong Attempts: ${totalWrongAttempts}`, 500, 510);
+            ctx.fillText(`Questions Mastered: 5/5 (100%)`, 500, 535);
+            
+            // Date and signature line
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#00ff00';
+            ctx.font = 'bold 18px Inter, Arial, sans-serif';
+            ctx.fillText('TRIUMPHANTLY COMPLETED ON', canvas.width / 2, 610);
+            ctx.fillStyle = '#ffff00';
+            ctx.font = 'bold 20px Inter, Arial, sans-serif';
+            ctx.fillText(new Date().toLocaleDateString(), canvas.width / 2, 640);
+            
+            // Download the image
+            const link = document.createElement('a');
+            link.download = `${studentName.replace(/\s+/g, '_')}_Physics_Excellence_Certificate.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function restartQuiz() {
+            document.getElementById('certificateScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+
+        // Allow Enter key to submit answer
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('answerInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    submitAnswer();
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'976084def15fffcc',t:'MTc1NjM0OTYxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
