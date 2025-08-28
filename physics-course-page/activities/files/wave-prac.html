@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resonant Frequency Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .pastel-bg { background: linear-gradient(135deg, #fef7ff 0%, #f0f9ff 50%, #f0fff4 100%); }
+        .question-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .timer-pulse { animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body class="pastel-bg min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">🎵 Resonant Frequency Quiz</h1>
+            <p class="text-gray-600">Test your knowledge of standing waves in strings and tubes</p>
+        </div>
+
+        <!-- Student Name Input -->
+        <div id="nameInput" class="max-w-md mx-auto question-card rounded-2xl p-8 shadow-lg border border-purple-100">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Welcome!</h2>
+            <label class="block text-gray-700 font-medium mb-2">Enter your name:</label>
+            <input type="text" id="studentName" class="w-full px-4 py-3 border-2 border-purple-200 rounded-lg focus:border-purple-400 focus:outline-none text-gray-800" placeholder="Your full name">
+            <button onclick="startQuiz()" class="w-full mt-4 bg-purple-400 hover:bg-purple-500 text-white font-semibold py-3 rounded-lg transition-colors">
+                Start Quiz 🚀
+            </button>
+        </div>
+
+        <!-- Quiz Interface -->
+        <div id="quizInterface" class="hidden">
+            <!-- Progress and Timer -->
+            <div class="flex justify-between items-center mb-6 max-w-4xl mx-auto">
+                <div class="bg-white rounded-full px-6 py-3 shadow-md border border-blue-100">
+                    <span class="text-gray-700 font-medium">Question <span id="currentQ">1</span> of 15</span>
+                </div>
+                <div class="flex gap-4">
+                    <div class="bg-white rounded-full px-6 py-3 shadow-md border border-rose-100">
+                        <span class="text-gray-700 font-medium timer-pulse">⏱️ <span id="timer">00:00</span></span>
+                    </div>
+                    <button onclick="confirmEndEarly()" class="bg-orange-400 hover:bg-orange-500 text-white font-medium px-6 py-3 rounded-full shadow-md transition-colors">
+                        🏁 End Early
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="max-w-4xl mx-auto question-card rounded-2xl p-8 shadow-lg border border-green-100">
+                <div class="mb-6">
+                    <div class="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4" id="sectionTag">
+                        Section 1: Stretched Strings
+                    </div>
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4" id="questionText">Loading question...</h2>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">Your Answer:</label>
+                    <input type="text" id="answerInput" class="w-full px-4 py-3 border-2 border-green-200 rounded-lg focus:border-green-400 focus:outline-none text-gray-800" placeholder="Enter your numerical answer">
+                    <p class="text-sm text-gray-500 mt-2">Enter numbers only (decimals allowed)</p>
+                </div>
+
+                <div id="feedback" class="hidden mb-4 p-4 rounded-lg"></div>
+
+                <div class="flex gap-4">
+                    <button onclick="submitAnswer()" id="submitBtn" class="flex-1 bg-green-400 hover:bg-green-500 text-white font-semibold py-3 rounded-lg transition-colors">
+                        Submit Answer ✓
+                    </button>
+                    <button onclick="nextQuestion()" id="nextBtn" class="hidden flex-1 bg-blue-400 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg transition-colors">
+                        Next Question →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificate -->
+        <div id="certificate" class="hidden max-w-4xl mx-auto">
+            <div id="certificateContent" class="bg-white rounded-2xl p-12 shadow-2xl border-4 border-yellow-200">
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-2">🏆 Certificate of Completion</h1>
+                    <div class="w-32 h-1 bg-gradient-to-r from-purple-400 to-blue-400 mx-auto rounded-full"></div>
+                </div>
+                
+                <div class="text-center mb-8">
+                    <p class="text-xl text-gray-600 mb-2">This certifies that</p>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2" id="certName">Student Name</h2>
+                    <p class="text-xl text-gray-600">has successfully completed the Resonant Frequency Quiz</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-purple-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 Performance Summary</h3>
+                        <div class="space-y-2 text-gray-700">
+                            <p><strong>Total Questions:</strong> 15</p>
+                            <p><strong>Completion Date:</strong> <span id="completionDate"></span></p>
+                            <p><strong>Total Time:</strong> <span id="totalTime"></span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">⏱️ Question Times</h3>
+                        <div id="questionTimes" class="text-sm text-gray-700">
+                            <!-- Times will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 rounded-xl p-6 mb-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">🎯 Attempt Summary</h3>
+                    <div id="attemptSummary" class="text-gray-700">
+                        <!-- Attempt details will be populated here -->
+                    </div>
+                </div>
+
+                <div class="text-center space-y-4">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="downloadCertificateJPG(this)" class="bg-gradient-to-r from-purple-400 to-blue-400 hover:from-purple-500 hover:to-blue-500 text-white font-semibold px-8 py-4 rounded-lg transition-all transform hover:scale-105">
+                            📥 Download as JPG
+                        </button>
+                        <button onclick="downloadCertificatePDF(this)" class="bg-gradient-to-r from-green-400 to-teal-400 hover:from-green-500 hover:to-teal-500 text-white font-semibold px-8 py-4 rounded-lg transition-all transform hover:scale-105">
+                            📄 Download as PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let currentQuestion = 0;
+        let studentName = '';
+        let startTime = null;
+        let questionStartTime = null;
+        let questionTimes = [];
+        let questionAttempts = [];
+        let timerInterval = null;
+        let usedQuestions = [];
+
+        // Question bank - 15+ questions for each section
+        const questionBank = {
+            strings: [
+                {
+                    question: "A guitar string of length 0.65 m has a fundamental frequency of 330 Hz. What is the speed of the wave on the string? (Answer in m/s)",
+                    answer: 429,
+                    tolerance: 5,
+                    tip: "For fundamental frequency in strings: f₁ = v/(2L). Rearrange to find v = 2Lf₁"
+                },
+                {
+                    question: "A violin string vibrates at 440 Hz (A4 note). If the string length is 0.33 m, what is the wave speed? (Answer in m/s)",
+                    answer: 290.4,
+                    tolerance: 5,
+                    tip: "Use the fundamental frequency formula: f₁ = v/(2L)"
+                },
+                {
+                    question: "A piano string of length 1.2 m has a wave speed of 400 m/s. What is its fundamental frequency? (Answer in Hz)",
+                    answer: 166.67,
+                    tolerance: 5,
+                    tip: "For the fundamental mode: f₁ = v/(2L)"
+                },
+                {
+                    question: "A string has a fundamental frequency of 200 Hz. What is the frequency of its 3rd harmonic? (Answer in Hz)",
+                    answer: 600,
+                    tolerance: 10,
+                    tip: "For strings, the nth harmonic frequency is n × f₁"
+                },
+                {
+                    question: "A guitar string produces its 2nd harmonic at 880 Hz. What is its fundamental frequency? (Answer in Hz)",
+                    answer: 440,
+                    tolerance: 10,
+                    tip: "The 2nd harmonic is twice the fundamental frequency"
+                },
+                {
+                    question: "A string of length 0.8 m vibrates with a wave speed of 320 m/s. What is the frequency of the 4th harmonic? (Answer in Hz)",
+                    answer: 800,
+                    tolerance: 10,
+                    tip: "First find f₁ = v/(2L), then multiply by the harmonic number"
+                }
+            ],
+            closedTube: [
+                {
+                    question: "A closed organ pipe of length 0.5 m resonates at its fundamental frequency. If the speed of sound is 340 m/s, what is this frequency? (Answer in Hz)",
+                    answer: 170,
+                    tolerance: 5,
+                    tip: "For closed tubes: f₁ = v/(4L)"
+                },
+                {
+                    question: "A closed tube has a fundamental frequency of 85 Hz. If the speed of sound is 340 m/s, what is the tube length? (Answer in m)",
+                    answer: 1.0,
+                    tolerance: 0.05,
+                    tip: "Rearrange f₁ = v/(4L) to find L = v/(4f₁)"
+                },
+                {
+                    question: "A closed pipe of length 0.25 m produces its 3rd harmonic. If sound speed is 340 m/s, what is this frequency? (Answer in Hz)",
+                    answer: 1020,
+                    tolerance: 20,
+                    tip: "For closed tubes, only odd harmonics exist: f₃ = 3 × f₁ = 3v/(4L)"
+                },
+                {
+                    question: "A closed tube resonates at 255 Hz for its fundamental mode. What is the frequency of its 5th harmonic? (Answer in Hz)",
+                    answer: 1275,
+                    tolerance: 25,
+                    tip: "The 5th harmonic is 5 times the fundamental frequency"
+                },
+                {
+                    question: "A closed organ pipe is 0.75 m long. If the speed of sound is 343 m/s, what is the 3rd harmonic frequency? (Answer in Hz)",
+                    answer: 343,
+                    tolerance: 10,
+                    tip: "f₃ = 3 × f₁ = 3 × v/(4L)"
+                },
+                {
+                    question: "A closed tube has a 3rd harmonic at 765 Hz. What is its fundamental frequency? (Answer in Hz)",
+                    answer: 255,
+                    tolerance: 10,
+                    tip: "The 3rd harmonic is 3 times the fundamental"
+                }
+            ],
+            openTube: [
+                {
+                    question: "An open organ pipe of length 0.6 m resonates at its fundamental frequency. If sound speed is 340 m/s, what is this frequency? (Answer in Hz)",
+                    answer: 283.33,
+                    tolerance: 10,
+                    tip: "For open tubes: f₁ = v/(2L)"
+                },
+                {
+                    question: "An open tube has a fundamental frequency of 170 Hz. If sound speed is 340 m/s, what is the tube length? (Answer in m)",
+                    answer: 1.0,
+                    tolerance: 0.05,
+                    tip: "Rearrange f₁ = v/(2L) to find L = v/(2f₁)"
+                },
+                {
+                    question: "An open pipe of length 0.4 m produces its 2nd harmonic. If sound speed is 340 m/s, what is this frequency? (Answer in Hz)",
+                    answer: 850,
+                    tolerance: 20,
+                    tip: "For open tubes: f₂ = 2 × f₁ = 2v/(2L) = v/L"
+                },
+                {
+                    question: "An open tube resonates at 425 Hz for its fundamental mode. What is the frequency of its 4th harmonic? (Answer in Hz)",
+                    answer: 1700,
+                    tolerance: 30,
+                    tip: "The 4th harmonic is 4 times the fundamental frequency"
+                },
+                {
+                    question: "An open organ pipe is 0.85 m long. If sound speed is 343 m/s, what is the 3rd harmonic frequency? (Answer in Hz)",
+                    answer: 605.29,
+                    tolerance: 20,
+                    tip: "f₃ = 3 × f₁ = 3 × v/(2L)"
+                },
+                {
+                    question: "An open tube has a 2nd harmonic at 680 Hz. What is its fundamental frequency? (Answer in Hz)",
+                    answer: 340,
+                    tolerance: 10,
+                    tip: "The 2nd harmonic is twice the fundamental"
+                }
+            ]
+        };
+
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                alert('Please enter your name to start the quiz!');
+                return;
+            }
+            
+            studentName = name;
+            document.getElementById('nameInput').classList.add('hidden');
+            document.getElementById('quizInterface').classList.remove('hidden');
+            
+            startTime = new Date();
+            startTimer();
+            loadQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const elapsed = Math.floor((now - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function getRandomQuestion() {
+            let section, questions, sectionName, sectionTag;
+            
+            // Determine section based on question number
+            if (currentQuestion < 5) {
+                section = 'strings';
+                sectionName = 'Section 1: Stretched Strings';
+                sectionTag = 'bg-green-100 text-green-800';
+            } else if (currentQuestion < 10) {
+                section = 'closedTube';
+                sectionName = 'Section 2: Closed Tubes';
+                sectionTag = 'bg-blue-100 text-blue-800';
+            } else {
+                section = 'openTube';
+                sectionName = 'Section 3: Open Tubes';
+                sectionTag = 'bg-purple-100 text-purple-800';
+            }
+            
+            questions = questionBank[section];
+            let availableQuestions = questions.filter((_, index) => 
+                !usedQuestions.includes(`${section}-${index}`)
+            );
+            
+            if (availableQuestions.length === 0) {
+                availableQuestions = questions; // Reset if all used
+                usedQuestions = usedQuestions.filter(q => !q.startsWith(section));
+            }
+            
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            const selectedQuestion = availableQuestions[randomIndex];
+            const originalIndex = questions.indexOf(selectedQuestion);
+            usedQuestions.push(`${section}-${originalIndex}`);
+            
+            return { ...selectedQuestion, sectionName, sectionTag };
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= 15) {
+                finishQuiz();
+                return;
+            }
+            
+            const questionData = getRandomQuestion();
+            questionStartTime = new Date();
+            
+            document.getElementById('currentQ').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = questionData.question;
+            document.getElementById('sectionTag').textContent = questionData.sectionName;
+            document.getElementById('sectionTag').className = `inline-block px-4 py-2 rounded-full text-sm font-medium mb-4 ${questionData.sectionTag}`;
+            
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+            document.getElementById('nextBtn').classList.add('hidden');
+            
+            // Store current question data
+            window.currentQuestionData = questionData;
+            
+            // Initialize attempts for this question
+            if (!questionAttempts[currentQuestion]) {
+                questionAttempts[currentQuestion] = 0;
+            }
+        }
+
+        function submitAnswer() {
+            const answer = document.getElementById('answerInput').value.trim();
+            
+            // Check if answer is empty or contains only spaces
+            if (!answer || answer === '') {
+                showFeedback('Please enter an answer before submitting!', 'error');
+                return;
+            }
+            
+            // Check if answer is numeric
+            const numericAnswer = parseFloat(answer);
+            if (isNaN(numericAnswer)) {
+                showFeedback('Please enter a valid number!', 'error');
+                return;
+            }
+            
+            questionAttempts[currentQuestion]++;
+            
+            const correctAnswer = window.currentQuestionData.answer;
+            const tolerance = window.currentQuestionData.tolerance || 1;
+            
+            if (Math.abs(numericAnswer - correctAnswer) <= tolerance) {
+                // Correct answer
+                const questionTime = Math.floor((new Date() - questionStartTime) / 1000);
+                questionTimes.push(questionTime);
+                
+                showFeedback('🎉 Correct! Well done!', 'success');
+                document.getElementById('submitBtn').classList.add('hidden');
+                document.getElementById('nextBtn').classList.remove('hidden');
+            } else {
+                // Wrong answer - show tip
+                showFeedback(`❌ Not quite right. Tip: ${window.currentQuestionData.tip}`, 'error');
+            }
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `p-4 rounded-lg mb-4 ${
+                type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 
+                'bg-red-100 text-red-800 border border-red-200'
+            }`;
+            feedback.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function confirmEndEarly() {
+            // Count how many questions have been actually completed (answered correctly)
+            const questionsAnswered = questionTimes.length;
+            const questionsRemaining = 15 - (currentQuestion + 1);
+            
+            let message;
+            if (questionsAnswered === 0) {
+                message = `Are you sure you want to end the quiz without completing any questions?\n\nYou are currently on question ${currentQuestion + 1} of 15.\nAll questions will be marked as incomplete.\n\nClick OK to finish now, or Cancel to continue.`;
+            } else {
+                message = `Are you sure you want to end the quiz early?\n\nYou have completed ${questionsAnswered} question${questionsAnswered !== 1 ? 's' : ''} correctly.\nYou are currently on question ${currentQuestion + 1} of 15.\n${questionsRemaining} remaining questions will be marked as incomplete.\n\nClick OK to finish now, or Cancel to continue.`;
+            }
+            
+            if (confirm(message)) {
+                // If we're in the middle of a question, record the time spent on it
+                if (questionStartTime && !questionTimes[currentQuestion]) {
+                    const timeSpent = Math.floor((new Date() - questionStartTime) / 1000);
+                    // Don't add to questionTimes since it wasn't completed correctly
+                }
+                finishQuiz(true);
+            }
+        }
+
+        function finishQuiz(endedEarly = false) {
+            clearInterval(timerInterval);
+            
+            document.getElementById('quizInterface').classList.add('hidden');
+            document.getElementById('certificate').classList.remove('hidden');
+            
+            // Populate certificate
+            document.getElementById('certName').textContent = studentName;
+            document.getElementById('completionDate').textContent = new Date().toLocaleDateString();
+            
+            const totalTime = Math.floor((new Date() - startTime) / 1000);
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = totalTime % 60;
+            document.getElementById('totalTime').textContent = `${minutes}m ${seconds}s`;
+            
+            // Question times - handle completed questions properly
+            const completedQuestions = endedEarly ? Math.min(currentQuestion + 1, questionTimes.length) : 15;
+            let timesHtml = '';
+            
+            // Show times for actually completed questions (those with recorded times)
+            for (let i = 0; i < questionTimes.length; i++) {
+                const time = questionTimes[i];
+                timesHtml += `<div class="flex justify-between"><span>Q${i + 1}:</span><span>${time}s</span></div>`;
+            }
+            
+            // Add incomplete questions
+            const totalQuestionsAttempted = endedEarly ? currentQuestion + 1 : 15;
+            for (let i = questionTimes.length; i < totalQuestionsAttempted; i++) {
+                if (i < currentQuestion || (!endedEarly && i < 15)) {
+                    timesHtml += `<div class="flex justify-between text-gray-400"><span>Q${i + 1}:</span><span>Incomplete</span></div>`;
+                }
+            }
+            
+            // Add not attempted questions if ended early
+            if (endedEarly && currentQuestion < 14) {
+                for (let i = currentQuestion + 1; i < 15; i++) {
+                    timesHtml += `<div class="flex justify-between text-gray-400"><span>Q${i + 1}:</span><span>Not attempted</span></div>`;
+                }
+            }
+            
+            document.getElementById('questionTimes').innerHTML = timesHtml;
+            
+            // Attempt summary
+            const completedAttempts = questionAttempts.slice(0, completedQuestions);
+            const totalAttempts = completedAttempts.reduce((sum, attempts) => sum + (attempts || 0), 0);
+            const avgAttempts = completedQuestions > 0 ? (totalAttempts / completedQuestions).toFixed(1) : '0';
+            
+            let statusText = endedEarly ? 
+                `<div class="bg-orange-100 text-orange-800 p-3 rounded-lg mb-4">
+                    <strong>Quiz ended early:</strong> Completed ${completedQuestions} of 15 questions
+                </div>` : '';
+            
+            document.getElementById('attemptSummary').innerHTML = `
+                ${statusText}
+                <div class="grid grid-cols-2 gap-4">
+                    <div><strong>Questions Completed:</strong> ${completedQuestions} of 15</div>
+                    <div><strong>Total Attempts:</strong> ${totalAttempts}</div>
+                    <div><strong>Average per Question:</strong> ${avgAttempts}</div>
+                    <div><strong>Completion Rate:</strong> ${Math.round((completedQuestions / 15) * 100)}%</div>
+                </div>
+                <div class="mt-2 text-sm">
+                    ${completedAttempts.map((attempts, index) => 
+                        `Q${index + 1}: ${attempts || 0} attempt${(attempts || 0) !== 1 ? 's' : ''}`
+                    ).join(' • ')}
+                    ${endedEarly && currentQuestion < 15 ? ' • ' + Array.from({length: 15 - currentQuestion}, (_, i) => `Q${currentQuestion + i + 1}: Not attempted`).join(' • ') : ''}
+                </div>
+            `;
+        }
+
+        function downloadCertificateJPG(buttonElement) {
+            const certificate = document.getElementById('certificateContent');
+            
+            // Show loading message
+            const originalText = buttonElement.textContent;
+            buttonElement.textContent = 'Generating JPG...';
+            buttonElement.disabled = true;
+            
+            try {
+                html2canvas(certificate, {
+                    backgroundColor: '#ffffff',
+                    scale: 1.5,
+                    useCORS: false,
+                    allowTaint: true,
+                    logging: false,
+                    removeContainer: true,
+                    imageTimeout: 0,
+                    onclone: function(clonedDoc) {
+                        // Ensure fonts are loaded in cloned document
+                        const clonedElement = clonedDoc.getElementById('certificateContent');
+                        if (clonedElement) {
+                            clonedElement.style.fontFamily = 'Arial, sans-serif';
+                        }
+                    }
+                }).then(canvas => {
+                    try {
+                        // Convert to blob for better browser compatibility
+                        canvas.toBlob(function(blob) {
+                            if (blob) {
+                                const url = URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.download = `${studentName.replace(/[^a-zA-Z0-9\s]/g, '')}_Certificate.jpg`;
+                                
+                                // Force download
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                
+                                // Clean up
+                                setTimeout(() => URL.revokeObjectURL(url), 100);
+                                
+                                buttonElement.textContent = '✅ Downloaded!';
+                                setTimeout(() => {
+                                    buttonElement.textContent = originalText;
+                                    buttonElement.disabled = false;
+                                }, 2000);
+                            } else {
+                                throw new Error('Failed to create image blob');
+                            }
+                        }, 'image/jpeg', 0.95);
+                    } catch (error) {
+                        console.error('Blob creation error:', error);
+                        // Fallback to data URL
+                        try {
+                            const dataURL = canvas.toDataURL('image/jpeg', 0.95);
+                            const link = document.createElement('a');
+                            link.href = dataURL;
+                            link.download = `${studentName.replace(/[^a-zA-Z0-9\s]/g, '')}_Certificate.jpg`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            
+                            buttonElement.textContent = '✅ Downloaded!';
+                            setTimeout(() => {
+                                buttonElement.textContent = originalText;
+                                buttonElement.disabled = false;
+                            }, 2000);
+                        } catch (fallbackError) {
+                            console.error('Fallback download error:', fallbackError);
+                            alert('Download failed. Please try right-clicking the certificate and selecting "Save as image".');
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+                        }
+                    }
+                }).catch(error => {
+                    console.error('Canvas generation error:', error);
+                    alert('Image generation failed. This might be due to browser security settings. Try using a different browser or the PDF option.');
+                    buttonElement.textContent = originalText;
+                    buttonElement.disabled = false;
+                });
+            } catch (error) {
+                console.error('Function error:', error);
+                alert('Download feature unavailable. Please take a screenshot of your certificate.');
+                buttonElement.textContent = originalText;
+                buttonElement.disabled = false;
+            }
+        }
+
+        function downloadCertificatePDF(buttonElement) {
+            const certificate = document.getElementById('certificateContent');
+            
+            // Show loading message
+            const originalText = buttonElement.textContent;
+            buttonElement.textContent = 'Generating PDF...';
+            buttonElement.disabled = true;
+            
+            // Check if jsPDF is available
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                alert('PDF feature is loading. Please wait a moment and try again, or use the JPG option.');
+                buttonElement.textContent = originalText;
+                buttonElement.disabled = false;
+                return;
+            }
+            
+            try {
+                html2canvas(certificate, {
+                    backgroundColor: '#ffffff',
+                    scale: 1.5,
+                    useCORS: false,
+                    allowTaint: true,
+                    logging: false,
+                    removeContainer: true,
+                    imageTimeout: 0,
+                    onclone: function(clonedDoc) {
+                        const clonedElement = clonedDoc.getElementById('certificateContent');
+                        if (clonedElement) {
+                            clonedElement.style.fontFamily = 'Arial, sans-serif';
+                        }
+                    }
+                }).then(canvas => {
+                    try {
+                        const { jsPDF } = window.jspdf;
+                        
+                        // Create PDF with better settings
+                        const pdf = new jsPDF({
+                            orientation: 'portrait',
+                            unit: 'mm',
+                            format: 'a4',
+                            compress: true
+                        });
+                        
+                        // Calculate dimensions
+                        const pdfWidth = pdf.internal.pageSize.getWidth();
+                        const pdfHeight = pdf.internal.pageSize.getHeight();
+                        const imgWidth = pdfWidth - 20; // 10mm margin on each side
+                        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                        
+                        // Center the image
+                        const x = 10; // 10mm margin
+                        const y = Math.max(10, (pdfHeight - imgHeight) / 2);
+                        
+                        // Add image to PDF
+                        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                        pdf.addImage(imgData, 'JPEG', x, y, imgWidth, Math.min(imgHeight, pdfHeight - 20));
+                        
+                        // Save PDF
+                        const fileName = `${studentName.replace(/[^a-zA-Z0-9\s]/g, '')}_Certificate.pdf`;
+                        pdf.save(fileName);
+                        
+                        buttonElement.textContent = '✅ Downloaded!';
+                        setTimeout(() => {
+                            buttonElement.textContent = originalText;
+                            buttonElement.disabled = false;
+                        }, 2000);
+                        
+                    } catch (pdfError) {
+                        console.error('PDF creation error:', pdfError);
+                        alert('PDF creation failed. Please try the JPG option instead.');
+                        buttonElement.textContent = originalText;
+                        buttonElement.disabled = false;
+                    }
+                }).catch(canvasError => {
+                    console.error('Canvas error for PDF:', canvasError);
+                    alert('PDF generation failed. Please try the JPG option instead.');
+                    buttonElement.textContent = originalText;
+                    buttonElement.disabled = false;
+                });
+            } catch (error) {
+                console.error('PDF function error:', error);
+                alert('PDF feature unavailable. Please use the JPG option instead.');
+                buttonElement.textContent = originalText;
+                buttonElement.disabled = false;
+            }
+        }
+
+        // Allow Enter key to submit answers
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('answerInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    if (!document.getElementById('submitBtn').classList.contains('hidden')) {
+                        submitAnswer();
+                    } else if (!document.getElementById('nextBtn').classList.contains('hidden')) {
+                        nextQuestion();
+                    }
+                }
+            });
+            
+            document.getElementById('studentName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startQuiz();
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97650b26d015473c',t:'MTc1NjM5NzA1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

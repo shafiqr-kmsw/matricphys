@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resonant Frequencies - Physics Lecture Notes</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: white;
+            color: black;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            border-bottom: 3px solid black;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-left: 5px solid black;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            font-size: 1.4em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            text-decoration: underline;
+        }
+        
+        .formula-box {
+            background-color: #f8f8f8;
+            border: 2px solid black;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        
+        .key-point {
+            border-left: 4px solid black;
+            padding-left: 15px;
+            margin: 20px 0;
+            background-color: #f5f5f5;
+            padding: 15px;
+        }
+        
+        .diagram {
+            text-align: center;
+            margin: 30px 0;
+            font-family: monospace;
+            font-size: 1.1em;
+            line-height: 1.4;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid black;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #e0e0e0;
+            font-weight: bold;
+        }
+        
+        .example {
+            background-color: #f9f9f9;
+            border: 1px dashed black;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .example h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Resonant Frequencies in Physics</h1>
+    <p style="text-align: center; font-style: italic; margin-bottom: 40px;">
+        Short Notes on Stretched Strings, Open Tubes, and Closed Tubes
+    </p>
+
+    <h2>1. Stretched String Resonance</h2>
+    
+    <h3>Wave Velocity in Strings</h3>
+    <p>The velocity of a wave traveling along a stretched string depends on the tension and mass properties of the string.</p>
+    
+    <div class="formula-box">
+        <strong>Wave Velocity Formula:</strong><br>
+        v = √(T/μ)<br><br>
+        Where:<br>
+        v = wave velocity (m/s)<br>
+        T = tension in string (N)<br>
+        μ = linear mass density (kg/m)
+    </div>
+    
+    <div class="key-point">
+        <strong>Key Point:</strong> Linear mass density μ = m/L, where m is the total mass and L is the length of the string.
+    </div>
+
+    <h3>Resonant Frequencies for Fixed-End Strings</h3>
+    <p>For a string fixed at both ends (like a guitar string), standing wave patterns form with nodes at both ends.</p>
+    
+    <p>For a string fixed at both ends, standing wave patterns form with nodes at both ends. The fundamental frequency corresponds to one half-wavelength fitting in the string length.</p>
+    
+    <div class="formula-box">
+        <strong>Resonant Frequency Formula:</strong><br>
+        f<sub>n</sub> = (n/2L) × √(T/μ)<br><br>
+        Where:<br>
+        n = harmonic number (1, 2, 3, ...)<br>
+        L = length of string (m)<br>
+        f<sub>1</sub> = fundamental frequency
+    </div>
+
+    <div class="example">
+        <h4>Example Problem:</h4>
+        <p>A guitar string of length 0.65 m has a mass of 2.0 g and is under 80 N tension. Find the fundamental frequency.</p>
+        <p><strong>Solution:</strong></p>
+        <p>μ = 0.002 kg / 0.65 m = 3.08 × 10⁻³ kg/m</p>
+        <p>v = √(80 / 3.08 × 10⁻³) = 161 m/s</p>
+        <p>f₁ = v/(2L) = 161/(2 × 0.65) = 124 Hz</p>
+    </div>
+
+    <h2>2. Open Tube Resonance</h2>
+    
+    <h3>Characteristics</h3>
+    <p>An open tube (open at both ends) has antinodes at both ends and supports all harmonics.</p>
+    
+    <p>An open tube supports standing waves with antinodes at both open ends. All harmonic frequencies are present.</p>
+    
+    <div class="formula-box">
+        <strong>Open Tube Resonant Frequencies:</strong><br>
+        f<sub>n</sub> = (n × v)/(2L)<br><br>
+        Where:<br>
+        n = 1, 2, 3, 4, ... (all harmonics present)<br>
+        v = speed of sound (≈ 343 m/s at 20°C)<br>
+        L = length of tube
+    </div>
+
+    <div class="key-point">
+        <strong>Important:</strong> Open tubes support all harmonics. The wavelength of the nth harmonic is λ<sub>n</sub> = 2L/n.
+    </div>
+
+    <h2>3. Closed Tube Resonance</h2>
+    
+    <h3>Characteristics</h3>
+    <p>A closed tube (closed at one end, open at the other) has a node at the closed end and an antinode at the open end. Only odd harmonics are present.</p>
+    
+    <p>A closed tube has a node at the closed end and an antinode at the open end. Only odd harmonics (1st, 3rd, 5th, etc.) are supported.</p>
+    
+    <div class="formula-box">
+        <strong>Closed Tube Resonant Frequencies:</strong><br>
+        f<sub>n</sub> = ((2n-1) × v)/(4L)<br><br>
+        Where:<br>
+        n = 1, 2, 3, ... (gives 1st, 3rd, 5th harmonics)<br>
+        v = speed of sound<br>
+        L = length of tube
+    </div>
+
+    <div class="key-point">
+        <strong>Key Difference:</strong> Closed tubes only produce odd harmonics (1st, 3rd, 5th, ...), while open tubes produce all harmonics.
+    </div>
+
+    <h2>4. Comparison Summary</h2>
+    
+    <table>
+        <tr>
+            <th>System</th>
+            <th>Boundary Conditions</th>
+            <th>Harmonics Present</th>
+            <th>Fundamental Frequency</th>
+        </tr>
+        <tr>
+            <td>Fixed String</td>
+            <td>Nodes at both ends</td>
+            <td>All (1, 2, 3, ...)</td>
+            <td>f₁ = v/(2L)</td>
+        </tr>
+        <tr>
+            <td>Open Tube</td>
+            <td>Antinodes at both ends</td>
+            <td>All (1, 2, 3, ...)</td>
+            <td>f₁ = v/(2L)</td>
+        </tr>
+        <tr>
+            <td>Closed Tube</td>
+            <td>Node at closed end, antinode at open end</td>
+            <td>Odd only (1, 3, 5, ...)</td>
+            <td>f₁ = v/(4L)</td>
+        </tr>
+    </table>
+
+    <h2>6. Practice Problems</h2>
+
+    <div class="example">
+        <h4>Problem 1: String Resonance</h4>
+        <p>A violin string has length 0.33 m, mass 0.5 g, and tension 60 N. Calculate:</p>
+        <p>a) The wave speed</p>
+        <p>b) The fundamental frequency</p>
+        <p>c) The frequency of the 4th harmonic</p>
+        <p><strong>Solution:</strong></p>
+        <p>a) μ = 0.0005 kg / 0.33 m = 1.515 × 10⁻³ kg/m</p>
+        <p>   v = √(60 / 1.515 × 10⁻³) = √39,604 = 199 m/s</p>
+        <p>b) f₁ = v/(2L) = 199/(2 × 0.33) = 199/0.66 = 302 Hz</p>
+        <p>c) f₄ = 4f₁ = 4 × 302 = 1208 Hz</p>
+    </div>
+
+    <div class="example">
+        <h4>Problem 2: Open vs Closed Tubes</h4>
+        <p>Compare the fundamental frequencies of:</p>
+        <ul>
+            <li>An open tube of length 1.0 m</li>
+            <li>A closed tube of length 1.0 m</li>
+        </ul>
+        <p><strong>Solution:</strong></p>
+        <p>Open tube: f₁ = 343/(2 × 1.0) = 171.5 Hz</p>
+        <p>Closed tube: f₁ = 343/(4 × 1.0) = 85.75 Hz</p>
+        <p>The closed tube has half the fundamental frequency of the open tube of the same length.</p>
+    </div>
+
+    <div class="example">
+        <h4>Problem 3: Harmonic Analysis</h4>
+        <p>A closed organ pipe produces a fundamental frequency of 220 Hz. What are the frequencies of the next three harmonics?</p>
+        <p><strong>Solution:</strong></p>
+        <p>For closed tubes, only odd harmonics exist:</p>
+        <p>1st harmonic (fundamental): f₁ = 220 Hz</p>
+        <p>3rd harmonic: f₃ = 3 × 220 = 660 Hz</p>
+        <p>5th harmonic: f₅ = 5 × 220 = 1100 Hz</p>
+        <p>7th harmonic: f₇ = 7 × 220 = 1540 Hz</p>
+    </div>
+
+    <div class="example">
+        <h4>Problem 4: Finding Tube Length</h4>
+        <p>What length of closed tube is needed to produce a fundamental frequency of 440 Hz (A4 note) at 20°C?</p>
+        <p><strong>Solution:</strong></p>
+        <p>Using f₁ = v/(4L) and rearranging for L:</p>
+        <p>L = v/(4f₁) = 343/(4 × 440) = 0.195 m = 19.5 cm</p>
+    </div>
+
+    <div class="example">
+        <h4>Problem 5: String Tension</h4>
+        <p>A guitar string of length 0.64 m and linear mass density 3.2 × 10⁻³ kg/m needs to produce a fundamental frequency of 330 Hz. What tension is required?</p>
+        <p><strong>Solution:</strong></p>
+        <p>From f₁ = (1/2L)√(T/μ), we can solve for T:</p>
+        <p>T = (2Lf₁)² × μ</p>
+        <p>T = (2 × 0.64 × 330)² × 3.2 × 10⁻³</p>
+        <p>T = (422.4)² × 3.2 × 10⁻³ = 178,421 × 3.2 × 10⁻³ = 571 N</p>
+    </div>
+
+    <div class="example">
+        <h4>Problem 6: Open Tube Harmonics</h4>
+        <p>An open flute has a fundamental frequency of 262 Hz (middle C). Calculate:</p>
+        <p>a) The length of the flute</p>
+        <p>b) The frequencies of the 2nd and 3rd harmonics</p>
+        <p><strong>Solution:</strong></p>
+        <p>a) L = v/(2f₁) = 343/(2 × 262) = 0.654 m = 65.4 cm</p>
+        <p>b) 2nd harmonic: f₂ = 2 × 262 = 524 Hz</p>
+        <p>   3rd harmonic: f₃ = 3 × 262 = 786 Hz</p>
+    </div>
+
+    <h2>7. Harmonics vs Overtones</h2>
+    
+    <p>It's important to understand the distinction between harmonics and overtones, as these terms are often confused.</p>
+    
+    <div class="key-point">
+        <strong>Harmonics:</strong> All frequencies that are integer multiples of the fundamental frequency, including the fundamental itself.
+    </div>
+    
+    <div class="key-point">
+        <strong>Overtones:</strong> All frequencies above the fundamental frequency. The first overtone is the second harmonic, the second overtone is the third harmonic, etc.
+    </div>
+    
+    <table>
+        <tr>
+            <th>Frequency</th>
+            <th>Harmonic Number</th>
+            <th>Overtone Number</th>
+            <th>Example (f₁ = 100 Hz)</th>
+        </tr>
+        <tr>
+            <td>f₁</td>
+            <td>1st Harmonic (Fundamental)</td>
+            <td>Not an overtone</td>
+            <td>100 Hz</td>
+        </tr>
+        <tr>
+            <td>2f₁</td>
+            <td>2nd Harmonic</td>
+            <td>1st Overtone</td>
+            <td>200 Hz</td>
+        </tr>
+        <tr>
+            <td>3f₁</td>
+            <td>3rd Harmonic</td>
+            <td>2nd Overtone</td>
+            <td>300 Hz</td>
+        </tr>
+        <tr>
+            <td>4f₁</td>
+            <td>4th Harmonic</td>
+            <td>3rd Overtone</td>
+            <td>400 Hz</td>
+        </tr>
+    </table>
+    
+    <div class="example">
+        <h4>Example: Closed Tube Harmonics vs Overtones</h4>
+        <p>A closed tube with fundamental frequency 220 Hz:</p>
+        <p><strong>Harmonics present:</strong> 1st, 3rd, 5th, 7th... (220, 660, 1100, 1540 Hz)</p>
+        <p><strong>Overtones:</strong></p>
+        <ul>
+            <li>1st overtone = 3rd harmonic = 660 Hz</li>
+            <li>2nd overtone = 5th harmonic = 1100 Hz</li>
+            <li>3rd overtone = 7th harmonic = 1540 Hz</li>
+        </ul>
+        <p><em>Note: The 2nd, 4th, 6th harmonics don't exist in closed tubes, so the overtones skip these frequencies.</em></p>
+    </div>
+
+    <h2>8. Key Concepts to Remember</h2>
+    
+    <ul>
+        <li><strong>Wave Speed:</strong> Depends on medium properties (tension/density for strings, temperature for air)</li>
+        <li><strong>Standing Waves:</strong> Result from interference between incident and reflected waves</li>
+        <li><strong>Nodes:</strong> Points of zero amplitude (destructive interference)</li>
+        <li><strong>Antinodes:</strong> Points of maximum amplitude (constructive interference)</li>
+        <li><strong>Harmonics:</strong> Integer multiples of the fundamental frequency</li>
+        <li><strong>End Effects:</strong> Boundary conditions determine which harmonics are allowed</li>
+    </ul>
+
+    <div class="key-point">
+        <strong>Exam Tip:</strong> Always identify the boundary conditions first, then determine which harmonics are present, and finally apply the appropriate frequency formula.
+    </div>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9765142473ca473c',t:'MTc1NjM5NzQyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

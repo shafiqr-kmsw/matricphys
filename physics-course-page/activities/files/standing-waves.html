@@ -494,7 +494,7 @@
             document.getElementById(`${type}-speed-val`).textContent = `${speed}x`;
             document.getElementById(`${type}-length-val`).textContent = `${length} m`;
             
-            const harmonicNames = ['1st', '2nd', '3rd', '4th', '5th'];
+            const harmonicNames = ['1st', '2nd (or 3rd if closed)', '3rd (or 5th if closed)', '4th', '5th'];
             document.getElementById(`${type}-harmonic-val`).textContent = harmonicNames[harmonic - 1];
             
             // Calculate wavelength and node positions

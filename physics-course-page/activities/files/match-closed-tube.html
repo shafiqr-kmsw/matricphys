@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Closed Air Column Resonance Memory Match</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .card {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+
+        .card.flipped {
+            background: linear-gradient(145deg, #FF9800, #FF5722);
+            color: white;
+        }
+
+        .card.matched {
+            background: linear-gradient(145deg, #4CAF50, #8BC34A);
+            color: white;
+            cursor: default;
+            animation: matchPulse 0.6s ease;
+        }
+
+        .card.wrong {
+            background: linear-gradient(145deg, #f44336, #e53935);
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes matchPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .card-content {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .card-back {
+            background: linear-gradient(145deg, #2196F3, #21CBF3);
+            color: white;
+            font-size: 2rem;
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #FF9800, #FF5722);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+
+        .victory {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #4CAF50, #8BC34A);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+        }
+
+        .victory h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .victory p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .game-stats {
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .card-content {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎺 Closed Air Column Resonance Match</h1>
+        <p>Match air column questions with their resonant frequencies!</p>
+    </div>
+
+    <div class="game-stats">
+        <div class="stat">Moves: <span id="moves">0</span></div>
+        <div class="stat">Matches: <span id="matches">0</span>/6</div>
+        <div class="stat">Time: <span id="timer">00:00</span></div>
+    </div>
+
+    <div class="game-board" id="gameBoard"></div>
+
+    <div class="controls">
+        <button class="btn" onclick="newGame()">New Game</button>
+    </div>
+
+    <div class="victory" id="victory">
+        <h2>🎉 Perfect Resonance!</h2>
+        <p>You matched all air column frequencies!</p>
+        <p>Moves: <span id="finalMoves"></span> | Time: <span id="finalTime"></span></p>
+        <button class="btn" onclick="newGame()">Play Again</button>
+    </div>
+
+    <script>
+        let gameState = {
+            flippedCards: [],
+            matchedPairs: 0,
+            moves: 0,
+            startTime: null,
+            timerInterval: null,
+            gameActive: true
+        };
+
+        // Dynamic question generation system
+        const instrumentTypes = [
+            "Closed Tube", "Organ Pipe", "Test Tube", "Flute (closed)", 
+            "Air Column", "Resonance Tube", "Wind Instrument", "Pipe Organ"
+        ];
+
+        const lengthRanges = [
+            { min: 0.1, max: 0.3, step: 0.05 },   // Short tubes
+            { min: 0.4, max: 0.8, step: 0.1 },    // Medium tubes
+            { min: 1.0, max: 2.0, step: 0.2 }     // Long tubes
+        ];
+
+        const harmonics = [
+            { n: 1, name: "1st harmonic", desc: "fundamental" },
+            { n: 3, name: "3rd harmonic", desc: "3rd harmonic" },
+            { n: 5, name: "5th harmonic", desc: "5th harmonic" },
+            { n: 7, name: "7th harmonic", desc: "7th harmonic" }
+        ];
+
+        function generateRandomLength(range) {
+            const steps = Math.floor((range.max - range.min) / range.step) + 1;
+            const randomStep = Math.floor(Math.random() * steps);
+            const length = range.min + (randomStep * range.step);
+            return Math.round(length * 100) / 100; // Fix floating point precision
+        }
+
+        function calculateFrequency(length, harmonic, velocity = 343) {
+            // f_n = nv / (4L) for closed air columns, where n = 1,3,5...
+            const frequency = (harmonic * velocity) / (4 * length);
+            return Math.round(frequency * 100) / 100; // Round to 2 decimal places
+        }
+
+        function generateCardPairs() {
+            const pairs = [];
+            const usedCombinations = new Set();
+
+            while (pairs.length < 6) {
+                // Random selections
+                const instrument = instrumentTypes[Math.floor(Math.random() * instrumentTypes.length)];
+                const lengthRange = lengthRanges[Math.floor(Math.random() * lengthRanges.length)];
+                const length = generateRandomLength(lengthRange);
+                const harmonic = harmonics[Math.floor(Math.random() * harmonics.length)];
+                
+                // Create unique identifier to avoid duplicates
+                const combination = `${length}-${harmonic.n}`;
+                if (usedCombinations.has(combination)) continue;
+                usedCombinations.add(combination);
+
+                // Calculate the answer
+                const frequency = calculateFrequency(length, harmonic.n);
+                
+                // Format the question
+                const question = `${instrument}:\nL = ${length}m\nv = 343 m/s\nFind f${harmonic.n} (${harmonic.desc})`;
+                const answer = `${frequency} Hz`;
+
+                pairs.push({ question, answer });
+            }
+
+            return pairs;
+        }
+
+        function createCards() {
+            const cards = [];
+            const cardPairs = generateCardPairs(); // Generate fresh questions each game
+            
+            cardPairs.forEach((pair, index) => {
+                cards.push({
+                    id: `q${index}`,
+                    content: pair.question,
+                    type: 'question',
+                    pairId: index
+                });
+                cards.push({
+                    id: `a${index}`,
+                    content: pair.answer,
+                    type: 'answer',
+                    pairId: index
+                });
+            });
+            return shuffleArray(cards);
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function renderBoard() {
+            const board = document.getElementById('gameBoard');
+            const cards = createCards();
+            
+            board.innerHTML = '';
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.dataset.cardId = card.id;
+                cardElement.dataset.pairId = card.pairId;
+                cardElement.onclick = () => flipCard(cardElement, card);
+                
+                cardElement.innerHTML = `
+                    <div class="card-content card-back">🎺</div>
+                `;
+                
+                board.appendChild(cardElement);
+            });
+        }
+
+        function flipCard(cardElement, cardData) {
+            if (!gameState.gameActive || 
+                cardElement.classList.contains('flipped') || 
+                cardElement.classList.contains('matched') ||
+                gameState.flippedCards.length >= 2) {
+                return;
+            }
+
+            if (!gameState.startTime) {
+                startTimer();
+            }
+
+            cardElement.classList.add('flipped');
+            cardElement.innerHTML = `<div class="card-content">${cardData.content}</div>`;
+            
+            gameState.flippedCards.push({element: cardElement, data: cardData});
+
+            if (gameState.flippedCards.length === 2) {
+                gameState.moves++;
+                document.getElementById('moves').textContent = gameState.moves;
+                
+                setTimeout(() => checkMatch(), 1000);
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = gameState.flippedCards;
+            
+            if (card1.data.pairId === card2.data.pairId) {
+                // Match found
+                card1.element.classList.remove('flipped');
+                card2.element.classList.remove('flipped');
+                card1.element.classList.add('matched');
+                card2.element.classList.add('matched');
+                
+                gameState.matchedPairs++;
+                document.getElementById('matches').textContent = gameState.matchedPairs;
+                
+                if (gameState.matchedPairs === 6) {
+                    endGame();
+                }
+            } else {
+                // No match
+                card1.element.classList.add('wrong');
+                card2.element.classList.add('wrong');
+                
+                setTimeout(() => {
+                    card1.element.classList.remove('flipped', 'wrong');
+                    card2.element.classList.remove('flipped', 'wrong');
+                    card1.element.innerHTML = '<div class="card-content card-back">🎺</div>';
+                    card2.element.innerHTML = '<div class="card-content card-back">🎺</div>';
+                }, 500);
+            }
+            
+            gameState.flippedCards = [];
+        }
+
+        function startTimer() {
+            gameState.startTime = Date.now();
+            gameState.timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+            const seconds = (elapsed % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+        }
+
+        function endGame() {
+            gameState.gameActive = false;
+            clearInterval(gameState.timerInterval);
+            
+            const finalTime = document.getElementById('timer').textContent;
+            document.getElementById('finalMoves').textContent = gameState.moves;
+            document.getElementById('finalTime').textContent = finalTime;
+            document.getElementById('victory').style.display = 'block';
+        }
+
+        function newGame() {
+            gameState = {
+                flippedCards: [],
+                matchedPairs: 0,
+                moves: 0,
+                startTime: null,
+                timerInterval: null,
+                gameActive: true
+            };
+            
+            clearInterval(gameState.timerInterval);
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('matches').textContent = '0';
+            document.getElementById('timer').textContent = '00:00';
+            document.getElementById('victory').style.display = 'none';
+            
+            renderBoard();
+        }
+
+        function showHint() {
+            if (!gameState.gameActive) return;
+            
+            alert('💡 Hint: For closed air columns, resonant frequencies are:\n\nf_n = nv / (4L)\n\nwhere n = 1,3,5... (odd harmonics only)\nv = speed of sound (343 m/s at 20°C)\nL = length of the closed tube\n\nOnly odd harmonics resonate in closed tubes!');
+        }
+
+        // Initialize game
+        newGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97654785a24d473c',t:'MTc1NjM5OTUzMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

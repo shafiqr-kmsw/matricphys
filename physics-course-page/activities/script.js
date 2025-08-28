@@ -7,12 +7,15 @@ const documents = [
   { name: "Rotational Kinematics Explorer", link: "files/rot-kine.html" },
   { name: "Torque Tic-Tac-Toe", link: "files/torque-tictactoe.html" },
   { name: "SHM cases", link: "files/shm.html" },
+  { name: "Oscillimon: Gotta Catch em All !", link: "files/oscillimon.html" },
+  { name: "Short Notes on Resonant Frequency", link: "files/resonant-notes.html" },
   { name: "Standing Waves cases", link: "files/standing-waves.html" },
   { name: "Standing Waves Practice (Quick & Easy)", link: "files/tube-practice.html" },
+  { name: "Sound Waves explorer", link: "files/sound-waves.html" },
+  { name: "Sound Waves Practice", link: "files/wave-prac.html" },
+  { name: "Match Closed Tube", link: "files/match-closed-tube.html" },
   { name: "Thermodynamic Process Calculator", link: "files/pv-calc.html" },
   { name: "Thermal Expansion Duel", link: "files/therm-expand-duel.html" },
-  { name: "Oscillimon: Gotta Catch em All !", link: "files/oscillimon.html" },
-  { name: "Sound Waves explorer", link: "files/sound-waves.html" },
 ]
 ;
 
