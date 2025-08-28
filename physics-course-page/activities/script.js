@@ -8,7 +8,14 @@ const documents = [
   { name: "Torque Tic-Tac-Toe", link: "files/torque-tictactoe.html" },
   { name: "SHM cases", link: "files/shm.html" },
   { name: "Standing Waves cases", link: "files/standing-waves.html" },
+<<<<<<< Updated upstream
   { name: "Standing Waves Practice (Quick & Easy)", link: "files/tube-practice.html" },
+=======
+  { name: "Thermodynamic Process Calculator", link: "files/pv-calc.html" },
+  { name: "Thermal Expansion Duel", link: "files/therm-expand-duel.html" },
+  { name: "Oscillimon: Gotta Catch em All !", link: "files/oscillimon.html" },
+  { name: "Sound Waves explorer", link: "files/sound-waves.html" },
+>>>>>>> Stashed changes
 ]
 ;
 
