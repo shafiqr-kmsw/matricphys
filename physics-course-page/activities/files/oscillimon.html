@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oscillimon Adventure - SHM Period Quest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #3b4cca 0%, #ffde00 50%, #ff0000 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #cc0000;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .name-screen {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .name-input-container h2 {
+            color: #cc0000;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        
+        .name-input-container p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #666;
+        }
+        
+        .name-input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .trainer-name-input {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+        }
+        
+        .trainer-name-input:focus {
+            outline: none;
+            border-color: #3b4cca;
+        }
+        
+        .start-adventure-btn {
+            background: linear-gradient(135deg, #3b4cca, #cc0000);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .start-adventure-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 76, 202, 0.4);
+        }
+        
+        .player-stats {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #cc0000;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .trainer-name-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #cc0000;
+        }
+        
+        .round-info {
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .end-game-btn {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .end-game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+        }
+        
+        .game-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        
+        .world-map {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            min-height: 600px;
+            position: relative;
+        }
+        
+        .encounter-area {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .oscillimon {
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .oscillimon:hover {
+            transform: scale(1.1);
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .oscillimon-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .problem-section {
+            background: rgba(255, 222, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #3b4cca;
+        }
+        
+        .formula-display {
+            background: rgba(255, 222, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: 2px solid #b3a125;
+        }
+        
+        .problem-params {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .param-box {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .battle-input {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .answer-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #3b4cca;
+        }
+        
+        .catch-btn {
+            background: linear-gradient(135deg, #3b4cca, #cc0000);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .catch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 76, 202, 0.3);
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .collection {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .collection h3 {
+            color: #cc0000;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .caught-oscillimon {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .mini-oscillimon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        .oscillimon-count {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: #ff0000;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .feedback.success {
+            background: rgba(255, 222, 0, 0.2);
+            border: 2px solid #b3a125;
+            color: #b3a125;
+        }
+        
+        .feedback.error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid #cc0000;
+            color: #cc0000;
+        }
+        
+        .next-btn {
+            background: linear-gradient(135deg, #2196f3, #1976d2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        .achievements {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .achievement {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .achievement.unlocked {
+            background: #e8f5e8;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .certificate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .certificate-content {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            color: #333;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 5px solid #FFD700;
+        }
+        
+        .certificate-header {
+            border-bottom: 3px solid #2E8B57;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .certificate-title {
+            font-size: 2.5rem;
+            color: #2E8B57;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .certificate-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .trainer-info {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            color: #2E8B57;
+            font-weight: bold;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #2E8B57;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2E8B57;
+        }
+        
+        .stat-description {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .certificate-collection {
+            margin: 30px 0;
+        }
+        
+        .certificate-collection h3 {
+            color: #2E8B57;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .certificate-oscillimon {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .cert-oscillimon {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .cert-oscillimon-emoji {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .cert-oscillimon-name {
+            font-weight: bold;
+            color: #2E8B57;
+            margin-bottom: 5px;
+        }
+        
+        .cert-oscillimon-count {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .certificate-footer {
+            border-top: 3px solid #2E8B57;
+            padding-top: 20px;
+            margin-top: 30px;
+        }
+        
+        .play-again-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+            
+            .player-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .certificate-oscillimon {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🌊 Oscillimon Adventure ⚡</h1>
+            <p>Catch oscillating creatures by solving Simple Harmonic Motion problems!</p>
+        </div>
+        
+        <div id="nameScreen" class="name-screen">
+            <div class="name-input-container">
+                <h2>Welcome, Future Oscillimon Trainer!</h2>
+                <p>Enter your name to begin your physics adventure:</p>
+                <div class="name-input-section">
+                    <input type="text" id="trainerName" class="trainer-name-input" placeholder="Enter your name" maxlength="20" onkeypress="if(event.key==='Enter') game.startAdventure()">
+                    <button class="start-adventure-btn" onclick="game.startAdventure()">Start Adventure! 🚀</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="gameScreen" class="hidden">
+            <div class="game-info">
+                <div class="trainer-name-display">
+                    <span>Trainer: </span><span id="displayTrainerName">Unknown</span>
+                </div>
+                <div class="round-info">
+                    <div>Level <span id="displayLevel">1</span> Trainer</div>
+                    <div>Catch 'em all!</div>
+                </div>
+                <div style="text-align: right;">
+                    <button class="end-game-btn" onclick="game.endGame()">End Adventure 🏁</button>
+                </div>
+            </div>
+            
+            <div class="player-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalCaught">0</div>
+                    <div class="stat-label">Oscillimon Caught</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="correctAnswers">0</div>
+                    <div class="stat-label">Problems Solved</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy">100%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="level">1</div>
+                    <div class="stat-label">Trainer Level</div>
+                </div>
+            </div>
+            
+            <div class="game-area">
+                <div class="world-map">
+                    <div class="encounter-area">
+                        <h2>Wild Oscillimon Appeared!</h2>
+                        
+                        <div class="oscillimon" id="currentOscillimon" onclick="game.startBattle()">
+                            🌊
+                        </div>
+                        
+                        <div class="oscillimon-info" id="oscillimonInfo">
+                            <h3 id="oscillimonName">Pendulux</h3>
+                            <p id="oscillimonDescription">A graceful pendulum creature that sways with perfect rhythm</p>
+                            <p><strong>Type:</strong> <span id="oscillimonType">Simple Pendulum</span></p>
+                            <p><strong>Rarity:</strong> <span id="oscillimonRarity">Common</span></p>
+                        </div>
+                        
+                        <div class="problem-section" id="problemSection" style="display: none;">
+                            <h3>Battle Challenge!</h3>
+                            <p id="problemText">Calculate the period of oscillation to catch this Oscillimon!</p>
+                            
+                            <div class="formula-display" id="formulaDisplay">
+                                T = 2π√(L/g)
+                            </div>
+                            
+                            <div class="problem-params" id="problemParams">
+                                <!-- Parameters will be inserted here -->
+                            </div>
+                            
+                            <div class="battle-input">
+                                <input type="number" 
+                                       class="answer-input" 
+                                       id="answerInput"
+                                       placeholder="Period (seconds)" 
+                                       step="0.01"
+                                       onkeypress="if(event.key==='Enter') game.submitAnswer()">
+                                <button class="catch-btn" onclick="game.submitAnswer()">Catch!</button>
+                            </div>
+                            
+                            <div id="feedback" class="feedback hidden"></div>
+                            <button class="next-btn hidden" id="nextBtn" onclick="game.nextEncounter()">Find Next Oscillimon</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar">
+                    <div class="collection">
+                        <h3>🎒 My Collection</h3>
+                        <div class="caught-oscillimon" id="collection">
+                            <!-- Caught Oscillimon will appear here -->
+                        </div>
+                    </div>
+                    
+                    <div class="achievements">
+                        <h3>🏆 Achievements</h3>
+                        <div class="achievement" id="achievement1">
+                            <span>🥇</span>
+                            <div>
+                                <strong>First Catch</strong><br>
+                                <small>Catch your first Oscillimon</small>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement2">
+                            <span>📐</span>
+                            <div>
+                                <strong>Physics Master</strong><br>
+                                <small>Solve 10 problems correctly</small>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement3">
+                            <span>🎯</span>
+                            <div>
+                                <strong>Perfect Accuracy</strong><br>
+                                <small>Maintain 100% accuracy for 5 catches</small>
+                            </div>
+                        </div>
+                        <div class="achievement" id="achievement4">
+                            <span>🌟</span>
+                            <div>
+                                <strong>Collector</strong><br>
+                                <small>Catch 5 different types</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="certificateScreen" class="certificate hidden">
+            <div class="certificate-content">
+                <div class="certificate-header">
+                    <div class="certificate-title">🏆 Certificate of Achievement 🏆</div>
+                    <div class="certificate-subtitle">Oscillimon Physics Master</div>
+                </div>
+                
+                <div class="trainer-info">
+                    This certifies that <span id="certTrainerName">Trainer</span><br>
+                    has successfully completed the Oscillimon Adventure!
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-number" id="certTotalCaught">0</div>
+                        <div class="stat-description">Oscillimon Caught</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="certCorrectAnswers">0</div>
+                        <div class="stat-description">Problems Solved</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="certAccuracy">100%</div>
+                        <div class="stat-description">Final Accuracy</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="certLevel">1</div>
+                        <div class="stat-description">Trainer Level</div>
+                    </div>
+                </div>
+                
+                <div class="certificate-collection">
+                    <h3>🎒 Oscillimon Collection</h3>
+                    <div class="certificate-oscillimon" id="certCollection">
+                        <!-- Collection will be displayed here -->
+                    </div>
+                </div>
+                
+                <div class="certificate-footer">
+                    <p style="margin-bottom: 20px; color: #666; font-style: italic;">
+                        "Physics is not just about formulas - it's about understanding the beautiful oscillations of our universe!"
+                    </p>
+                    <button class="play-again-btn" onclick="game.resetGame()">New Adventure</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class OscillimonGame {
+            constructor() {
+                this.trainerName = "";
+                this.totalCaught = 0;
+                this.correctAnswers = 0;
+                this.totalAttempts = 0;
+                this.level = 1;
+                this.currentOscillimon = null;
+                this.currentProblem = null;
+                this.collection = {};
+                this.perfectStreak = 0;
+                
+                this.oscillimonTypes = [
+                    {
+                        name: "Pendulux",
+                        emoji: "🌊",
+                        type: "Simple Pendulum",
+                        description: "A graceful pendulum creature that sways with perfect rhythm",
+                        color: "#4FC3F7",
+                        rarity: "Common",
+                        formula: "T = 2π√(L/g)",
+                        problemType: "pendulum"
+                    },
+                    {
+                        name: "Springon",
+                        emoji: "🌸",
+                        type: "Mass-Spring System",
+                        description: "A bouncy creature powered by elastic energy",
+                        color: "#81C784",
+                        rarity: "Common",
+                        formula: "T = 2π√(m/k)",
+                        problemType: "spring"
+                    },
+                    {
+                        name: "Torsion",
+                        emoji: "🌀",
+                        type: "Torsional Oscillator",
+                        description: "A twisting creature that rotates with precision",
+                        color: "#FFB74D",
+                        rarity: "Uncommon",
+                        formula: "T = 2π√(I/κ)",
+                        problemType: "torsion"
+                    },
+                    {
+                        name: "Physicalux",
+                        emoji: "⚖️",
+                        type: "Physical Pendulum",
+                        description: "An advanced pendulum with distributed mass",
+                        color: "#F06292",
+                        rarity: "Rare",
+                        formula: "T = 2π√(I/mgd)",
+                        problemType: "physical"
+                    },
+                    {
+                        name: "Compoundor",
+                        emoji: "🔗",
+                        type: "Compound Pendulum",
+                        description: "A complex creature with multiple oscillation modes",
+                        color: "#BA68C8",
+                        rarity: "Epic",
+                        formula: "T = 2π√(L_eq/g)",
+                        problemType: "compound"
+                    },
+                    {
+                        name: "Dampeon",
+                        emoji: "💨",
+                        type: "Damped Oscillator",
+                        description: "A mysterious creature affected by resistance forces",
+                        color: "#90A4AE",
+                        rarity: "Legendary",
+                        formula: "T = 2π/√(ω₀² - γ²)",
+                        problemType: "damped"
+                    }
+                ];
+            }
+            
+            startAdventure() {
+                const nameInput = document.getElementById('trainerName');
+                const name = nameInput.value.trim();
+                
+                if (!name) {
+                    alert('Please enter your name to start the adventure!');
+                    return;
+                }
+                
+                this.trainerName = name;
+                document.getElementById('displayTrainerName').textContent = name;
+                document.getElementById('nameScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                
+                this.generateEncounter();
+            }
+            
+            generateEncounter() {
+                // Choose random Oscillimon based on level (higher level = rarer creatures)
+                let availableTypes = this.oscillimonTypes.filter(type => {
+                    if (this.level >= 10) return true;
+                    if (this.level >= 7 && type.rarity !== "Legendary") return true;
+                    if (this.level >= 5 && !["Epic", "Legendary"].includes(type.rarity)) return true;
+                    if (this.level >= 3 && !["Rare", "Epic", "Legendary"].includes(type.rarity)) return true;
+                    return type.rarity === "Common";
+                });
+                
+                this.currentOscillimon = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+                this.displayOscillimon();
+            }
+            
+            displayOscillimon() {
+                const oscillimon = document.getElementById('currentOscillimon');
+                const info = document.getElementById('oscillimonInfo');
+                
+                oscillimon.textContent = this.currentOscillimon.emoji;
+                oscillimon.style.background = this.currentOscillimon.color;
+                
+                document.getElementById('oscillimonName').textContent = this.currentOscillimon.name;
+                document.getElementById('oscillimonDescription').textContent = this.currentOscillimon.description;
+                document.getElementById('oscillimonType').textContent = this.currentOscillimon.type;
+                document.getElementById('oscillimonRarity').textContent = this.currentOscillimon.rarity;
+                
+                document.getElementById('problemSection').style.display = 'none';
+            }
+            
+            startBattle() {
+                this.currentProblem = this.generateProblem(this.currentOscillimon.problemType);
+                this.displayProblem();
+                document.getElementById('problemSection').style.display = 'block';
+                document.getElementById('answerInput').focus();
+            }
+            
+            generateProblem(type) {
+                let problem = {};
+                
+                switch(type) {
+                    case 'pendulum':
+                        problem.length = Math.round((Math.random() * 3 + 0.5) * 100) / 100; // 0.5-3.5m
+                        problem.gravity = 9.81;
+                        problem.correctAnswer = 2 * Math.PI * Math.sqrt(problem.length / problem.gravity);
+                        problem.params = [
+                            { label: "Length (L)", value: `${problem.length} m` },
+                            { label: "Gravity (g)", value: `${problem.gravity} m/s²` }
+                        ];
+                        break;
+                        
+                    case 'spring':
+                        problem.mass = Math.round((Math.random() * 2 + 0.1) * 100) / 100; // 0.1-2.1 kg
+                        problem.springConstant = Math.round((Math.random() * 50 + 10) * 10) / 10; // 10-60 N/m
+                        problem.correctAnswer = 2 * Math.PI * Math.sqrt(problem.mass / problem.springConstant);
+                        problem.params = [
+                            { label: "Mass (m)", value: `${problem.mass} kg` },
+                            { label: "Spring Constant (k)", value: `${problem.springConstant} N/m` }
+                        ];
+                        break;
+                        
+                    case 'torsion':
+                        problem.inertia = Math.round((Math.random() * 0.05 + 0.01) * 1000) / 1000; // 0.01-0.06 kg⋅m²
+                        problem.torsionConstant = Math.round((Math.random() * 2 + 0.5) * 100) / 100; // 0.5-2.5 N⋅m/rad
+                        problem.correctAnswer = 2 * Math.PI * Math.sqrt(problem.inertia / problem.torsionConstant);
+                        problem.params = [
+                            { label: "Moment of Inertia (I)", value: `${problem.inertia} kg⋅m²` },
+                            { label: "Torsion Constant (κ)", value: `${problem.torsionConstant} N⋅m/rad` }
+                        ];
+                        break;
+                        
+                    case 'physical':
+                        problem.inertia = Math.round((Math.random() * 0.1 + 0.02) * 1000) / 1000; // 0.02-0.12 kg⋅m²
+                        problem.mass = Math.round((Math.random() * 5 + 1) * 100) / 100; // 1-6 kg
+                        problem.distance = Math.round((Math.random() * 0.5 + 0.1) * 100) / 100; // 0.1-0.6 m
+                        problem.gravity = 9.81;
+                        problem.correctAnswer = 2 * Math.PI * Math.sqrt(problem.inertia / (problem.mass * problem.gravity * problem.distance));
+                        problem.params = [
+                            { label: "Moment of Inertia (I)", value: `${problem.inertia} kg⋅m²` },
+                            { label: "Mass (m)", value: `${problem.mass} kg` },
+                            { label: "Distance to CM (d)", value: `${problem.distance} m` },
+                            { label: "Gravity (g)", value: `${problem.gravity} m/s²` }
+                        ];
+                        break;
+                        
+                    case 'compound':
+                        problem.length1 = Math.round((Math.random() * 1 + 0.5) * 100) / 100; // 0.5-1.5 m
+                        problem.length2 = Math.round((Math.random() * 1 + 0.5) * 100) / 100; // 0.5-1.5 m
+                        problem.equivalentLength = (problem.length1 + problem.length2) / 2; // Simplified
+                        problem.gravity = 9.81;
+                        problem.correctAnswer = 2 * Math.PI * Math.sqrt(problem.equivalentLength / problem.gravity);
+                        problem.params = [
+                            { label: "Upper Length (L₁)", value: `${problem.length1} m` },
+                            { label: "Lower Length (L₂)", value: `${problem.length2} m` },
+                            { label: "Gravity (g)", value: `${problem.gravity} m/s²` }
+                        ];
+                        break;
+                        
+                    case 'damped':
+                        problem.naturalFreq = Math.round((Math.random() * 5 + 2) * 100) / 100; // 2-7 rad/s
+                        problem.dampingCoeff = Math.round((Math.random() * 1 + 0.1) * 100) / 100; // 0.1-1.1 rad/s
+                        problem.dampedFreq = Math.sqrt(problem.naturalFreq * problem.naturalFreq - problem.dampingCoeff * problem.dampingCoeff);
+                        problem.correctAnswer = 2 * Math.PI / problem.dampedFreq;
+                        problem.params = [
+                            { label: "Natural Frequency (ω₀)", value: `${problem.naturalFreq} rad/s` },
+                            { label: "Damping Coefficient (γ)", value: `${problem.dampingCoeff} rad/s` }
+                        ];
+                        break;
+                }
+                
+                problem.correctAnswer = Math.round(problem.correctAnswer * 100) / 100; // Round to 2 decimal places
+                return problem;
+            }
+            
+            displayProblem() {
+                document.getElementById('formulaDisplay').textContent = this.currentOscillimon.formula;
+                
+                const paramsContainer = document.getElementById('problemParams');
+                paramsContainer.innerHTML = '';
+                
+                this.currentProblem.params.forEach(param => {
+                    const paramBox = document.createElement('div');
+                    paramBox.className = 'param-box';
+                    paramBox.innerHTML = `<strong>${param.label}:</strong><br>${param.value}`;
+                    paramsContainer.appendChild(paramBox);
+                });
+                
+                // Clear previous feedback
+                document.getElementById('feedback').classList.add('hidden');
+                document.getElementById('nextBtn').classList.add('hidden');
+                document.getElementById('answerInput').value = '';
+                document.getElementById('answerInput').disabled = false;
+            }
+            
+            submitAnswer() {
+                const input = document.getElementById('answerInput');
+                const feedback = document.getElementById('feedback');
+                const userAnswer = parseFloat(input.value);
+                
+                if (isNaN(userAnswer)) {
+                    feedback.className = 'feedback error';
+                    feedback.textContent = 'Please enter a valid number!';
+                    feedback.classList.remove('hidden');
+                    return;
+                }
+                
+                this.totalAttempts++;
+                const tolerance = 0.05; // 5% tolerance
+                const isCorrect = Math.abs(userAnswer - this.currentProblem.correctAnswer) / this.currentProblem.correctAnswer <= tolerance;
+                
+                if (isCorrect) {
+                    this.correctAnswers++;
+                    this.perfectStreak++;
+                    this.catchOscillimon();
+                    
+                    feedback.className = 'feedback success';
+                    feedback.innerHTML = `
+                        🎉 Excellent! You caught ${this.currentOscillimon.name}!<br>
+                        Correct period: ${this.currentProblem.correctAnswer}s<br>
+                        Your answer: ${userAnswer}s
+                    `;
+                } else {
+                    this.perfectStreak = 0;
+                    feedback.className = 'feedback error';
+                    feedback.innerHTML = `
+                        ❌ ${this.currentOscillimon.name} escaped!<br>
+                        Correct period: ${this.currentProblem.correctAnswer}s<br>
+                        Your answer: ${userAnswer}s
+                    `;
+                }
+                
+                feedback.classList.remove('hidden');
+                document.getElementById('nextBtn').classList.remove('hidden');
+                input.disabled = true;
+                
+                this.updateStats();
+                this.checkAchievements();
+            }
+            
+            catchOscillimon() {
+                const name = this.currentOscillimon.name;
+                if (!this.collection[name]) {
+                    this.collection[name] = {
+                        ...this.currentOscillimon,
+                        count: 0
+                    };
+                }
+                this.collection[name].count++;
+                this.totalCaught++;
+                this.updateCollection();
+            }
+            
+            updateCollection() {
+                const container = document.getElementById('collection');
+                container.innerHTML = '';
+                
+                Object.values(this.collection).forEach(oscillimon => {
+                    const miniDiv = document.createElement('div');
+                    miniDiv.className = 'mini-oscillimon';
+                    miniDiv.style.background = oscillimon.color;
+                    miniDiv.innerHTML = `
+                        ${oscillimon.emoji}
+                        <div class="oscillimon-count">${oscillimon.count}</div>
+                    `;
+                    miniDiv.title = `${oscillimon.name} (${oscillimon.count} caught)`;
+                    container.appendChild(miniDiv);
+                });
+            }
+            
+            updateStats() {
+                document.getElementById('totalCaught').textContent = this.totalCaught;
+                document.getElementById('correctAnswers').textContent = this.correctAnswers;
+                
+                const accuracy = this.totalAttempts > 0 ? Math.round((this.correctAnswers / this.totalAttempts) * 100) : 100;
+                document.getElementById('accuracy').textContent = `${accuracy}%`;
+                
+                // Level up every 5 correct answers
+                const newLevel = Math.floor(this.correctAnswers / 5) + 1;
+                if (newLevel > this.level) {
+                    this.level = newLevel;
+                    this.showLevelUp();
+                }
+                document.getElementById('level').textContent = this.level;
+                document.getElementById('displayLevel').textContent = this.level;
+            }
+            
+            showLevelUp() {
+                // Simple level up notification
+                const feedback = document.getElementById('feedback');
+                const originalContent = feedback.innerHTML;
+                feedback.innerHTML += '<br>🌟 Level Up! New Oscillimon types unlocked!';
+                
+                setTimeout(() => {
+                    feedback.innerHTML = originalContent;
+                }, 3000);
+            }
+            
+            checkAchievements() {
+                // First Catch
+                if (this.totalCaught >= 1) {
+                    document.getElementById('achievement1').classList.add('unlocked');
+                }
+                
+                // Physics Master
+                if (this.correctAnswers >= 10) {
+                    document.getElementById('achievement2').classList.add('unlocked');
+                }
+                
+                // Perfect Accuracy
+                if (this.perfectStreak >= 5) {
+                    document.getElementById('achievement3').classList.add('unlocked');
+                }
+                
+                // Collector
+                if (Object.keys(this.collection).length >= 5) {
+                    document.getElementById('achievement4').classList.add('unlocked');
+                }
+            }
+            
+            nextEncounter() {
+                this.generateEncounter();
+            }
+            
+            endGame() {
+                this.showCertificate();
+            }
+            
+            showCertificate() {
+                // Update certificate with current stats
+                document.getElementById('certTrainerName').textContent = this.trainerName;
+                document.getElementById('certTotalCaught').textContent = this.totalCaught;
+                document.getElementById('certCorrectAnswers').textContent = this.correctAnswers;
+                
+                const accuracy = this.totalAttempts > 0 ? Math.round((this.correctAnswers / this.totalAttempts) * 100) : 100;
+                document.getElementById('certAccuracy').textContent = `${accuracy}%`;
+                document.getElementById('certLevel').textContent = this.level;
+                
+                // Display collection in certificate
+                const certCollection = document.getElementById('certCollection');
+                certCollection.innerHTML = '';
+                
+                if (Object.keys(this.collection).length === 0) {
+                    certCollection.innerHTML = '<p style="grid-column: 1/-1; color: #666; font-style: italic;">No Oscillimon caught yet. Keep practicing!</p>';
+                } else {
+                    Object.values(this.collection).forEach(oscillimon => {
+                        const certOscillimon = document.createElement('div');
+                        certOscillimon.className = 'cert-oscillimon';
+                        certOscillimon.innerHTML = `
+                            <div class="cert-oscillimon-emoji">${oscillimon.emoji}</div>
+                            <div class="cert-oscillimon-name">${oscillimon.name}</div>
+                            <div class="cert-oscillimon-count">Caught: ${oscillimon.count}</div>
+                        `;
+                        certCollection.appendChild(certOscillimon);
+                    });
+                }
+                
+                document.getElementById('certificateScreen').classList.remove('hidden');
+            }
+            
+            resetGame() {
+                // Reset all game state
+                this.trainerName = "";
+                this.totalCaught = 0;
+                this.correctAnswers = 0;
+                this.totalAttempts = 0;
+                this.level = 1;
+                this.currentOscillimon = null;
+                this.currentProblem = null;
+                this.collection = {};
+                this.perfectStreak = 0;
+                
+                // Reset UI
+                document.getElementById('trainerName').value = '';
+                document.getElementById('totalCaught').textContent = '0';
+                document.getElementById('correctAnswers').textContent = '0';
+                document.getElementById('accuracy').textContent = '100%';
+                document.getElementById('level').textContent = '1';
+                document.getElementById('displayLevel').textContent = '1';
+                document.getElementById('collection').innerHTML = '';
+                
+                // Reset achievements
+                document.querySelectorAll('.achievement').forEach(achievement => {
+                    achievement.classList.remove('unlocked');
+                });
+                
+                // Show name screen
+                document.getElementById('certificateScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.add('hidden');
+                document.getElementById('nameScreen').classList.remove('hidden');
+            }
+        }
+        
+        // Start the game
+        const game = new OscillimonGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'974d2247e30c14eb',t:'MTc1NjE0NjM0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

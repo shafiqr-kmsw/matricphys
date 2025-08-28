@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermodynamic Process Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #a8e6cf, #88d8c0);
+            color: #2d5a3d;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .process-selection {
+            background: #fef7f0;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .process-selection h3 {
+            color: #5d4e75;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .process-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .process-btn {
+            padding: 20px;
+            border: 3px solid transparent;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .process-btn.isothermal {
+            background: linear-gradient(135deg, #ffb3ba, #ff9aa2);
+            color: #8b2635;
+        }
+
+        .process-btn.adiabatic {
+            background: linear-gradient(135deg, #ffd3a5, #ffb347);
+            color: #b8860b;
+        }
+
+        .process-btn.isobaric {
+            background: linear-gradient(135deg, #c7ceea, #b19cd9);
+            color: #4a4a8a;
+        }
+
+        .process-btn.isochoric {
+            background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
+            color: #2d5a3d;
+        }
+
+        .process-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .process-btn.active {
+            border-color: #5d4e75;
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .process-description {
+            font-size: 0.9rem;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        .input-section {
+            background: #f0f8ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .input-section h3 {
+            color: #5d4e75;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .states-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+
+        .state-group {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+
+        .state-group h4 {
+            color: #5d4e75;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #5d4e75;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e6e6fa;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #b19cd9;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(177, 156, 217, 0.2);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #c7ceea, #b19cd9);
+            color: #4a4a8a;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(177, 156, 217, 0.4);
+        }
+
+        .calculate-btn:disabled {
+            background: #e6e6fa;
+            color: #9999cc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results-section {
+            background: #fff5f5;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-section h3 {
+            color: #5d4e75;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .result-card.positive {
+            border-left: 5px solid #7fcdcd;
+        }
+
+        .result-card.negative {
+            border-left: 5px solid #ff9aa2;
+        }
+
+        .result-card h4 {
+            color: #5d4e75;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .result-value.positive {
+            color: #2d5a3d;
+        }
+
+        .result-value.negative {
+            color: #8b2635;
+        }
+
+        .result-unit {
+            color: #8a8a8a;
+            font-size: 0.9rem;
+        }
+
+        .explanation {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+
+        .explanation h4 {
+            color: #5d4e75;
+            margin-bottom: 15px;
+        }
+
+        .explanation p {
+            color: #666666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .formula {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #5d4e75;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 768px) {
+            .states-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .process-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 Thermodynamic Process Calculator</h1>
+            <p>Calculate work done by and on gas for different thermodynamic processes</p>
+        </div>
+
+        <div class="main-content">
+            <div class="process-selection">
+                <h3>🔬 Select Thermodynamic Process</h3>
+                <div class="process-buttons">
+                    <button class="process-btn isothermal" onclick="selectProcess('isothermal')">
+                        <div>Isothermal Process</div>
+                        <div class="process-description">Temperature constant (T = constant)</div>
+                    </button>
+                    <button class="process-btn adiabatic" onclick="selectProcess('adiabatic')">
+                        <div>Adiabatic Process</div>
+                        <div class="process-description">No heat exchange (Q = 0)</div>
+                    </button>
+                    <button class="process-btn isobaric" onclick="selectProcess('isobaric')">
+                        <div>Isobaric Process</div>
+                        <div class="process-description">Pressure constant (P = constant)</div>
+                    </button>
+                    <button class="process-btn isochoric" onclick="selectProcess('isochoric')">
+                        <div>Isochoric Process</div>
+                        <div class="process-description">Volume constant (V = constant)</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3>📊 Enter Initial and Final States</h3>
+                <div class="states-container">
+                    <div class="state-group">
+                        <h4>Initial State (State 1)</h4>
+                        <div class="input-group">
+                            <label for="p1">Pressure P₁</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="p1" placeholder="Enter initial pressure" min="0.01" step="0.01" style="flex: 2;">
+                                <select id="p1Unit" style="flex: 1; padding: 12px; border: 2px solid #e6e6fa; border-radius: 8px; background: #fafafa;">
+                                    <option value="atm">atm</option>
+                                    <option value="Pa">Pa</option>
+                                    <option value="kPa">kPa</option>
+                                    <option value="bar">bar</option>
+                                    <option value="mmHg">mmHg</option>
+                                    <option value="psi">psi</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="v1">Volume V₁</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="v1" placeholder="Enter initial volume" min="0.01" step="0.01" style="flex: 2;">
+                                <select id="v1Unit" style="flex: 1; padding: 12px; border: 2px solid #e6e6fa; border-radius: 8px; background: #fafafa;">
+                                    <option value="L">L</option>
+                                    <option value="mL">mL</option>
+                                    <option value="m³">m³</option>
+                                    <option value="cm³">cm³</option>
+                                    <option value="ft³">ft³</option>
+                                    <option value="in³">in³</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="state-group">
+                        <h4>Final State (State 2)</h4>
+                        <div class="input-group">
+                            <label for="p2">Pressure P₂</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="p2" placeholder="Enter final pressure" min="0.01" step="0.01" style="flex: 2;">
+                                <select id="p2Unit" style="flex: 1; padding: 12px; border: 2px solid #e6e6fa; border-radius: 8px; background: #fafafa;">
+                                    <option value="atm">atm</option>
+                                    <option value="Pa">Pa</option>
+                                    <option value="kPa">kPa</option>
+                                    <option value="bar">bar</option>
+                                    <option value="mmHg">mmHg</option>
+                                    <option value="psi">psi</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="v2">Volume V₂</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="number" id="v2" placeholder="Enter final volume" min="0.01" step="0.01" style="flex: 2;">
+                                <select id="v2Unit" style="flex: 1; padding: 12px; border: 2px solid #e6e6fa; border-radius: 8px; background: #fafafa;">
+                                    <option value="L">L</option>
+                                    <option value="mL">mL</option>
+                                    <option value="m³">m³</option>
+                                    <option value="cm³">cm³</option>
+                                    <option value="ft³">ft³</option>
+                                    <option value="in³">in³</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="calculate-btn" onclick="calculateWork()" id="calculateBtn" disabled>
+                    🧮 Calculate Work Done
+                </button>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <h3>📈 Calculation Results</h3>
+                <div class="results-grid">
+                    <div class="result-card" id="workByGasCard">
+                        <h4>Work Done BY Gas</h4>
+                        <div class="result-value" id="workByGas">0.00</div>
+                        <div class="result-unit">L·atm</div>
+                    </div>
+                    <div class="result-card" id="workOnGasCard">
+                        <h4>Work Done ON Gas</h4>
+                        <div class="result-value" id="workOnGas">0.00</div>
+                        <div class="result-unit">L·atm</div>
+                    </div>
+                </div>
+                
+                <div class="explanation" id="explanation">
+                    <h4>Process Explanation</h4>
+                    <div id="explanationText"></div>
+                    <div class="formula" id="formulaUsed"></div>
+                </div>
+                
+                <div class="calculation-steps" id="calculationSteps" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 3px 15px rgba(0,0,0,0.1); margin-top: 20px;">
+                    <h4 style="color: #5d4e75; margin-bottom: 15px;">📝 Step-by-Step Calculation</h4>
+                    <div id="stepsContent" style="background: #f0f8ff; padding: 15px; border-radius: 8px; border-left: 4px solid #b19cd9;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedProcess = null;
+        const gamma = 1.4; // Heat capacity ratio for diatomic gas
+
+        // Unit conversion factors to standard units (atm for pressure, L for volume)
+        const pressureConversions = {
+            'atm': 1,
+            'Pa': 1 / 101325,
+            'kPa': 1 / 101.325,
+            'bar': 0.986923,
+            'mmHg': 1 / 760,
+            'psi': 1 / 14.696
+        };
+
+        const volumeConversions = {
+            'L': 1,
+            'mL': 0.001,
+            'm³': 1000,
+            'cm³': 0.001,
+            'ft³': 28.3168,
+            'in³': 0.0163871
+        };
+
+        function convertToStandardUnits(value, unit, conversionTable) {
+            return value * conversionTable[unit];
+        }
+
+        function getWorkUnits(pUnit, vUnit) {
+            // Return appropriate work units based on pressure and volume units
+            const workUnits = {
+                'atm-L': 'L·atm',
+                'Pa-m³': 'J',
+                'Pa-L': 'J',
+                'kPa-m³': 'kJ',
+                'kPa-L': 'J',
+                'bar-L': 'bar·L',
+                'mmHg-L': 'mmHg·L',
+                'psi-ft³': 'psi·ft³',
+                'psi-in³': 'psi·in³'
+            };
+            
+            const key = `${pUnit}-${vUnit}`;
+            return workUnits[key] || `${pUnit}·${vUnit}`;
+        }
+
+        function selectProcess(processType) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.process-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to selected button
+            document.querySelector(`.process-btn.${processType}`).classList.add('active');
+            
+            selectedProcess = processType;
+            checkInputs();
+        }
+
+        function checkInputs() {
+            const p1 = document.getElementById('p1').value;
+            const v1 = document.getElementById('v1').value;
+            const p2 = document.getElementById('p2').value;
+            const v2 = document.getElementById('v2').value;
+            
+            const calculateBtn = document.getElementById('calculateBtn');
+            
+            if (selectedProcess && p1 && v1 && p2 && v2) {
+                calculateBtn.disabled = false;
+            } else {
+                calculateBtn.disabled = true;
+            }
+        }
+
+        // Add event listeners to inputs and selects
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', checkInputs);
+        });
+        
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', checkInputs);
+        });
+
+        function validateProcess(p1, v1, p2, v2, processType) {
+            const tolerance = 0.05; // 5% tolerance for floating point comparisons
+            
+            switch (processType) {
+                case 'isothermal':
+                    // PV = constant, so P1*V1 should equal P2*V2
+                    const pv1 = p1 * v1;
+                    const pv2 = p2 * v2;
+                    const pvDifference = Math.abs(pv1 - pv2) / pv1;
+                    
+                    if (pvDifference > tolerance) {
+                        return {
+                            valid: false,
+                            message: `Invalid isothermal process! For isothermal processes, P₁V₁ must equal P₂V₂.\nP₁V₁ = ${pv1.toFixed(3)} L·atm\nP₂V₂ = ${pv2.toFixed(3)} L·atm\nDifference: ${(pvDifference * 100).toFixed(1)}%`
+                        };
+                    }
+                    break;
+
+                case 'adiabatic':
+                    // PV^γ = constant, so P1*V1^γ should equal P2*V2^γ
+                    const pv_gamma1 = p1 * Math.pow(v1, gamma);
+                    const pv_gamma2 = p2 * Math.pow(v2, gamma);
+                    const pvGammaDifference = Math.abs(pv_gamma1 - pv_gamma2) / pv_gamma1;
+                    
+                    if (pvGammaDifference > tolerance) {
+                        return {
+                            valid: false,
+                            message: `Invalid adiabatic process! For adiabatic processes, P₁V₁^γ must equal P₂V₂^γ.\nP₁V₁^${gamma} = ${pv_gamma1.toFixed(3)}\nP₂V₂^${gamma} = ${pv_gamma2.toFixed(3)}\nDifference: ${(pvGammaDifference * 100).toFixed(1)}%`
+                        };
+                    }
+                    break;
+
+                case 'isobaric':
+                    // P = constant, so P1 should equal P2
+                    const pressureDifference = Math.abs(p1 - p2) / p1;
+                    
+                    if (pressureDifference > tolerance) {
+                        return {
+                            valid: false,
+                            message: `Invalid isobaric process! For isobaric processes, pressure must remain constant.\nP₁ = ${p1} atm\nP₂ = ${p2} atm\nDifference: ${(pressureDifference * 100).toFixed(1)}%`
+                        };
+                    }
+                    break;
+
+                case 'isochoric':
+                    // V = constant, so V1 should equal V2
+                    const volumeDifference = Math.abs(v1 - v2) / v1;
+                    
+                    if (volumeDifference > tolerance) {
+                        return {
+                            valid: false,
+                            message: `Invalid isochoric process! For isochoric processes, volume must remain constant.\nV₁ = ${v1} L\nV₂ = ${v2} L\nDifference: ${(volumeDifference * 100).toFixed(1)}%`
+                        };
+                    }
+                    break;
+            }
+            
+            return { valid: true };
+        }
+
+        function calculateWork() {
+            const p1 = parseFloat(document.getElementById('p1').value);
+            const v1 = parseFloat(document.getElementById('v1').value);
+            const p2 = parseFloat(document.getElementById('p2').value);
+            const v2 = parseFloat(document.getElementById('v2').value);
+            
+            const p1Unit = document.getElementById('p1Unit').value;
+            const v1Unit = document.getElementById('v1Unit').value;
+            const p2Unit = document.getElementById('p2Unit').value;
+            const v2Unit = document.getElementById('v2Unit').value;
+
+            if (!selectedProcess || isNaN(p1) || isNaN(v1) || isNaN(p2) || isNaN(v2)) {
+                alert('Please fill in all fields and select a process type!');
+                return;
+            }
+
+            if (p1 <= 0 || v1 <= 0 || p2 <= 0 || v2 <= 0) {
+                alert('All values must be positive!');
+                return;
+            }
+
+            // Convert to standard units for calculations (atm and L)
+            const p1Standard = convertToStandardUnits(p1, p1Unit, pressureConversions);
+            const v1Standard = convertToStandardUnits(v1, v1Unit, volumeConversions);
+            const p2Standard = convertToStandardUnits(p2, p2Unit, pressureConversions);
+            const v2Standard = convertToStandardUnits(v2, v2Unit, volumeConversions);
+
+            // Validate process constraints using standard units
+            const validationResult = validateProcess(p1Standard, v1Standard, p2Standard, v2Standard, selectedProcess);
+            if (!validationResult.valid) {
+                alert(validationResult.message);
+                return;
+            }
+
+            let workByGas = 0;
+            let formula = '';
+            let explanation = '';
+
+            let calculationSteps = '';
+
+            // Calculate work using original units (not converted)
+            switch (selectedProcess) {
+                case 'isothermal':
+                    // W = nRT ln(V2/V1) = P1V1 ln(V2/V1)
+                    workByGas = p1 * v1 * Math.log(v2 / v1);
+                    formula = 'W = P₁V₁ × ln(V₂/V₁)';
+                    explanation = `In an isothermal process, temperature remains constant. The work done is calculated using the natural logarithm of the volume ratio. Since PV = constant, we can use the initial pressure and volume with the volume ratio.`;
+                    
+                    calculationSteps = `
+                        <div style="font-family: 'Courier New', monospace; line-height: 1.8;">
+                            <p><strong>Given values:</strong></p>
+                            <p>P₁ = ${p1} ${p1Unit}</p>
+                            <p>V₁ = ${v1} ${v1Unit}</p>
+                            <p>P₂ = ${p2} ${p2Unit}</p>
+                            <p>V₂ = ${v2} ${v2Unit}</p>
+                            <br>
+                            <p><strong>Formula:</strong> W = P₁V₁ × ln(V₂/V₁)</p>
+                            <br>
+                            <p><strong>Step 1:</strong> Calculate P₁V₁</p>
+                            <p>P₁V₁ = ${p1} × ${v1} = ${(p1 * v1).toFixed(3)} ${p1Unit}·${v1Unit}</p>
+                            <br>
+                            <p><strong>Step 2:</strong> Calculate volume ratio V₂/V₁</p>
+                            <p>V₂/V₁ = ${v2}/${v1} = ${(v2/v1).toFixed(3)}</p>
+                            <br>
+                            <p><strong>Step 3:</strong> Calculate ln(V₂/V₁)</p>
+                            <p>ln(${(v2/v1).toFixed(3)}) = ${Math.log(v2/v1).toFixed(3)}</p>
+                            <br>
+                            <p><strong>Step 4:</strong> Calculate final work</p>
+                            <p>W = ${(p1 * v1).toFixed(3)} × ${Math.log(v2/v1).toFixed(3)} = <strong>${workByGas.toFixed(3)} ${getWorkUnits(p1Unit, v1Unit)}</strong></p>
+                        </div>
+                    `;
+                    break;
+
+                case 'adiabatic':
+                    // W = (P1V1 - P2V2) / (γ - 1)
+                    workByGas = (p1 * v1 - p2 * v2) / (gamma - 1);
+                    formula = `W = (P₁V₁ - P₂V₂) / (γ - 1) where γ = ${gamma}`;
+                    explanation = `In an adiabatic process, no heat is exchanged (Q = 0). The work done depends on the change in internal energy. We use the heat capacity ratio γ = ${gamma} for diatomic gases.`;
+                    
+                    calculationSteps = `
+                        <div style="font-family: 'Courier New', monospace; line-height: 1.8;">
+                            <p><strong>Given values:</strong></p>
+                            <p>P₁ = ${p1} ${p1Unit}</p>
+                            <p>V₁ = ${v1} ${v1Unit}</p>
+                            <p>P₂ = ${p2} ${p2Unit}</p>
+                            <p>V₂ = ${v2} ${v2Unit}</p>
+                            <p>γ = ${gamma} (heat capacity ratio for diatomic gas)</p>
+                            <br>
+                            <p><strong>Formula:</strong> W = (P₁V₁ - P₂V₂) / (γ - 1)</p>
+                            <br>
+                            <p><strong>Step 1:</strong> Calculate P₁V₁</p>
+                            <p>P₁V₁ = ${p1} × ${v1} = ${(p1 * v1).toFixed(3)} ${p1Unit}·${v1Unit}</p>
+                            <br>
+                            <p><strong>Step 2:</strong> Calculate P₂V₂</p>
+                            <p>P₂V₂ = ${p2} × ${v2} = ${(p2 * v2).toFixed(3)} ${p2Unit}·${v2Unit}</p>
+                            <br>
+                            <p><strong>Step 3:</strong> Calculate (P₁V₁ - P₂V₂)</p>
+                            <p>(P₁V₁ - P₂V₂) = ${(p1 * v1).toFixed(3)} - ${(p2 * v2).toFixed(3)} = ${(p1 * v1 - p2 * v2).toFixed(3)}</p>
+                            <br>
+                            <p><strong>Step 4:</strong> Calculate final work</p>
+                            <p>W = ${(p1 * v1 - p2 * v2).toFixed(3)} / (${gamma} - 1) = ${(p1 * v1 - p2 * v2).toFixed(3)} / ${(gamma - 1).toFixed(1)} = <strong>${workByGas.toFixed(3)} ${getWorkUnits(p1Unit, v1Unit)}</strong></p>
+                        </div>
+                    `;
+                    break;
+
+                case 'isobaric':
+                    // W = P(V2 - V1) - use consistent units
+                    workByGas = p1 * (v2 - v1);
+                    formula = 'W = P × (V₂ - V₁)';
+                    explanation = `In an isobaric process, pressure remains constant. The work done is simply the pressure multiplied by the change in volume. This is the area under the horizontal line on a P-V diagram.`;
+                    
+                    calculationSteps = `
+                        <div style="font-family: 'Courier New', monospace; line-height: 1.8;">
+                            <p><strong>Given values:</strong></p>
+                            <p>P₁ = P₂ = ${p1} ${p1Unit} (constant pressure)</p>
+                            <p>V₁ = ${v1} ${v1Unit}</p>
+                            <p>V₂ = ${v2} ${v2Unit}</p>
+                            <br>
+                            <p><strong>Formula:</strong> W = P × (V₂ - V₁)</p>
+                            <br>
+                            <p><strong>Step 1:</strong> Calculate volume change (V₂ - V₁)</p>
+                            <p>V₂ - V₁ = ${v2} - ${v1} = ${(v2 - v1).toFixed(3)} ${v1Unit}</p>
+                            <br>
+                            <p><strong>Step 2:</strong> Calculate final work</p>
+                            <p>W = ${p1} × ${(v2 - v1).toFixed(3)} = <strong>${workByGas.toFixed(3)} ${getWorkUnits(p1Unit, v1Unit)}</strong></p>
+                        </div>
+                    `;
+                    break;
+
+                case 'isochoric':
+                    // W = 0 (no volume change)
+                    workByGas = 0;
+                    formula = 'W = 0 (no volume change)';
+                    explanation = `In an isochoric process, volume remains constant. Since work is defined as W = ∫P dV, and dV = 0, no work is done by or on the gas regardless of pressure changes.`;
+                    
+                    calculationSteps = `
+                        <div style="font-family: 'Courier New', monospace; line-height: 1.8;">
+                            <p><strong>Given values:</strong></p>
+                            <p>P₁ = ${p1} ${p1Unit}</p>
+                            <p>P₂ = ${p2} ${p2Unit}</p>
+                            <p>V₁ = V₂ = ${v1} ${v1Unit} (constant volume)</p>
+                            <br>
+                            <p><strong>Formula:</strong> W = ∫P dV</p>
+                            <br>
+                            <p><strong>Step 1:</strong> Since volume is constant, dV = 0</p>
+                            <p>V₂ - V₁ = ${v2} - ${v1} = 0</p>
+                            <br>
+                            <p><strong>Step 2:</strong> Calculate work</p>
+                            <p>W = ∫P dV = P × 0 = <strong>0 ${getWorkUnits(p1Unit, v1Unit)}</strong></p>
+                            <br>
+                            <p><em>No work is done regardless of pressure changes because there is no volume change.</em></p>
+                        </div>
+                    `;
+                    break;
+            }
+
+            const workOnGas = -workByGas;
+            
+            // Determine work units based on the pressure and volume units used
+            const workUnit = getWorkUnits(p1Unit, v1Unit);
+
+            // Display results
+            displayResults(workByGas, workOnGas, formula, explanation, workUnit, calculationSteps);
+        }
+
+        function displayResults(workByGas, workOnGas, formula, explanation, workUnit, calculationSteps) {
+            const resultsSection = document.getElementById('resultsSection');
+            const workByGasElement = document.getElementById('workByGas');
+            const workOnGasElement = document.getElementById('workOnGas');
+            const workByGasCard = document.getElementById('workByGasCard');
+            const workOnGasCard = document.getElementById('workOnGasCard');
+            const formulaElement = document.getElementById('formulaUsed');
+            const explanationElement = document.getElementById('explanationText');
+            const stepsElement = document.getElementById('stepsContent');
+
+            // Update values
+            workByGasElement.textContent = workByGas.toFixed(3);
+            workOnGasElement.textContent = workOnGas.toFixed(3);
+            formulaElement.textContent = formula;
+            explanationElement.innerHTML = `<p>${explanation}</p>`;
+            stepsElement.innerHTML = calculationSteps;
+            
+            // Update work units in the display
+            document.querySelectorAll('.result-unit').forEach(unit => {
+                unit.textContent = workUnit;
+            });
+
+            // Update colors based on sign
+            if (workByGas > 0) {
+                workByGasElement.className = 'result-value positive';
+                workByGasCard.className = 'result-card positive';
+                workOnGasElement.className = 'result-value negative';
+                workOnGasCard.className = 'result-card negative';
+            } else if (workByGas < 0) {
+                workByGasElement.className = 'result-value negative';
+                workByGasCard.className = 'result-card negative';
+                workOnGasElement.className = 'result-value positive';
+                workOnGasCard.className = 'result-card positive';
+            } else {
+                workByGasElement.className = 'result-value';
+                workByGasCard.className = 'result-card';
+                workOnGasElement.className = 'result-value';
+                workOnGasCard.className = 'result-card';
+            }
+
+            // Add interpretation
+            let interpretation = '';
+            if (workByGas > 0) {
+                interpretation = '<p><strong>Interpretation:</strong> The gas expands and does positive work on the surroundings. Energy flows from the gas to the environment.</p>';
+            } else if (workByGas < 0) {
+                interpretation = '<p><strong>Interpretation:</strong> The gas is compressed and work is done on the gas by the surroundings. Energy flows from the environment to the gas.</p>';
+            } else {
+                interpretation = '<p><strong>Interpretation:</strong> No net work is done since there is no volume change.</p>';
+            }
+
+            explanationElement.innerHTML += interpretation;
+
+            // Show results section
+            resultsSection.classList.add('show');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'974cf0e0b5daabd7',t:'MTc1NjE0NDMyMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

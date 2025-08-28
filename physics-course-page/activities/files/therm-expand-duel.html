@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermal Expansion Duel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .round-info {
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .players-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .player-section {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .player-section.player1 {
+            border-top: 5px solid #ff6b6b;
+        }
+        
+        .player-section.player2 {
+            border-top: 5px solid #4ecdc4;
+        }
+        
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .player-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .player1 .player-name {
+            color: #ff6b6b;
+        }
+        
+        .player2 .player-name {
+            color: #4ecdc4;
+        }
+        
+        .player-score {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .problem-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #007bff;
+        }
+        
+        .problem-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .problem-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            color: #6c757d;
+        }
+        
+        .formula-display {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            margin: 10px 0;
+            color: #495057;
+            font-weight: bold;
+        }
+        
+        .material-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+        
+        .material-property {
+            background: #dee2e6;
+            padding: 8px;
+            border-radius: 5px;
+            color: #495057;
+        }
+        
+        .expansion-visual {
+            height: 60px;
+            background: linear-gradient(90deg, #6c757d, #adb5bd);
+            border-radius: 5px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .expansion-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .input-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .answer-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .feedback.correct {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+        
+        .feedback.incorrect {
+            background: rgba(220, 53, 69, 0.2);
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+        
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .game-over-content {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .winner-trophy {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .play-again-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .start-screen {
+            text-align: center;
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 25px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🔥 Thermal Expansion Duel ⚡</h1>
+        </div>
+        
+        <div id="startScreen" class="start-screen">
+            <h2>Welcome to Thermal Expansion Challenge!</h2>
+            <p style="margin: 20px 0; font-size: 1.1rem; line-height: 1.6;">
+                Two players compete to solve 1D thermal expansion problems as fast as possible!<br>
+                Use the formula: <strong>ΔL = α × L₀ × ΔT</strong><br>
+                First to 5 correct answers wins!
+            </p>
+            <button class="start-btn" onclick="game.startGame()">Start Duel! 🚀</button>
+        </div>
+        
+        <div id="gameScreen" class="hidden">
+            <div class="game-info">
+                <div class="timer" id="timer">0:00</div>
+                <div class="round-info">
+                    <div>Round <span id="currentRound">1</span></div>
+                    <div>First to 5 wins!</div>
+                </div>
+                <div style="text-align: right;">
+                    <button class="submit-btn" onclick="game.addTime()" style="margin-right: 10px;">+30s Bonus ⏰</button>
+                    <button class="play-again-btn" onclick="game.endGame()">End Game</button>
+                </div>
+            </div>
+            
+            <div class="players-container">
+                <div class="player-section player1">
+                    <div class="player-header">
+                        <div class="player-name">🔴 Player 1</div>
+                        <div class="player-score" id="player1Score">0</div>
+                    </div>
+                    <div id="player1Problem"></div>
+                </div>
+                
+                <div class="player-section player2">
+                    <div class="player-header">
+                        <div class="player-name">🔵 Player 2</div>
+                        <div class="player-score" id="player2Score">0</div>
+                    </div>
+                    <div id="player2Problem"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="gameOverScreen" class="game-over hidden">
+            <div class="game-over-content">
+                <div class="winner-trophy" id="winnerTrophy">🏆</div>
+                <h2 id="winnerText">Player 1 Wins!</h2>
+                <div id="finalScores" style="margin: 20px 0; font-size: 1.2rem;"></div>
+                <p>Great job solving thermal expansion problems!</p>
+                <button class="play-again-btn" onclick="game.resetGame()">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ThermalExpansionGame {
+            constructor() {
+                this.player1Score = 0;
+                this.player2Score = 0;
+                this.currentRound = 1;
+                this.timeLeft = 60;
+                this.gameActive = false;
+                this.timer = null;
+                
+                this.materials = [
+                    { name: "Steel", alpha: 12e-6, color: "#6c757d" },
+                    { name: "Aluminum", alpha: 23e-6, color: "#adb5bd" },
+                    { name: "Copper", alpha: 17e-6, color: "#fd7e14" },
+                    { name: "Brass", alpha: 19e-6, color: "#ffc107" },
+                    { name: "Iron", alpha: 12e-6, color: "#495057" },
+                    { name: "Concrete", alpha: 10e-6, color: "#6f42c1" }
+                ];
+                
+                this.currentProblems = { player1: null, player2: null };
+            }
+            
+            startGame() {
+                document.getElementById('startScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                this.gameActive = true;
+                this.startTimer();
+                this.generateNewProblems();
+            }
+            
+            startTimer() {
+                this.gameStartTime = Date.now();
+                this.player1Time = 0;
+                this.player2Time = 0;
+                this.player1StartTime = Date.now();
+                this.player2StartTime = Date.now();
+                
+                this.timer = setInterval(() => {
+                    this.gameTime = (Date.now() - this.gameStartTime) / 1000;
+                    const mins = Math.floor(this.gameTime / 60);
+                    const secs = Math.floor(this.gameTime % 60);
+                    document.getElementById('timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                }, 1000);
+            }
+            
+            generateNewProblems() {
+                this.currentProblems.player1 = this.createProblem();
+                this.currentProblems.player2 = this.createProblem();
+                
+                this.displayProblem('player1', this.currentProblems.player1);
+                this.displayProblem('player2', this.currentProblems.player2);
+            }
+            
+            createProblem() {
+                const material = this.materials[Math.floor(Math.random() * this.materials.length)];
+                const initialLength = Math.round((Math.random() * 5 + 1) * 100) / 100; // 1-6 meters
+                const tempChange = Math.round((Math.random() * 80 + 20)); // 20-100°C
+                const initialTemp = Math.round(Math.random() * 30 + 10); // 10-40°C
+                const finalTemp = initialTemp + tempChange;
+                
+                // Calculate correct answer: ΔL = α × L₀ × ΔT
+                const deltaL = material.alpha * initialLength * tempChange;
+                const finalLength = initialLength + deltaL;
+                
+                return {
+                    material: material,
+                    initialLength: initialLength,
+                    initialTemp: initialTemp,
+                    finalTemp: finalTemp,
+                    tempChange: tempChange,
+                    correctAnswer: Math.round(finalLength * 1000) / 1000, // Round to 3 decimal places
+                    deltaL: Math.round(deltaL * 1000000) / 1000 // Convert to mm and round
+                };
+            }
+            
+            displayProblem(player, problem) {
+                const container = document.getElementById(`${player}Problem`);
+                
+                container.innerHTML = `
+                    <div class="problem-section">
+                        <div class="problem-title">Calculate Final Length</div>
+                        <div class="problem-text">
+                            A ${problem.material.name.toLowerCase()} rod is heated from ${problem.initialTemp}°C to ${problem.finalTemp}°C.
+                            What is the final length of the rod?
+                        </div>
+                        
+                        <div class="formula-display">
+                            ΔL = α × L₀ × ΔT
+                        </div>
+                        
+                        <div class="material-info">
+                            <div class="material-property">
+                                <strong>Material:</strong> ${problem.material.name}
+                            </div>
+                            <div class="material-property">
+                                <strong>α:</strong> ${problem.material.alpha.toExponential(1)} /°C
+                            </div>
+                            <div class="material-property">
+                                <strong>Initial Length (L₀):</strong> ${problem.initialLength} m
+                            </div>
+                            <div class="material-property">
+                                <strong>Initial Temp:</strong> ${problem.initialTemp}°C
+                            </div>
+                            <div class="material-property">
+                                <strong>Final Temp:</strong> ${problem.finalTemp}°C
+                            </div>
+                        </div>
+                        
+                        <div class="expansion-visual">
+                            <div class="expansion-bar" style="width: 60%; background-color: ${problem.material.color};">
+                                Original: ${problem.initialLength} m
+                            </div>
+                        </div>
+                        
+                        <div class="input-section">
+                            <input type="number" 
+                                   class="answer-input" 
+                                   id="${player}Input"
+                                   placeholder="Final length (m)" 
+                                   step="0.001"
+                                   onkeypress="if(event.key==='Enter') game.submitAnswer('${player}')">
+                            <button class="submit-btn" onclick="game.submitAnswer('${player}')">Submit</button>
+                        </div>
+                        
+                        <div id="${player}Feedback" class="feedback hidden"></div>
+                    </div>
+                `;
+            }
+            
+            submitAnswer(player) {
+                if (!this.gameActive) return;
+                
+                const input = document.getElementById(`${player}Input`);
+                const feedback = document.getElementById(`${player}Feedback`);
+                const userAnswer = parseFloat(input.value);
+                const problem = this.currentProblems[player];
+                
+                if (isNaN(userAnswer)) {
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = 'Please enter a valid number!';
+                    feedback.classList.remove('hidden');
+                    return;
+                }
+                
+                const tolerance = 0.001; // Allow small rounding errors
+                const isCorrect = Math.abs(userAnswer - problem.correctAnswer) <= tolerance;
+                
+                if (isCorrect) {
+                    // Track time for this problem
+                    const currentTime = Date.now();
+                    if (player === 'player1' && this.player1StartTime) {
+                        this.player1Time += (currentTime - this.player1StartTime) / 1000;
+                        this.player1Score++;
+                        document.getElementById('player1Score').textContent = this.player1Score;
+                    } else if (player === 'player2' && this.player2StartTime) {
+                        this.player2Time += (currentTime - this.player2StartTime) / 1000;
+                        this.player2Score++;
+                        document.getElementById('player2Score').textContent = this.player2Score;
+                    }
+                    
+                    feedback.className = 'feedback correct';
+                    feedback.innerHTML = `
+                        🎉 Correct! <br>
+                        ΔL = ${problem.material.alpha.toExponential(1)} × ${problem.initialLength} × ${problem.tempChange} = ${problem.deltaL} mm<br>
+                        Final length = ${problem.initialLength} + ${(problem.deltaL/1000).toFixed(3)} = ${problem.correctAnswer} m
+                    `;
+                    
+                    // Update expansion visual
+                    const expansionBar = input.closest('.player-section').querySelector('.expansion-bar');
+                    expansionBar.style.width = '90%';
+                    expansionBar.textContent = `Final: ${problem.correctAnswer} m`;
+                    
+                    // Check for winner
+                    if (this.player1Score >= 5 || this.player2Score >= 5) {
+                        setTimeout(() => this.endGame(), 1500);
+                        return;
+                    }
+                    
+                    // Generate new problem for this player after a short delay
+                    setTimeout(() => {
+                        this.currentProblems[player] = this.createProblem();
+                        if (player === 'player1') {
+                            this.player1StartTime = Date.now();
+                        } else {
+                            this.player2StartTime = Date.now();
+                        }
+                        this.displayProblem(player, this.currentProblems[player]);
+                    }, 2000);
+                    
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.innerHTML = `
+                        ❌ Not quite right!<br>
+                        Correct answer: ${problem.correctAnswer} m<br>
+                        Your answer: ${userAnswer} m
+                    `;
+                }
+                
+                feedback.classList.remove('hidden');
+                input.disabled = true;
+                input.closest('.input-section').querySelector('.submit-btn').disabled = true;
+            }
+            
+            addTime() {
+                // Subtract 30 seconds from each player's time as a bonus
+                this.player1Time = Math.max(0, this.player1Time - 30);
+                this.player2Time = Math.max(0, this.player2Time - 30);
+            }
+            
+            endGame(reason = '') {
+                this.gameActive = false;
+                clearInterval(this.timer);
+                
+                let winner, winnerText;
+                if (this.player1Score >= 5) {
+                    winner = 'player1';
+                    winnerText = '🔴 Player 1 Wins!';
+                } else if (this.player2Score >= 5) {
+                    winner = 'player2';
+                    winnerText = '🔵 Player 2 Wins!';
+                } else {
+                    // Determine winner by score, then by time if tied
+                    if (this.player1Score > this.player2Score) {
+                        winner = 'player1';
+                        winnerText = '🔴 Player 1 Wins!';
+                    } else if (this.player2Score > this.player1Score) {
+                        winner = 'player2';
+                        winnerText = '🔵 Player 2 Wins!';
+                    } else if (this.player1Score === this.player2Score) {
+                        // Same score - winner is who took less time
+                        if (this.player1Time < this.player2Time) {
+                            winner = 'player1';
+                            winnerText = '🔴 Player 1 Wins! (Faster time)';
+                        } else if (this.player2Time < this.player1Time) {
+                            winner = 'player2';
+                            winnerText = '🔵 Player 2 Wins! (Faster time)';
+                        } else {
+                            winnerText = "🤝 Perfect Tie!";
+                        }
+                    }
+                }
+                
+                const formatTime = (seconds) => {
+                    const mins = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return `${mins}:${secs.toString().padStart(2, '0')}`;
+                };
+                
+                document.getElementById('winnerText').textContent = winnerText;
+                document.getElementById('finalScores').innerHTML = `
+                    Final Scores:<br>
+                    🔴 Player 1: ${this.player1Score} problems (${formatTime(this.player1Time)})<br>
+                    🔵 Player 2: ${this.player2Score} problems (${formatTime(this.player2Time)})<br><br>
+                    Total Game Time: ${formatTime(this.gameTime)}
+                    ${reason ? `<br><br>${reason}` : ''}
+                `;
+                
+                document.getElementById('gameOverScreen').classList.remove('hidden');
+            }
+            
+            resetGame() {
+                this.player1Score = 0;
+                this.player2Score = 0;
+                this.currentRound = 1;
+                this.gameTime = 0;
+                this.gameActive = false;
+                this.player1Time = 0;
+                this.player2Time = 0;
+                this.player1StartTime = null;
+                this.player2StartTime = null;
+                
+                if (this.timer) {
+                    clearInterval(this.timer);
+                }
+                
+                document.getElementById('player1Score').textContent = '0';
+                document.getElementById('player2Score').textContent = '0';
+                document.getElementById('timer').textContent = '0:00';
+                document.getElementById('currentRound').textContent = '1';
+                
+                document.getElementById('gameOverScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.add('hidden');
+                document.getElementById('startScreen').classList.remove('hidden');
+            }
+        }
+        
+        // Start the game
+        const game = new ThermalExpansionGame();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'974d0f2f7107abd7',t:'MTc1NjE0NTU2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
