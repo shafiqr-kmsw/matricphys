@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Linear Regression Test</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-statistics@7.8.0/dist/simple-statistics.min.js"></script>
+</head>
+<body>
+<h2>Linear Regression Test</h2>
+
+<label>X Values (comma-separated):</label>
+<input id="xInput" value="1,2,3,4,5,6">
+<label>Y Values (comma-separated):</label>
+<input id="yInput" value="6,13,17.263,25.12,29.1,37">
+<button id="analyze">Analyze</button>
+
+<p>Equation: <span id="equation"></span></p>
+<p>R²: <span id="r2"></span></p>
+
+<canvas id="chart" width="600" height="400"></canvas>
+
+<script>
+let chart;
+
+document.getElementById('analyze').addEventListener('click', ()=>{
+    const xData = document.getElementById('xInput').value.split(',').map(Number);
+    const yData = document.getElementById('yInput').value.split(',').map(Number);
+
+    // Validate
+    if(xData.length !== yData.length){
+        alert("X and Y must have same length");
+        return;
+    }
+
+    // Regression
+    const regression = ss.linearRegression(xData.map((x,i)=>[x,yData[i]]));
+    const slope = regression.m;
+    const intercept = regression.b;
+
+    const trendline = xData.map(x=>slope*x+intercept);
+
+    // R²
+    const rSquared = ss.rSquared(yData, trendline).toFixed(3);
+
+    document.getElementById('equation').textContent = `y = ${slope.toFixed(3)}x + ${intercept.toFixed(3)}`;
+    document.getElementById('r2').textContent = rSquared;
+
+    // Draw chart
+    if(chart) chart.destroy();
+
+    const ctx = document.getElementById('chart').getContext('2d');
+    chart = new Chart(ctx,{
+        type:'scatter',
+        data:{
+            datasets:[
+                {label:'Data Points', data:xData.map((x,i)=>({x:x,y:yData[i]})), backgroundColor:'blue'},
+                {label:'Regression Line', type:'line', data:xData.map((x,i)=>({x:x,y:trendline[i]})), borderColor:'red', fill:false, pointRadius:0}
+            ]
+        },
+        options:{
+            responsive:true
+        }
+    });
+});
+</script>
+</body>
+</html>
