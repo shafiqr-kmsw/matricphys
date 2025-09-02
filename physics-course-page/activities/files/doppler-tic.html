@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doppler Effect Tic-Tac-Toe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .game-container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .setup-screen {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .setup-screen h2 {
+            color: #dc2626;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .player-input {
+            margin-bottom: 15px;
+        }
+
+        .player-input label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #1e40af;
+            font-weight: bold;
+        }
+
+        .player-input input {
+            padding: 15px 20px;
+            border: 2px solid #e0e6ed;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            width: 300px;
+            max-width: 100%;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .player-input input:focus {
+            outline: none;
+            border-color: #dc2626;
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.3);
+        }
+
+        .start-game-btn {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #1f2937;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .start-game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .start-game-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fbbf24;
+            margin-bottom: 5px;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #fef3c7;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            border-radius: 10px;
+            color: white;
+        }
+
+        .current-player {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .score {
+            display: flex;
+            gap: 20px;
+            font-size: 1rem;
+        }
+
+        .question-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .question-text {
+            font-size: 1rem;
+            color: #1f2937;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .answer-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .answer-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .higher-btn {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+
+        .lower-btn {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+        }
+
+        .answer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tic-tac-toe-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 280px;
+            margin: 0 auto 15px;
+            background: #dbeafe;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 2.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .cell:hover:not(.taken) {
+            background: #fef3c7;
+            transform: scale(1.05);
+        }
+
+        .cell.taken {
+            cursor: not-allowed;
+        }
+
+        .cell.x {
+            color: #dc2626;
+            background: #fecaca;
+        }
+
+        .cell.o {
+            color: #1e40af;
+            background: #dbeafe;
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .feedback.correct {
+            background: #dcfce7;
+            color: #166534;
+            border: 2px solid #bbf7d0;
+        }
+
+        .feedback.incorrect {
+            background: #fecaca;
+            color: #991b1b;
+            border: 2px solid #fca5a5;
+        }
+
+        .game-over {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .game-over h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .new-game-btn {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #8b4513;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .new-game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .answer-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .cell {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Doppler Effect Tic-Tac-Toe</h1>
+        <p class="subtitle">Answer physics questions correctly to make your move!</p>
+        
+        <div id="setup-screen" class="setup-screen">
+            <h2>Enter Player Names</h2>
+            <div class="player-input">
+                <label for="player-x-name">Player X Name:</label>
+                <input type="text" id="player-x-name" placeholder="Enter name for Player X" maxlength="20">
+            </div>
+            <div class="player-input">
+                <label for="player-o-name">Player O Name:</label>
+                <input type="text" id="player-o-name" placeholder="Enter name for Player O" maxlength="20">
+            </div>
+            <button class="start-game-btn" onclick="startGame()">Start Game</button>
+        </div>
+
+        <div id="game-screen" class="hidden">
+            <div class="game-info">
+                <div class="current-player">Current Turn: <span id="current-player-display"></span></div>
+                <div class="score">
+                    <div><span id="player-x-label">Player X</span>: <span id="score-x">0</span></div>
+                    <div><span id="player-o-label">Player O</span>: <span id="score-o">0</span></div>
+                </div>
+            </div>
+
+            <div id="feedback" class="feedback hidden"></div>
+
+            <div id="question-section" class="question-section">
+                <div id="question-text" class="question-text"></div>
+                <div class="answer-buttons">
+                    <button class="answer-btn higher-btn" onclick="answerQuestion('higher')">Higher Frequency</button>
+                    <button class="answer-btn lower-btn" onclick="answerQuestion('lower')">Lower Frequency</button>
+                </div>
+            </div>
+
+            <div class="tic-tac-toe-board">
+                <button class="cell" onclick="makeMove(0)"></button>
+                <button class="cell" onclick="makeMove(1)"></button>
+                <button class="cell" onclick="makeMove(2)"></button>
+                <button class="cell" onclick="makeMove(3)"></button>
+                <button class="cell" onclick="makeMove(4)"></button>
+                <button class="cell" onclick="makeMove(5)"></button>
+                <button class="cell" onclick="makeMove(6)"></button>
+                <button class="cell" onclick="makeMove(7)"></button>
+                <button class="cell" onclick="makeMove(8)"></button>
+            </div>
+
+            <div id="game-over" class="game-over hidden">
+                <h2 id="winner-text"></h2>
+                <button class="new-game-btn" onclick="newGame()">New Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPlayer = 'X';
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        let questionAnswered = false;
+        let currentQuestion = null;
+        let scores = { X: 0, O: 0 };
+        let playerNames = { X: 'Player X', O: 'Player O' };
+
+        // Question bank for Doppler effect scenarios
+        const questionBank = [
+            {
+                text: "An ambulance with its siren on is moving towards you at 30 m/s. What happens to the frequency you hear?",
+                answer: "higher",
+                explanation: "When the source moves towards the observer, the frequency increases."
+            },
+            {
+                text: "A fire truck with its siren on is moving away from you at 25 m/s. What happens to the frequency you hear?",
+                answer: "lower",
+                explanation: "When the source moves away from the observer, the frequency decreases."
+            },
+            {
+                text: "You are in a car moving towards a stationary police car with its siren on at 40 m/s. What happens to the frequency you hear?",
+                answer: "higher",
+                explanation: "When the observer moves towards the source, the frequency increases."
+            },
+            {
+                text: "You are walking away from a stationary ice cream truck playing music at 2 m/s. What happens to the frequency you hear?",
+                answer: "lower",
+                explanation: "When the observer moves away from the source, the frequency decreases."
+            },
+            {
+                text: "A train with its horn blowing is approaching the station where you're standing at 50 m/s. What happens to the frequency you hear?",
+                answer: "higher",
+                explanation: "When the source approaches the observer, the frequency increases."
+            },
+            {
+                text: "A motorcycle with a loud engine is driving away from you at 35 m/s. What happens to the frequency you hear?",
+                answer: "lower",
+                explanation: "When the source moves away from the observer, the frequency decreases."
+            },
+            {
+                text: "You are jogging towards a street musician playing guitar at 3 m/s. What happens to the frequency you hear?",
+                answer: "higher",
+                explanation: "When the observer moves towards the source, the frequency increases."
+            },
+            {
+                text: "A helicopter is flying away from your position at 60 m/s. What happens to the frequency of its rotor noise?",
+                answer: "lower",
+                explanation: "When the source moves away from the observer, the frequency decreases."
+            },
+            {
+                text: "A race car is speeding towards you on the track at 80 m/s. What happens to the engine noise frequency?",
+                answer: "higher",
+                explanation: "The approaching source causes frequency compression, increasing the pitch."
+            },
+            {
+                text: "You're on a moving train going 60 m/s towards a stationary horn. What frequency change do you observe?",
+                answer: "higher",
+                explanation: "When the observer moves towards the source, the observed frequency increases."
+            },
+            {
+                text: "A jet plane flies overhead and away from you at 200 m/s. What happens to the engine sound frequency?",
+                answer: "lower",
+                explanation: "The receding source causes frequency stretching, decreasing the pitch."
+            },
+            {
+                text: "You're backing away from a car alarm at 5 m/s. What frequency change do you hear?",
+                answer: "lower",
+                explanation: "When the observer moves away from the source, the frequency decreases."
+            },
+            {
+                text: "A speedboat approaches the dock where you're standing at 45 m/s. What happens to its engine frequency?",
+                answer: "higher",
+                explanation: "The approaching source compresses sound waves, increasing frequency."
+            },
+            {
+                text: "You're driving away from a church bell tower at 30 m/s. What frequency change occurs?",
+                answer: "lower",
+                explanation: "Moving away from the source decreases the observed frequency."
+            },
+            {
+                text: "A Formula 1 car races past you at 90 m/s. After it passes, what happens to the frequency?",
+                answer: "lower",
+                explanation: "Once the source moves away after passing, the frequency drops."
+            },
+            {
+                text: "You're walking towards a construction site with loud machinery at 4 m/s. What frequency change occurs?",
+                answer: "higher",
+                explanation: "Approaching the sound source increases the observed frequency."
+            },
+            {
+                text: "A police car with sirens is chasing a suspect away from you at 55 m/s. What frequency do you hear?",
+                answer: "lower",
+                explanation: "The receding source produces lower frequency sound waves."
+            },
+            {
+                text: "You're on an escalator moving towards a musician at 2 m/s. What happens to the music frequency?",
+                answer: "higher",
+                explanation: "Observer motion towards the source increases frequency."
+            },
+            {
+                text: "A delivery truck honks while driving away from your house at 20 m/s. What frequency change occurs?",
+                answer: "lower",
+                explanation: "The departing source creates lower frequency sound waves."
+            },
+            {
+                text: "You're cycling towards a school bell at 8 m/s. What frequency change do you experience?",
+                answer: "higher",
+                explanation: "Moving towards the source compresses the sound waves, raising frequency."
+            },
+            {
+                text: "A subway train enters the station moving towards you at 40 m/s. What happens to the wheel noise frequency?",
+                answer: "higher",
+                explanation: "The approaching train compresses sound waves, increasing frequency."
+            },
+            {
+                text: "You're in a boat moving away from a lighthouse foghorn at 15 m/s. What frequency change occurs?",
+                answer: "lower",
+                explanation: "Observer motion away from the source decreases frequency."
+            },
+            {
+                text: "A garbage truck with beeping sounds is backing away from you at 10 m/s. What frequency do you hear?",
+                answer: "lower",
+                explanation: "The receding source produces stretched sound waves with lower frequency."
+            },
+            {
+                text: "You're running towards a marching band at 6 m/s. What happens to the music frequency?",
+                answer: "higher",
+                explanation: "Approaching the sound source increases the observed frequency."
+            },
+            {
+                text: "A drone flies away from your position at 25 m/s. What happens to its propeller noise frequency?",
+                answer: "lower",
+                explanation: "The moving source stretches sound waves, decreasing frequency."
+            },
+            {
+                text: "You're on a moving walkway approaching a fountain at 3 m/s. What frequency change occurs in the water sounds?",
+                answer: "higher",
+                explanation: "Observer motion towards the source compresses sound waves."
+            },
+            {
+                text: "A vintage car with a loud horn drives past and away from you at 35 m/s. What frequency change happens?",
+                answer: "lower",
+                explanation: "After passing, the receding source produces lower frequency waves."
+            },
+            {
+                text: "You're skiing down a slope towards a ski lift motor at 12 m/s. What frequency change do you hear?",
+                answer: "higher",
+                explanation: "Moving towards the source increases the observed frequency."
+            },
+            {
+                text: "A news helicopter hovers and then flies away from the scene at 50 m/s. What happens to the rotor frequency?",
+                answer: "lower",
+                explanation: "The departing helicopter creates lower frequency sound waves."
+            },
+            {
+                text: "You're on a ferry moving towards a harbor bell at 18 m/s. What frequency change occurs?",
+                answer: "higher",
+                explanation: "Observer motion towards the source compresses sound waves, raising frequency."
+            }
+        ];
+
+        function generateRandomQuestion() {
+            const scenarios = [
+                {
+                    type: "source_towards",
+                    vehicles: ["ambulance", "fire truck", "police car", "train", "motorcycle", "helicopter"],
+                    speeds: [20, 25, 30, 35, 40, 45, 50],
+                    answer: "higher"
+                },
+                {
+                    type: "source_away",
+                    vehicles: ["ambulance", "fire truck", "police car", "train", "motorcycle", "helicopter"],
+                    speeds: [20, 25, 30, 35, 40, 45, 50],
+                    answer: "lower"
+                },
+                {
+                    type: "observer_towards",
+                    activities: ["driving", "walking", "running", "cycling", "jogging"],
+                    sources: ["stationary siren", "street musician", "loudspeaker", "church bell"],
+                    speeds: [2, 3, 5, 8, 10, 15, 20],
+                    answer: "higher"
+                },
+                {
+                    type: "observer_away",
+                    activities: ["driving", "walking", "running", "cycling", "jogging"],
+                    sources: ["stationary siren", "street musician", "loudspeaker", "church bell"],
+                    speeds: [2, 3, 5, 8, 10, 15, 20],
+                    answer: "lower"
+                }
+            ];
+
+            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            let questionText = "";
+
+            if (scenario.type === "source_towards") {
+                const vehicle = scenario.vehicles[Math.floor(Math.random() * scenario.vehicles.length)];
+                const speed = scenario.speeds[Math.floor(Math.random() * scenario.speeds.length)];
+                questionText = `A ${vehicle} is moving towards you at ${speed} m/s with its sound on. What happens to the frequency you hear?`;
+            } else if (scenario.type === "source_away") {
+                const vehicle = scenario.vehicles[Math.floor(Math.random() * scenario.vehicles.length)];
+                const speed = scenario.speeds[Math.floor(Math.random() * scenario.speeds.length)];
+                questionText = `A ${vehicle} is moving away from you at ${speed} m/s with its sound on. What happens to the frequency you hear?`;
+            } else if (scenario.type === "observer_towards") {
+                const activity = scenario.activities[Math.floor(Math.random() * scenario.activities.length)];
+                const source = scenario.sources[Math.floor(Math.random() * scenario.sources.length)];
+                const speed = scenario.speeds[Math.floor(Math.random() * scenario.speeds.length)];
+                questionText = `You are ${activity} towards a ${source} at ${speed} m/s. What happens to the frequency you hear?`;
+            } else if (scenario.type === "observer_away") {
+                const activity = scenario.activities[Math.floor(Math.random() * scenario.activities.length)];
+                const source = scenario.sources[Math.floor(Math.random() * scenario.sources.length)];
+                const speed = scenario.speeds[Math.floor(Math.random() * scenario.speeds.length)];
+                questionText = `You are ${activity} away from a ${source} at ${speed} m/s. What happens to the frequency you hear?`;
+            }
+
+            return {
+                text: questionText,
+                answer: scenario.answer,
+                explanation: scenario.answer === "higher" ? 
+                    "When source and observer move closer together, frequency increases." :
+                    "When source and observer move farther apart, frequency decreases."
+            };
+        }
+
+        function startGame() {
+            const playerXName = document.getElementById('player-x-name').value.trim();
+            const playerOName = document.getElementById('player-o-name').value.trim();
+            
+            if (!playerXName || !playerOName) {
+                alert('Please enter names for both players!');
+                return;
+            }
+            
+            playerNames.X = playerXName;
+            playerNames.O = playerOName;
+            
+            // Update labels
+            document.getElementById('player-x-label').textContent = playerXName;
+            document.getElementById('player-o-label').textContent = playerOName;
+            
+            // Hide setup screen and show game
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            
+            // Initialize game
+            updateCurrentPlayerDisplay();
+            disableBoardClicks();
+            displayQuestion();
+        }
+
+        function updateCurrentPlayerDisplay() {
+            document.getElementById('current-player-display').textContent = playerNames[currentPlayer];
+        }
+
+        function displayQuestion() {
+            // Mix of question bank and generated questions
+            if (Math.random() < 0.6) {
+                currentQuestion = questionBank[Math.floor(Math.random() * questionBank.length)];
+            } else {
+                currentQuestion = generateRandomQuestion();
+            }
+            
+            document.getElementById('question-text').textContent = currentQuestion.text;
+            questionAnswered = false;
+            document.getElementById('feedback').classList.add('hidden');
+        }
+
+        function answerQuestion(answer) {
+            if (questionAnswered) return;
+            
+            questionAnswered = true;
+            const feedback = document.getElementById('feedback');
+            
+            if (answer === currentQuestion.answer) {
+                feedback.textContent = `Correct! ${currentQuestion.explanation}`;
+                feedback.className = 'feedback correct';
+                feedback.classList.remove('hidden');
+                
+                // Enable board clicks for this turn
+                setTimeout(() => {
+                    enableBoardClicks();
+                }, 1500);
+            } else {
+                feedback.textContent = `Incorrect! ${currentQuestion.explanation} Turn passes to ${playerNames[currentPlayer === 'X' ? 'O' : 'X']}.`;
+                feedback.className = 'feedback incorrect';
+                feedback.classList.remove('hidden');
+                
+                // Switch players and generate new question after delay
+                setTimeout(() => {
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                    updateCurrentPlayerDisplay();
+                    displayQuestion();
+                }, 2500);
+            }
+        }
+
+        function enableBoardClicks() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                if (!cell.classList.contains('taken')) {
+                    cell.style.pointerEvents = 'auto';
+                    cell.style.opacity = '1';
+                }
+            });
+        }
+
+        function disableBoardClicks() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                if (!cell.classList.contains('taken')) {
+                    cell.style.pointerEvents = 'none';
+                    cell.style.opacity = '0.6';
+                }
+            });
+        }
+
+        function makeMove(index) {
+            if (!gameActive || board[index] !== '' || !questionAnswered) return;
+            
+            board[index] = currentPlayer;
+            const cell = document.querySelectorAll('.cell')[index];
+            cell.textContent = currentPlayer;
+            cell.classList.add('taken', currentPlayer.toLowerCase());
+            
+            if (checkWinner()) {
+                document.getElementById('winner-text').textContent = `${playerNames[currentPlayer]} Wins!`;
+                document.getElementById('game-over').classList.remove('hidden');
+                document.getElementById('question-section').classList.add('hidden');
+                scores[currentPlayer]++;
+                document.getElementById(`score-${currentPlayer.toLowerCase()}`).textContent = scores[currentPlayer];
+                gameActive = false;
+                return;
+            }
+            
+            if (board.every(cell => cell !== '')) {
+                document.getElementById('winner-text').textContent = "It's a Tie!";
+                document.getElementById('game-over').classList.remove('hidden');
+                document.getElementById('question-section').classList.add('hidden');
+                gameActive = false;
+                return;
+            }
+            
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateCurrentPlayerDisplay();
+            
+            disableBoardClicks();
+            displayQuestion();
+        }
+
+        function checkWinner() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                [0, 4, 8], [2, 4, 6] // Diagonals
+            ];
+            
+            return winPatterns.some(pattern => {
+                const [a, b, c] = pattern;
+                return board[a] && board[a] === board[b] && board[a] === board[c];
+            });
+        }
+
+        function newGame() {
+            currentPlayer = 'X';
+            board = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            questionAnswered = false;
+            
+            updateCurrentPlayerDisplay();
+            document.getElementById('game-over').classList.add('hidden');
+            document.getElementById('question-section').classList.remove('hidden');
+            
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.className = 'cell';
+                cell.style.pointerEvents = 'none';
+                cell.style.opacity = '0.6';
+            });
+            
+            displayQuestion();
+        }
+
+        // Initialize setup screen
+        document.getElementById('game-screen').classList.add('hidden');
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'978e68d344e9b4dc',t:'MTc1NjgzMDgxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
