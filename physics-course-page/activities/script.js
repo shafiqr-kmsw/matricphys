@@ -17,6 +17,7 @@ const documents = [
   { name: "Thermodynamic Process Calculator", link: "files/pv-calc.html" },
   { name: "Thermal Expansion Duel", link: "files/therm-expand-duel.html" },
   { name: "Doppler's Tic Tac Toe", link: "files/doppler-tic.html" },
+  { name: "Sound Wave Quiz", link: "files/sound-quiz.html" },
   
 ]
 ;

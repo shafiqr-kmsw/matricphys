@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resonant Wave Physics Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e40af 0%, #dc2626 50%, #f59e0b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .name-section {
+            margin-bottom: 30px;
+        }
+        
+        .name-section input {
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            width: 300px;
+            margin: 10px;
+            text-align: center;
+        }
+        
+        .name-section input:focus {
+            outline: none;
+            border-color: #1e40af;
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #1e40af, #dc2626);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .section-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            background: #f0f0f0;
+            height: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #1e40af, #f59e0b);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border-left: 5px solid #1e40af;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .answer-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .answer-input {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            width: 150px;
+            text-align: center;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #1e40af;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #dc2626, #f59e0b);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .certificate {
+            background: linear-gradient(135deg, #f5f7fa 0%, #fef3c7 100%);
+            border: 10px solid #1e40af;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(30, 64, 175, 0.1) 10px,
+                rgba(30, 64, 175, 0.1) 20px
+            );
+            animation: shimmer 3s linear infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .certificate-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .certificate h2 {
+            color: #1e40af;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .certificate-name {
+            font-size: 2rem;
+            color: #333;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .certificate-details {
+            font-size: 1.1rem;
+            color: #555;
+            margin: 10px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .answer-section {
+                flex-direction: column;
+            }
+            
+            .timer {
+                position: static;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">Time: 00:00</div>
+    
+    <div class="container">
+        <!-- Name Input Section -->
+        <div id="nameSection" class="name-section">
+            <div class="header">
+                <h1>🌊 Resonant Wave Physics Quiz</h1>
+                <p>Test your knowledge of wave harmonics and resonance</p>
+            </div>
+            <h3>Enter your name to begin:</h3>
+            <input type="text" id="studentName" placeholder="Your Full Name" maxlength="50">
+            <br>
+            <button class="btn" onclick="startQuiz()">Start Quiz</button>
+        </div>
+        
+        <!-- Quiz Section -->
+        <div id="quizSection" class="hidden">
+            <div class="section-header">
+                <h2 id="sectionTitle">Section 1: String Harmonics</h2>
+                <p id="sectionDescription">Calculate the frequency of harmonics in vibrating strings</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <p>Question <span id="currentQuestion">1</span> of 9</p>
+            </div>
+            
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                <div class="answer-section">
+                    <input type="number" id="answerInput" class="answer-input" placeholder="Answer" step="0.01">
+                    <span>Hz</span>
+                    <button class="btn" onclick="checkAnswer()">Submit</button>
+                </div>
+                <div id="feedback" class="feedback hidden"></div>
+            </div>
+        </div>
+        
+        <!-- Certificate Section -->
+        <div id="certificateSection" class="hidden">
+            <div class="certificate" id="certificate">
+                <div class="certificate-content">
+                    <h2>🏆 Certificate of Achievement</h2>
+                    <p style="font-size: 1.3rem; margin: 20px 0;">This certifies that</p>
+                    <div class="certificate-name" id="certificateName"></div>
+                    <p style="font-size: 1.2rem; margin: 20px 0;">has successfully completed the</p>
+                    <h3 style="color: #1e40af; margin: 20px 0;">Resonant Wave Physics Quiz</h3>
+                    <div class="certificate-details">
+                        <p>Completion Time: <span id="completionTime"></span></p>
+                        <p>Date: <span id="completionDate"></span></p>
+                        <p>Score: 9/9 Questions Correct</p>
+                    </div>
+                    <p style="margin-top: 30px; font-style: italic;">Excellence in Wave Physics</p>
+                </div>
+            </div>
+            <button class="btn" onclick="downloadCertificate()">Download Certificate</button>
+            <button class="btn" onclick="restartQuiz()" style="margin-left: 10px;">Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        let studentName = '';
+        let startTime = null;
+        let currentQuestionIndex = 0;
+        let currentSection = 1;
+        let questionsAnswered = 0;
+        
+        // Question banks for each section
+        const questionBanks = {
+            section1: [
+                {
+                    question: "A guitar string has a tension of 80 N, mass per unit length of 0.002 kg/m, and length of 0.65 m. What is the frequency of the 3rd harmonic?",
+                    tension: 80, mass: 0.002, length: 0.65, harmonic: 3,
+                    answer: function() { return (3 / (2 * this.length)) * Math.sqrt(this.tension / this.mass); }
+                },
+                {
+                    question: "A violin string with tension 120 N, mass per unit length 0.0015 kg/m, and length 0.33 m vibrates in its 2nd harmonic. Find the frequency.",
+                    tension: 120, mass: 0.0015, length: 0.33, harmonic: 2,
+                    answer: function() { return (this.harmonic / (2 * this.length)) * Math.sqrt(this.tension / this.mass); }
+                },
+                {
+                    question: "A piano wire has tension 800 N, mass per unit length 0.005 kg/m, and length 1.2 m. Calculate the frequency of the 4th harmonic.",
+                    tension: 800, mass: 0.005, length: 1.2, harmonic: 4,
+                    answer: function() { return (this.harmonic / (2 * this.length)) * Math.sqrt(this.tension / this.mass); }
+                },
+                {
+                    question: "A cello string with tension 200 N, mass per unit length 0.008 kg/m, and length 0.7 m produces its 1st harmonic. What is the frequency?",
+                    tension: 200, mass: 0.008, length: 0.7, harmonic: 1,
+                    answer: function() { return (this.harmonic / (2 * this.length)) * Math.sqrt(this.tension / this.mass); }
+                },
+                {
+                    question: "A banjo string has tension 60 N, mass per unit length 0.001 kg/m, and length 0.4 m. Find the frequency of the 5th harmonic.",
+                    tension: 60, mass: 0.001, length: 0.4, harmonic: 5,
+                    answer: function() { return (this.harmonic / (2 * this.length)) * Math.sqrt(this.tension / this.mass); }
+                }
+            ],
+            section2: [
+                {
+                    question: "An open tube (both ends open) has a length of 0.5 m. If the speed of sound is 343 m/s, what is the frequency of the 2nd harmonic?",
+                    length: 0.5, harmonic: 2, speed: 343,
+                    answer: function() { return (this.harmonic * this.speed) / (2 * this.length); }
+                },
+                {
+                    question: "A flute (open tube) with length 0.6 m produces its 3rd harmonic. Given sound speed 343 m/s, calculate the frequency.",
+                    length: 0.6, harmonic: 3, speed: 343,
+                    answer: function() { return (this.harmonic * this.speed) / (2 * this.length); }
+                },
+                {
+                    question: "An organ pipe (open at both ends) is 1.2 m long. Find the frequency of the 1st harmonic with sound speed 343 m/s.",
+                    length: 1.2, harmonic: 1, speed: 343,
+                    answer: function() { return (this.harmonic * this.speed) / (2 * this.length); }
+                },
+                {
+                    question: "A recorder (open tube) has length 0.3 m and produces its 4th harmonic. What is the frequency? (v = 343 m/s)",
+                    length: 0.3, harmonic: 4, speed: 343,
+                    answer: function() { return (this.harmonic * this.speed) / (2 * this.length); }
+                },
+                {
+                    question: "An open air column of length 0.8 m resonates in its 5th harmonic. Calculate the frequency using v = 343 m/s.",
+                    length: 0.8, harmonic: 5, speed: 343,
+                    answer: function() { return (this.harmonic * this.speed) / (2 * this.length); }
+                }
+            ],
+            section3: [
+                {
+                    question: "A closed tube (one end closed) has length 0.4 m. What is the frequency of the 3rd harmonic with sound speed 343 m/s?",
+                    length: 0.4, harmonic: 3, speed: 343,
+                    answer: function() { return (this.harmonic * this.speed) / (4 * this.length); }
+                },
+                {
+                    question: "A clarinet (closed tube) with length 0.6 m produces its 1st harmonic. Find the frequency using v = 343 m/s.",
+                    length: 0.6, harmonic: 1, speed: 343,
+                    answer: function() { return (this.harmonic * this.speed) / (4 * this.length); }
+                },
+                {
+                    question: "An organ pipe closed at one end is 0.8 m long. Calculate the frequency of the 5th harmonic (v = 343 m/s).",
+                    length: 0.8, harmonic: 5, speed: 343,
+                    answer: function() { return (this.harmonic * this.speed) / (4 * this.length); }
+                },
+                {
+                    question: "A test tube (closed at bottom) of length 0.25 m resonates in its 3rd harmonic. What is the frequency? (v = 343 m/s)",
+                    length: 0.25, harmonic: 3, speed: 343,
+                    answer: function() { return (this.harmonic * this.speed) / (4 * this.length); }
+                },
+                {
+                    question: "A closed air column has length 1.0 m and produces its 1st harmonic. Find the frequency with v = 343 m/s.",
+                    length: 1.0, harmonic: 1, speed: 343,
+                    answer: function() { return (this.harmonic * this.speed) / (4 * this.length); }
+                }
+            ]
+        };
+        
+        let selectedQuestions = [];
+        let currentQuestion = null;
+        let isProcessingAnswer = false;
+        
+        function startQuiz() {
+            const nameInput = document.getElementById('studentName');
+            if (!nameInput.value.trim()) {
+                alert('Please enter your name to continue.');
+                return;
+            }
+            
+            studentName = nameInput.value.trim();
+            startTime = new Date();
+            
+            // Select 3 random questions from each section
+            selectedQuestions = [
+                ...getRandomQuestions(questionBanks.section1, 3),
+                ...getRandomQuestions(questionBanks.section2, 3),
+                ...getRandomQuestions(questionBanks.section3, 3)
+            ];
+            
+            document.getElementById('nameSection').classList.add('hidden');
+            document.getElementById('quizSection').classList.remove('hidden');
+            
+            startTimer();
+            loadQuestion();
+        }
+        
+        function getRandomQuestions(bank, count) {
+            const shuffled = [...bank].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+        
+        function startTimer() {
+            setInterval(() => {
+                if (startTime) {
+                    const elapsed = new Date() - startTime;
+                    const minutes = Math.floor(elapsed / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    document.getElementById('timer').textContent = 
+                        `Time: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+        
+        function loadQuestion() {
+            currentQuestion = selectedQuestions[currentQuestionIndex];
+            
+            // Reset processing flag
+            isProcessingAnswer = false;
+            
+            // Update section info
+            if (currentQuestionIndex < 3) {
+                document.getElementById('sectionTitle').textContent = 'Section 1: String Harmonics';
+                document.getElementById('sectionDescription').textContent = 'Calculate the frequency of harmonics in vibrating strings';
+            } else if (currentQuestionIndex < 6) {
+                document.getElementById('sectionTitle').textContent = 'Section 2: Open Tube Harmonics';
+                document.getElementById('sectionDescription').textContent = 'Find frequencies in tubes open at both ends';
+            } else {
+                document.getElementById('sectionTitle').textContent = 'Section 3: Closed Tube Harmonics';
+                document.getElementById('sectionDescription').textContent = 'Calculate frequencies in tubes closed at one end';
+            }
+            
+            document.getElementById('questionText').textContent = currentQuestion.question;
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            
+            // Reset input and controls
+            const answerInput = document.getElementById('answerInput');
+            const submitBtn = document.querySelector('.btn[onclick="checkAnswer()"]');
+            answerInput.value = '';
+            answerInput.disabled = false;
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit';
+            document.getElementById('feedback').classList.add('hidden');
+            
+            // Focus on input for better UX
+            answerInput.focus();
+            
+            // Update progress
+            const progress = ((currentQuestionIndex) / 9) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        function checkAnswer() {
+            // Prevent multiple simultaneous answer checks
+            if (isProcessingAnswer) {
+                return;
+            }
+            
+            const answerInput = document.getElementById('answerInput');
+            const submitBtn = document.querySelector('.btn[onclick="checkAnswer()"]');
+            const userAnswer = parseFloat(answerInput.value);
+            
+            // Validate input
+            if (isNaN(userAnswer) || userAnswer <= 0) {
+                const feedback = document.getElementById('feedback');
+                feedback.classList.remove('hidden');
+                feedback.textContent = 'Please enter a valid positive number.';
+                feedback.className = 'feedback incorrect';
+                return;
+            }
+            
+            // Set processing flag and disable controls
+            isProcessingAnswer = true;
+            submitBtn.disabled = true;
+            answerInput.disabled = true;
+            submitBtn.textContent = 'Checking...';
+            
+            const correctAnswer = currentQuestion.answer();
+            const tolerance = correctAnswer * 0.02; // 2% tolerance
+            
+            const feedback = document.getElementById('feedback');
+            feedback.classList.remove('hidden');
+            
+            if (Math.abs(userAnswer - correctAnswer) <= tolerance) {
+                feedback.textContent = `Correct! The answer is ${correctAnswer.toFixed(2)} Hz`;
+                feedback.className = 'feedback correct';
+                
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    questionsAnswered++;
+                    
+                    if (currentQuestionIndex >= selectedQuestions.length) {
+                        showCertificate();
+                    } else {
+                        loadQuestion();
+                    }
+                }, 1500);
+            } else {
+                feedback.textContent = `Incorrect. Please try again.`;
+                feedback.className = 'feedback incorrect';
+                
+                // Re-enable controls for retry after delay
+                setTimeout(() => {
+                    isProcessingAnswer = false;
+                    submitBtn.disabled = false;
+                    answerInput.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                    answerInput.focus();
+                }, 1000);
+            }
+        }
+        
+        function showCertificate() {
+            const endTime = new Date();
+            const totalTime = endTime - startTime;
+            const minutes = Math.floor(totalTime / 60000);
+            const seconds = Math.floor((totalTime % 60000) / 1000);
+            
+            document.getElementById('quizSection').classList.add('hidden');
+            document.getElementById('certificateSection').classList.remove('hidden');
+            
+            document.getElementById('certificateName').textContent = studentName;
+            document.getElementById('completionTime').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('completionDate').textContent = new Date().toLocaleDateString();
+            
+            // Update progress to 100%
+            document.getElementById('progressFill').style.width = '100%';
+        }
+        
+        function downloadCertificate() {
+            // Create canvas for certificate
+            const canvas = document.createElement('canvas');
+            canvas.width = 1200;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#f5f7fa');
+            gradient.addColorStop(1, '#c3cfe2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Border
+            ctx.strokeStyle = '#1e40af';
+            ctx.lineWidth = 20;
+            ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+            
+            // Title
+            ctx.fillStyle = '#1e40af';
+            ctx.font = 'bold 60px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🏆 Certificate of Achievement', canvas.width / 2, 150);
+            
+            // Subtitle
+            ctx.fillStyle = '#333';
+            ctx.font = '32px Arial';
+            ctx.fillText('This certifies that', canvas.width / 2, 220);
+            
+            // Name
+            ctx.font = 'bold 48px Arial';
+            ctx.fillText(studentName, canvas.width / 2, 300);
+            
+            // Description
+            ctx.font = '28px Arial';
+            ctx.fillText('has successfully completed the', canvas.width / 2, 360);
+            
+            ctx.fillStyle = '#1e40af';
+            ctx.font = 'bold 36px Arial';
+            ctx.fillText('Resonant Wave Physics Quiz', canvas.width / 2, 420);
+            
+            // Details
+            ctx.fillStyle = '#555';
+            ctx.font = '24px Arial';
+            const completionTime = document.getElementById('completionTime').textContent;
+            const completionDate = document.getElementById('completionDate').textContent;
+            
+            ctx.fillText(`Completion Time: ${completionTime}`, canvas.width / 2, 500);
+            ctx.fillText(`Date: ${completionDate}`, canvas.width / 2, 540);
+            ctx.fillText('Score: 9/9 Questions Correct', canvas.width / 2, 580);
+            
+            // Footer
+            ctx.font = 'italic 20px Arial';
+            ctx.fillText('Excellence in Wave Physics', canvas.width / 2, 680);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = `${studentName}_Wave_Physics_Certificate.jpg`;
+            link.href = canvas.toDataURL('image/jpeg', 0.9);
+            link.click();
+        }
+        
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            questionsAnswered = 0;
+            startTime = null;
+            
+            document.getElementById('certificateSection').classList.add('hidden');
+            document.getElementById('nameSection').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+        
+        // Allow Enter key to submit answers
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (!document.getElementById('quizSection').classList.contains('hidden')) {
+                    checkAnswer();
+                } else if (!document.getElementById('nameSection').classList.contains('hidden')) {
+                    startQuiz();
+                }
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9796de2f02300c6d',t:'MTc1NjkxOTUwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
