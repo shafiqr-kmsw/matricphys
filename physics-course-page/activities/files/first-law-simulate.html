@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Law of Thermodynamics Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes energyFlow {
+            0% { transform: translateX(-100px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100px); opacity: 0; }
+        }
+        
+        @keyframes particleMotion {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(2px, -2px); }
+            50% { transform: translate(-1px, 1px); }
+            75% { transform: translate(1px, 2px); }
+            100% { transform: translate(0, 0); }
+        }
+        
+        .energy-particle {
+            animation: energyFlow 2s ease-in-out infinite;
+        }
+        
+        .gas-particle {
+            animation: particleMotion 0.5s ease-in-out infinite;
+        }
+        
+        .fast-particle {
+            animation-duration: 0.2s;
+        }
+        
+        .medium-particle {
+            animation-duration: 0.4s;
+        }
+        
+        .slow-particle {
+            animation-duration: 0.8s;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 min-h-screen text-white font-sans">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
+                First Law of Thermodynamics
+            </h1>
+            <p class="text-xl text-blue-200 mb-2">ΔU = Q - W</p>
+            <p class="text-gray-300">Change in Internal Energy = Heat Added - Work Done by System</p>
+        </div>
+
+        <!-- Main Simulation Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Heat Input Section -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h3 class="text-xl font-semibold mb-4 text-yellow-300">🔥 Heat Input (Q)</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Heat Added (J)</label>
+                    <input type="range" id="heatSlider" min="0" max="1000" value="500" 
+                           class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-sm text-gray-400 mt-1">
+                        <span>0</span>
+                        <span id="heatValue" class="text-yellow-300 font-semibold">500 J</span>
+                        <span>1000</span>
+                    </div>
+                </div>
+                
+                <!-- Heat Visualization -->
+                <div class="relative h-20 bg-gray-800 rounded-lg overflow-hidden mb-4">
+                    <div id="heatBar" class="h-full bg-gradient-to-r from-red-500 to-yellow-400 transition-all duration-300" style="width: 50%"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-white font-semibold">Heat Energy</span>
+                    </div>
+                </div>
+                
+                <!-- Energy Particles -->
+                <div class="relative h-16 overflow-hidden">
+                    <div id="energyParticles" class="flex space-x-4">
+                        <!-- Particles will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Container -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h3 class="text-xl font-semibold mb-4 text-green-300">⚙️ Thermodynamic System</h3>
+                
+                <!-- Gas Container -->
+                <div class="relative bg-gray-800 rounded-lg h-48 mb-4 overflow-hidden border-2 border-gray-600">
+                    <div class="absolute top-2 left-2 text-xs text-gray-400">Gas Container</div>
+                    
+                    <!-- Piston -->
+                    <div id="piston" class="absolute right-0 top-0 w-4 bg-gray-500 transition-all duration-500" style="height: 100%">
+                        <div class="w-full h-full bg-gradient-to-l from-gray-400 to-gray-600 flex items-center justify-center">
+                            <div class="w-2 h-8 bg-gray-300 rounded"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gas Particles -->
+                    <div id="gasParticles" class="absolute inset-0 p-4">
+                        <!-- Particles will be generated here -->
+                    </div>
+                    
+                    <!-- Temperature Display -->
+                    <div class="absolute bottom-2 left-2 text-sm">
+                        <span class="text-blue-300">T: </span>
+                        <span id="temperature" class="text-white font-semibold">300 K</span>
+                    </div>
+                </div>
+                
+                <!-- Internal Energy Display -->
+                <div class="bg-gray-800 rounded-lg p-3">
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400">Internal Energy (U)</div>
+                        <div id="internalEnergy" class="text-2xl font-bold text-green-400">1500 J</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work Output Section -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <h3 class="text-xl font-semibold mb-4 text-purple-300">💪 Work Done (W)</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">External Pressure</label>
+                    <input type="range" id="pressureSlider" min="1" max="10" value="5" step="0.1"
+                           class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-sm text-gray-400 mt-1">
+                        <span>Low</span>
+                        <span id="pressureValue" class="text-purple-300 font-semibold">5.0 atm</span>
+                        <span>High</span>
+                    </div>
+                </div>
+                
+                <!-- Work Visualization -->
+                <div class="relative h-20 bg-gray-800 rounded-lg overflow-hidden mb-4">
+                    <div id="workBar" class="h-full bg-gradient-to-r from-purple-500 to-pink-400 transition-all duration-300" style="width: 30%"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-white font-semibold">Work Output</span>
+                    </div>
+                </div>
+                
+                <!-- Work Value Display -->
+                <div class="bg-gray-800 rounded-lg p-3">
+                    <div class="text-center">
+                        <div class="text-sm text-gray-400">Work Done by System</div>
+                        <div id="workValue" class="text-xl font-bold text-purple-400">150 J</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equation Display -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 mb-8">
+            <h3 class="text-xl font-semibold mb-4 text-center">First Law Calculation</h3>
+            <div class="text-center text-2xl font-mono">
+                <span class="text-green-400">ΔU</span> = 
+                <span class="text-yellow-400" id="equationQ">500</span> - 
+                <span class="text-purple-400" id="equationW">150</span> = 
+                <span class="text-green-400 font-bold" id="equationResult">350 J</span>
+            </div>
+            <div class="text-center text-sm text-gray-400 mt-2">
+                Change in Internal Energy = Heat Added - Work Done
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+            <h3 class="text-xl font-semibold mb-4">Simulation Controls</h3>
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button id="resetBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg font-semibold transition-colors">
+                    🔄 Reset
+                </button>
+                <button id="addHeatBtn" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition-colors">
+                    🔥 Add Heat Burst
+                </button>
+                <button id="compressBtn" class="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg font-semibold transition-colors">
+                    🗜️ Compress Gas
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ThermodynamicsSimulation {
+            constructor() {
+                this.heat = 500;
+                this.pressure = 5.0;
+                this.volume = 100;
+                this.initialInternalEnergy = 1500;
+                this.internalEnergy = this.initialInternalEnergy;
+                this.work = 0;
+                this.temperature = 300;
+                
+                this.initializeElements();
+                this.bindEvents();
+                this.generateParticles();
+                this.updateSimulation();
+                this.startAnimation();
+            }
+            
+            initializeElements() {
+                this.heatSlider = document.getElementById('heatSlider');
+                this.pressureSlider = document.getElementById('pressureSlider');
+                this.heatValue = document.getElementById('heatValue');
+                this.pressureValue = document.getElementById('pressureValue');
+                this.heatBar = document.getElementById('heatBar');
+                this.workBar = document.getElementById('workBar');
+                this.workValue = document.getElementById('workValue');
+                this.internalEnergyDisplay = document.getElementById('internalEnergy');
+                this.temperatureDisplay = document.getElementById('temperature');
+                this.piston = document.getElementById('piston');
+                this.gasParticles = document.getElementById('gasParticles');
+                this.energyParticles = document.getElementById('energyParticles');
+            }
+            
+            bindEvents() {
+                this.heatSlider.addEventListener('input', () => {
+                    this.heat = parseInt(this.heatSlider.value);
+                    this.updateSimulation();
+                });
+                
+                this.pressureSlider.addEventListener('input', () => {
+                    this.pressure = parseFloat(this.pressureSlider.value);
+                    this.updateSimulation();
+                });
+                
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    this.reset();
+                });
+                
+                document.getElementById('addHeatBtn').addEventListener('click', () => {
+                    this.addHeatBurst();
+                });
+                
+                document.getElementById('compressBtn').addEventListener('click', () => {
+                    this.compressGas();
+                });
+            }
+            
+            generateParticles() {
+                // Generate gas particles
+                this.gasParticles.innerHTML = '';
+                const pistonPosition = Math.max(10, 100 - (this.pressure * 8));
+                const availableWidth = Math.max(5, pistonPosition - 15); // Account for padding and piston width
+                
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'gas-particle absolute w-2 h-2 bg-blue-400 rounded-full';
+                    particle.style.left = Math.random() * availableWidth + '%';
+                    particle.style.top = Math.random() * 80 + '%';
+                    this.gasParticles.appendChild(particle);
+                }
+                
+                // Generate energy particles
+                this.generateEnergyParticles();
+            }
+            
+            generateEnergyParticles() {
+                this.energyParticles.innerHTML = '';
+                const particleCount = Math.floor(this.heat / 100);
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'energy-particle w-3 h-3 bg-yellow-400 rounded-full';
+                    particle.style.animationDelay = `${i * 0.3}s`;
+                    this.energyParticles.appendChild(particle);
+                }
+            }
+            
+            updateSimulation() {
+                // Calculate work done (simplified: W = P * ΔV)
+                const volumeChange = (10 - this.pressure) * 10; // Inverse relationship
+                this.work = this.pressure * volumeChange;
+                
+                // Calculate change in internal energy (First Law)
+                const deltaU = this.heat - this.work;
+                this.internalEnergy = this.initialInternalEnergy + deltaU;
+                
+                // Calculate temperature (proportional to internal energy)
+                this.temperature = 300 + (deltaU / 10);
+                
+                // Update displays
+                this.heatValue.textContent = `${this.heat} J`;
+                this.pressureValue.textContent = `${this.pressure.toFixed(1)} atm`;
+                this.workValue.textContent = `${Math.round(this.work)} J`;
+                this.internalEnergyDisplay.textContent = `${Math.round(this.internalEnergy)} J`;
+                this.temperatureDisplay.textContent = `${Math.round(this.temperature)} K`;
+                
+                // Update bars
+                this.heatBar.style.width = `${(this.heat / 1000) * 100}%`;
+                this.workBar.style.width = `${Math.min((Math.abs(this.work) / 500) * 100, 100)}%`;
+                
+                // Update piston position
+                const pistonPosition = Math.max(10, 100 - (this.pressure * 8));
+                this.piston.style.width = `${100 - pistonPosition}%`;
+                
+                // Update equation display
+                document.getElementById('equationQ').textContent = this.heat;
+                document.getElementById('equationW').textContent = Math.round(this.work);
+                document.getElementById('equationResult').textContent = Math.round(deltaU);
+                
+                // Update particle motion based on temperature
+                this.updateParticleMotion();
+                this.generateEnergyParticles();
+            }
+            
+            updateParticleMotion() {
+                const particles = this.gasParticles.querySelectorAll('.gas-particle');
+                const pistonPosition = Math.max(10, 100 - (this.pressure * 8));
+                const availableWidth = pistonPosition - 10; // Account for padding and piston width
+                
+                particles.forEach(particle => {
+                    particle.className = 'gas-particle absolute w-2 h-2 bg-blue-400 rounded-full';
+                    
+                    // Constrain particles to available space
+                    const currentLeft = parseFloat(particle.style.left) || 0;
+                    const maxLeft = Math.max(5, availableWidth - 5);
+                    
+                    if (currentLeft > maxLeft) {
+                        particle.style.left = Math.random() * maxLeft + '%';
+                    }
+                    
+                    if (this.temperature > 350) {
+                        particle.classList.add('fast-particle');
+                        particle.style.backgroundColor = '#ef4444'; // Red for hot
+                    } else if (this.temperature > 320) {
+                        particle.classList.add('medium-particle');
+                        particle.style.backgroundColor = '#f97316'; // Orange for warm
+                    } else {
+                        particle.classList.add('slow-particle');
+                        particle.style.backgroundColor = '#3b82f6'; // Blue for cool
+                    }
+                });
+            }
+            
+            reset() {
+                this.heat = 500;
+                this.pressure = 5.0;
+                this.internalEnergy = this.initialInternalEnergy;
+                this.work = 0;
+                this.temperature = 300;
+                
+                this.heatSlider.value = 500;
+                this.pressureSlider.value = 5.0;
+                
+                this.updateSimulation();
+            }
+            
+            addHeatBurst() {
+                const originalHeat = this.heat;
+                this.heat = Math.min(1000, this.heat + 200);
+                this.heatSlider.value = this.heat;
+                this.updateSimulation();
+                
+                // Visual effect
+                this.heatBar.style.boxShadow = '0 0 20px #fbbf24';
+                setTimeout(() => {
+                    this.heatBar.style.boxShadow = 'none';
+                }, 1000);
+            }
+            
+            compressGas() {
+                const originalPressure = this.pressure;
+                this.pressure = Math.min(10, this.pressure + 2);
+                this.pressureSlider.value = this.pressure;
+                this.updateSimulation();
+                
+                // Visual effect
+                this.piston.style.boxShadow = '0 0 15px #a855f7';
+                setTimeout(() => {
+                    this.piston.style.boxShadow = 'none';
+                }, 1000);
+            }
+            
+            startAnimation() {
+                // Continuous animation loop for dynamic effects
+                setInterval(() => {
+                    // Add subtle variations to make it feel alive
+                    const particles = this.gasParticles.querySelectorAll('.gas-particle');
+                    const pistonPosition = Math.max(10, 100 - (this.pressure * 8));
+                    const availableWidth = Math.max(5, pistonPosition - 15);
+                    
+                    particles.forEach(particle => {
+                        if (Math.random() < 0.1) {
+                            const newLeft = Math.random() * availableWidth;
+                            const newTop = Math.random() * 80;
+                            particle.style.left = newLeft + '%';
+                            particle.style.top = newTop + '%';
+                        }
+                    });
+                }, 2000);
+            }
+        }
+        
+        // Initialize simulation when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new ThermodynamicsSimulation();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'979f868c931bd04c',t:'MTc1NzAxMDI4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

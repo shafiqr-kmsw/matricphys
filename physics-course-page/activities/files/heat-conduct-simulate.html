@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fourier's Law Heat Conduction Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .heat-gradient {
+            background: linear-gradient(to right, #3B82F6, #EAB308, #EF4444);
+        }
+        
+        .temperature-bar {
+            transition: all 0.3s ease;
+        }
+        
+        .control-panel {
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+        }
+        
+        .equation-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 min-h-screen text-white">
+    <div class="container mx-auto px-6 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-4 text-white">Fourier's Law of Heat Conduction</h1>
+            <p class="text-xl text-blue-100 max-w-3xl mx-auto">
+                Explore how heat flows through single rods or two rods in series with different materials
+            </p>
+        </div>
+
+        <!-- Mode Selection -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-2">
+                <button id="singleRodBtn" class="px-4 py-3 rounded-lg font-semibold transition-all duration-300 bg-blue-600 text-white text-sm">
+                    Single Rod
+                </button>
+                <button id="twoRodsBtn" class="px-4 py-3 rounded-lg font-semibold transition-all duration-300 text-blue-100 hover:bg-blue-600 hover:text-white text-sm">
+                    Two Rods in Series
+                </button>
+                <button id="insulationBtn" class="px-4 py-3 rounded-lg font-semibold transition-all duration-300 text-blue-100 hover:bg-blue-600 hover:text-white text-sm">
+                    Insulation Comparison
+                </button>
+            </div>
+        </div>
+
+        <!-- Fourier's Law Equation -->
+        <div class="equation-box rounded-xl p-6 mb-8 text-center shadow-2xl">
+            <h2 class="text-2xl font-semibold text-blue-900 mb-4">Fourier's Law</h2>
+            <div class="text-3xl font-bold text-blue-800 mb-2">
+                q = -kA(dT/dx)
+            </div>
+            <div class="text-lg text-gray-700 grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                <div><strong>q:</strong> Heat flux (W)</div>
+                <div><strong>k:</strong> Thermal conductivity</div>
+                <div><strong>A:</strong> Cross-sectional area</div>
+                <div><strong>dT/dx:</strong> Temperature gradient</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Control Panel -->
+            <div class="lg:col-span-1">
+                <div class="control-panel rounded-xl p-6 shadow-2xl">
+                    <h3 class="text-2xl font-semibold mb-6 text-white">Parameters</h3>
+                    
+                    <div class="space-y-6">
+                        <!-- Hot Temperature -->
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-blue-100">Hot End Temperature (°C)</label>
+                            <input type="range" id="hotTemp" min="50" max="200" value="100" 
+                                   class="w-full h-3 bg-red-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-sm text-blue-200 mt-1">
+                                <span>50°C</span>
+                                <span id="hotTempValue" class="font-semibold">100°C</span>
+                                <span>200°C</span>
+                            </div>
+                        </div>
+
+                        <!-- Cold Temperature -->
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-blue-100">Cold End Temperature (°C)</label>
+                            <input type="range" id="coldTemp" min="0" max="50" value="20" 
+                                   class="w-full h-3 bg-blue-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-sm text-blue-200 mt-1">
+                                <span>0°C</span>
+                                <span id="coldTempValue" class="font-semibold">20°C</span>
+                                <span>50°C</span>
+                            </div>
+                        </div>
+
+                        <!-- Single Rod Controls -->
+                        <div id="singleRodControls">
+                            <!-- Thermal Conductivity -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-blue-100">Thermal Conductivity (W/m·K)</label>
+                                <select id="material" class="w-full p-3 rounded-lg bg-white text-gray-800 font-medium">
+                                    <option value="0.6">Wood (0.6)</option>
+                                    <option value="1.4">Concrete (1.4)</option>
+                                    <option value="45" selected>Steel (45)</option>
+                                    <option value="205">Aluminum (205)</option>
+                                    <option value="400">Copper (400)</option>
+                                </select>
+                            </div>
+
+                            <!-- Cross-sectional Area -->
+                            <div class="mt-6">
+                                <label class="block text-sm font-medium mb-2 text-blue-100">Cross-sectional Area (cm²)</label>
+                                <input type="range" id="area" min="1" max="20" value="10" 
+                                       class="w-full h-3 bg-yellow-200 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-sm text-blue-200 mt-1">
+                                    <span>1 cm²</span>
+                                    <span id="areaValue" class="font-semibold">10 cm²</span>
+                                    <span>20 cm²</span>
+                                </div>
+                            </div>
+
+                            <!-- Rod Length -->
+                            <div class="mt-6">
+                                <label class="block text-sm font-medium mb-2 text-blue-100">Rod Length (m)</label>
+                                <input type="range" id="length" min="0.1" max="2" step="0.1" value="1" 
+                                       class="w-full h-3 bg-white rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-sm text-blue-200 mt-1">
+                                    <span>0.1 m</span>
+                                    <span id="lengthValue" class="font-semibold">1.0 m</span>
+                                    <span>2.0 m</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Two Rods Controls -->
+                        <div id="twoRodsControls" class="hidden">
+                            <!-- Rod 1 -->
+                            <div class="bg-blue-800 bg-opacity-50 rounded-lg p-4 mb-4">
+                                <h4 class="text-lg font-semibold text-yellow-300 mb-3">Rod 1 (Left)</h4>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-blue-100">Material</label>
+                                    <select id="material1" class="w-full p-2 rounded-lg bg-white text-gray-800 font-medium">
+                                        <option value="0.6">Wood (0.6)</option>
+                                        <option value="1.4">Concrete (1.4)</option>
+                                        <option value="45" selected>Steel (45)</option>
+                                        <option value="205">Aluminum (205)</option>
+                                        <option value="400">Copper (400)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mt-3">
+                                    <label class="block text-sm font-medium mb-2 text-blue-100">Length (m)</label>
+                                    <input type="range" id="length1" min="0.1" max="1" step="0.1" value="0.5" 
+                                           class="w-full h-2 bg-white rounded-lg appearance-none cursor-pointer">
+                                    <div class="flex justify-between text-xs text-blue-200 mt-1">
+                                        <span>0.1m</span>
+                                        <span id="length1Value" class="font-semibold">0.5m</span>
+                                        <span>1.0m</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Rod 2 -->
+                            <div class="bg-red-800 bg-opacity-50 rounded-lg p-4 mb-4">
+                                <h4 class="text-lg font-semibold text-yellow-300 mb-3">Rod 2 (Right)</h4>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-blue-100">Material</label>
+                                    <select id="material2" class="w-full p-2 rounded-lg bg-white text-gray-800 font-medium">
+                                        <option value="0.6">Wood (0.6)</option>
+                                        <option value="1.4">Concrete (1.4)</option>
+                                        <option value="45">Steel (45)</option>
+                                        <option value="205">Aluminum (205)</option>
+                                        <option value="400" selected>Copper (400)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mt-3">
+                                    <label class="block text-sm font-medium mb-2 text-blue-100">Length (m)</label>
+                                    <input type="range" id="length2" min="0.1" max="1" step="0.1" value="0.5" 
+                                           class="w-full h-2 bg-white rounded-lg appearance-none cursor-pointer">
+                                    <div class="flex justify-between text-xs text-blue-200 mt-1">
+                                        <span>0.1m</span>
+                                        <span id="length2Value" class="font-semibold">0.5m</span>
+                                        <span>1.0m</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Shared Area -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-blue-100">Cross-sectional Area (cm²)</label>
+                                <input type="range" id="areaTwo" min="1" max="20" value="10" 
+                                       class="w-full h-3 bg-yellow-200 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-sm text-blue-200 mt-1">
+                                    <span>1 cm²</span>
+                                    <span id="areaTwoValue" class="font-semibold">10 cm²</span>
+                                    <span>20 cm²</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Insulation Controls -->
+                        <div id="insulationControls" class="hidden">
+                            <!-- Rod Material -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-blue-100">Rod Material</label>
+                                <select id="materialInsulation" class="w-full p-3 rounded-lg bg-white text-gray-800 font-medium">
+                                    <option value="0.6">Wood (0.6)</option>
+                                    <option value="1.4">Concrete (1.4)</option>
+                                    <option value="45" selected>Steel (45)</option>
+                                    <option value="205">Aluminum (205)</option>
+                                    <option value="400">Copper (400)</option>
+                                </select>
+                            </div>
+
+                            <!-- Rod Dimensions -->
+                            <div class="mt-6">
+                                <label class="block text-sm font-medium mb-2 text-blue-100">Rod Length (m)</label>
+                                <input type="range" id="lengthInsulation" min="0.5" max="2" step="0.1" value="1" 
+                                       class="w-full h-3 bg-white rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-sm text-blue-200 mt-1">
+                                    <span>0.5 m</span>
+                                    <span id="lengthInsulationValue" class="font-semibold">1.0 m</span>
+                                    <span>2.0 m</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <label class="block text-sm font-medium mb-2 text-blue-100">Cross-sectional Area (cm²)</label>
+                                <input type="range" id="areaInsulation" min="1" max="20" value="10" 
+                                       class="w-full h-3 bg-yellow-200 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-sm text-blue-200 mt-1">
+                                    <span>1 cm²</span>
+                                    <span id="areaInsulationValue" class="font-semibold">10 cm²</span>
+                                    <span>20 cm²</span>
+                                </div>
+                            </div>
+
+                            <!-- Environmental Conditions -->
+                            <div class="mt-6 bg-green-800 bg-opacity-50 rounded-lg p-4">
+                                <h4 class="text-lg font-semibold text-yellow-300 mb-3">Environmental Conditions</h4>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-blue-100">Ambient Temperature (°C)</label>
+                                    <input type="range" id="ambientTemp" min="0" max="40" value="20" 
+                                           class="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer">
+                                    <div class="flex justify-between text-xs text-blue-200 mt-1">
+                                        <span>0°C</span>
+                                        <span id="ambientTempValue" class="font-semibold">20°C</span>
+                                        <span>40°C</span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <label class="block text-sm font-medium mb-2 text-blue-100">Heat Transfer Coefficient (W/m²·K)</label>
+                                    <input type="range" id="heatTransferCoeff" min="5" max="50" value="25" 
+                                           class="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer">
+                                    <div class="flex justify-between text-xs text-blue-200 mt-1">
+                                        <span>5</span>
+                                        <span id="heatTransferCoeffValue" class="font-semibold">25</span>
+                                        <span>50</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl p-6 shadow-2xl">
+                    <h3 class="text-2xl font-semibold mb-6 text-gray-800">Heat Conduction Visualization</h3>
+                    
+                    <!-- Single Rod Visualization -->
+                    <div id="singleRodViz" class="mb-8">
+                        <div class="relative">
+                            <!-- Temperature Labels -->
+                            <div class="flex justify-between mb-2">
+                                <span class="text-red-600 font-bold text-lg">Hot End</span>
+                                <span class="text-blue-600 font-bold text-lg">Cold End</span>
+                            </div>
+                            
+                            <!-- Rod -->
+                            <div id="rod" class="h-20 rounded-lg border-4 border-gray-800 relative overflow-hidden heat-gradient">
+                                <!-- Heat Flow Arrow -->
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-white font-bold text-lg">Heat Flow →</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Temperature Values -->
+                            <div class="flex justify-between mt-2">
+                                <span id="hotTempDisplay" class="text-red-600 font-bold text-xl">100°C</span>
+                                <span id="coldTempDisplay" class="text-blue-600 font-bold text-xl">20°C</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Two Rods Visualization -->
+                    <div id="twoRodsViz" class="mb-8 hidden">
+                        <div class="relative">
+                            <!-- Temperature Labels -->
+                            <div class="flex justify-between mb-2">
+                                <span class="text-red-600 font-bold text-lg">Hot End</span>
+                                <span class="text-green-600 font-bold text-lg">Interface</span>
+                                <span class="text-blue-600 font-bold text-lg">Cold End</span>
+                            </div>
+                            
+                            <!-- Two Rods -->
+                            <div class="flex h-20 border-4 border-gray-800 rounded-lg overflow-hidden">
+                                <div id="rod1" class="relative flex-1 border-r-2 border-gray-800">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-white font-bold text-sm">Rod 1</span>
+                                    </div>
+                                </div>
+                                <div id="rod2" class="relative flex-1">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-white font-bold text-sm">Rod 2</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Heat Flow Arrow -->
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                                <span class="text-white font-bold text-lg bg-black bg-opacity-50 px-2 py-1 rounded">Heat Flow →</span>
+                            </div>
+                            
+                            <!-- Temperature Values -->
+                            <div class="flex justify-between mt-2">
+                                <span id="hotTempDisplay2" class="text-red-600 font-bold text-xl">100°C</span>
+                                <span id="interfaceTempDisplay" class="text-green-600 font-bold text-xl">60°C</span>
+                                <span id="coldTempDisplay2" class="text-blue-600 font-bold text-xl">20°C</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Insulation Comparison Visualization -->
+                    <div id="insulationViz" class="mb-8 hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Uninsulated Rod -->
+                            <div class="bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-red-800 mb-3 text-center">Uninsulated Rod</h4>
+                                <div class="relative mb-4">
+                                    <div id="uninsulatedRod" class="h-16 rounded-lg border-3 border-red-800 relative overflow-hidden">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <span class="text-white font-bold text-sm">Heat Loss to Environment</span>
+                                        </div>
+                                    </div>
+                                    <!-- Heat loss arrows -->
+                                    <div class="absolute -top-2 left-1/4 text-red-600">↑</div>
+                                    <div class="absolute -top-2 left-2/4 text-red-600">↑</div>
+                                    <div class="absolute -top-2 left-3/4 text-red-600">↑</div>
+                                    <div class="absolute -bottom-2 left-1/4 text-red-600">↓</div>
+                                    <div class="absolute -bottom-2 left-2/4 text-red-600">↓</div>
+                                    <div class="absolute -bottom-2 left-3/4 text-red-600">↓</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-sm text-red-700 mb-1">Heat Loss Rate</div>
+                                    <div class="text-xl font-bold text-red-900"><span id="uninsulatedHeatLoss">500</span> W</div>
+                                </div>
+                            </div>
+
+                            <!-- Insulated Rod -->
+                            <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-green-800 mb-3 text-center">Insulated Rod</h4>
+                                <div class="relative mb-4">
+                                    <div id="insulatedRod" class="h-16 rounded-lg border-3 border-green-800 relative overflow-hidden">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <span class="text-white font-bold text-sm">Minimal Heat Loss</span>
+                                        </div>
+                                    </div>
+                                    <!-- Insulation layer -->
+                                    <div class="absolute -inset-1 border-2 border-dashed border-green-600 rounded-lg opacity-60"></div>
+                                    <!-- Minimal heat loss arrows -->
+                                    <div class="absolute -top-2 left-2/4 text-green-600 text-xs">↑</div>
+                                    <div class="absolute -bottom-2 left-2/4 text-green-600 text-xs">↓</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-sm text-green-700 mb-1">Heat Loss Rate</div>
+                                    <div class="text-xl font-bold text-green-900"><span id="insulatedHeatLoss">50</span> W</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Temperature-Distance Graph -->
+                        <div class="mt-8 bg-white p-6 rounded-lg">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">Temperature vs Distance</h4>
+                            <div class="relative">
+                                <canvas id="tempDistanceGraph" width="600" height="300" class="w-full border border-gray-300 rounded"></canvas>
+                            </div>
+                            <div class="flex justify-center mt-4 space-x-6">
+                                <div class="flex items-center">
+                                    <div class="w-4 h-1 bg-red-500 mr-2"></div>
+                                    <span class="text-sm text-gray-700">Uninsulated</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-4 h-1 bg-green-500 mr-2"></div>
+                                    <span class="text-sm text-gray-700">Insulated</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Single Rod Results -->
+                    <div id="singleRodResults" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">Temperature Gradient</h4>
+                            <div class="text-2xl font-bold text-blue-900">
+                                <span id="gradient">80</span> °C/m
+                            </div>
+                            <p class="text-sm text-blue-700 mt-1">ΔT/Δx = (T₁ - T₂)/L</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-red-800 mb-2">Heat Flux</h4>
+                            <div class="text-2xl font-bold text-red-900">
+                                <span id="heatFlux">3600</span> W
+                            </div>
+                            <p class="text-sm text-red-700 mt-1">q = kA(ΔT/Δx)</p>
+                        </div>
+                    </div>
+
+                    <!-- Two Rods Results -->
+                    <div id="twoRodsResults" class="hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-blue-800 mb-2">Rod 1 Gradient</h4>
+                                <div class="text-xl font-bold text-blue-900">
+                                    <span id="gradient1">80</span> °C/m
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-green-800 mb-2">Interface Temp</h4>
+                                <div class="text-xl font-bold text-green-900">
+                                    <span id="interfaceTemp">60</span> °C
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-purple-800 mb-2">Rod 2 Gradient</h4>
+                                <div class="text-xl font-bold text-purple-900">
+                                    <span id="gradient2">80</span> °C/m
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-red-800 mb-2">Total Heat Flux</h4>
+                                <div class="text-2xl font-bold text-red-900">
+                                    <span id="heatFluxTwo">1800</span> W
+                                </div>
+                                <p class="text-sm text-red-700 mt-1">Same through both rods</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-yellow-800 mb-2">Total Resistance</h4>
+                                <div class="text-2xl font-bold text-yellow-900">
+                                    <span id="totalResistance">0.044</span> K/W
+                                </div>
+                                <p class="text-sm text-yellow-700 mt-1">R₁ + R₂ = L₁/(k₁A) + L₂/(k₂A)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Single Rod Material Properties -->
+                    <div id="singleRodMaterial" class="mt-6 bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg">
+                        <h4 class="font-semibold text-yellow-800 mb-2">Current Material Properties</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-yellow-700">Thermal Conductivity:</span>
+                                <span id="currentK" class="font-bold text-yellow-900 ml-1">45 W/m·K</span>
+                            </div>
+                            <div>
+                                <span class="text-yellow-700">Cross-sectional Area:</span>
+                                <span id="currentArea" class="font-bold text-yellow-900 ml-1">10 cm²</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Two Rods Material Properties -->
+                    <div id="twoRodsMaterial" class="mt-6 bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg hidden">
+                        <h4 class="font-semibold text-yellow-800 mb-2">Material Properties</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div class="bg-blue-100 p-3 rounded">
+                                <h5 class="font-semibold text-blue-800 mb-1">Rod 1</h5>
+                                <div class="text-blue-700">k₁: <span id="currentK1" class="font-bold">45</span> W/m·K</div>
+                                <div class="text-blue-700">L₁: <span id="currentL1" class="font-bold">0.5</span> m</div>
+                            </div>
+                            <div class="bg-red-100 p-3 rounded">
+                                <h5 class="font-semibold text-red-800 mb-1">Rod 2</h5>
+                                <div class="text-red-700">k₂: <span id="currentK2" class="font-bold">400</span> W/m·K</div>
+                                <div class="text-red-700">L₂: <span id="currentL2" class="font-bold">0.5</span> m</div>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-center">
+                            <span class="text-yellow-700">Shared Area:</span>
+                            <span id="currentAreaTwo" class="font-bold text-yellow-900 ml-1">10 cm²</span>
+                        </div>
+                    </div>
+
+                    <!-- Insulation Results -->
+                    <div id="insulationResults" class="hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-gradient-to-r from-red-50 to-red-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-red-800 mb-2">Uninsulated Loss</h4>
+                                <div class="text-xl font-bold text-red-900">
+                                    <span id="uninsulatedLoss">500</span> W
+                                </div>
+                                <p class="text-sm text-red-700 mt-1">Heat lost to environment</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-green-800 mb-2">Insulated Loss</h4>
+                                <div class="text-xl font-bold text-green-900">
+                                    <span id="insulatedLoss">50</span> W
+                                </div>
+                                <p class="text-sm text-green-700 mt-1">Reduced heat loss</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-blue-800 mb-2">Energy Savings</h4>
+                                <div class="text-xl font-bold text-blue-900">
+                                    <span id="energySavings">90</span>%
+                                </div>
+                                <p class="text-sm text-blue-700 mt-1">Efficiency improvement</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg">
+                            <h4 class="font-semibold text-yellow-800 mb-2">Current Parameters</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                    <span class="text-yellow-700">Material:</span>
+                                    <span id="currentKInsulation" class="font-bold text-yellow-900 ml-1">45 W/m·K</span>
+                                </div>
+                                <div>
+                                    <span class="text-yellow-700">Length:</span>
+                                    <span id="currentLInsulation" class="font-bold text-yellow-900 ml-1">1.0 m</span>
+                                </div>
+                                <div>
+                                    <span class="text-yellow-700">Area:</span>
+                                    <span id="currentAreaInsulation" class="font-bold text-yellow-900 ml-1">10 cm²</span>
+                                </div>
+                                <div>
+                                    <span class="text-yellow-700">Ambient:</span>
+                                    <span id="currentAmbient" class="font-bold text-yellow-900 ml-1">20°C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Notes -->
+        <div class="mt-8 bg-white bg-opacity-10 backdrop-blur-lg rounded-xl p-6">
+            <h3 class="text-2xl font-semibold mb-4 text-white">Key Concepts</h3>
+            
+            <!-- Single Rod Concepts -->
+            <div id="singleRodConcepts" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-blue-100">
+                <div>
+                    <h4 class="font-semibold text-yellow-300 mb-2">Heat always flows from hot to cold</h4>
+                    <p>The negative sign in Fourier's law indicates heat flows in the direction of decreasing temperature.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-yellow-300 mb-2">Material matters</h4>
+                    <p>Higher thermal conductivity (k) means more heat transfer for the same temperature difference.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-yellow-300 mb-2">Size effects</h4>
+                    <p>Larger cross-sectional area increases heat transfer, while longer length decreases the gradient.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-yellow-300 mb-2">Steady state</h4>
+                    <p>This simulation shows steady-state conduction where temperature doesn't change with time.</p>
+                </div>
+            </div>
+
+            <!-- Two Rods Concepts -->
+            <div id="twoRodsConcepts" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-blue-100">
+                    <div>
+                        <h4 class="font-semibold text-yellow-300 mb-2">Series thermal resistance</h4>
+                        <p>Total resistance = R₁ + R₂. Materials with higher resistance create larger temperature drops.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-yellow-300 mb-2">Constant heat flux</h4>
+                        <p>In steady state, the same amount of heat flows through both rods (conservation of energy).</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-yellow-300 mb-2">Interface temperature</h4>
+                        <p>The temperature at the junction depends on the thermal properties of both materials.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-yellow-300 mb-2">Thermal bottleneck</h4>
+                        <p>The material with lower conductivity or longer length creates the largest temperature drop.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insulation Concepts -->
+            <div id="insulationConcepts" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-blue-100">
+                    <div>
+                        <h4 class="font-semibold text-yellow-300 mb-2">Heat loss to environment</h4>
+                        <p>Uninsulated rods lose heat along their length through convection and radiation to the surroundings.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-yellow-300 mb-2">Insulation effectiveness</h4>
+                        <p>Good insulation dramatically reduces heat loss, maintaining higher temperatures along the rod.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-yellow-300 mb-2">Temperature profiles</h4>
+                        <p>Uninsulated rods show curved temperature profiles, while insulated rods maintain linear profiles.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-yellow-300 mb-2">Energy efficiency</h4>
+                        <p>Insulation can reduce energy losses by 80-95%, making systems much more efficient.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mode tracking
+        let currentMode = 'single';
+
+        // Get mode buttons
+        const singleRodBtn = document.getElementById('singleRodBtn');
+        const twoRodsBtn = document.getElementById('twoRodsBtn');
+        const insulationBtn = document.getElementById('insulationBtn');
+
+        // Get all input elements
+        const hotTempSlider = document.getElementById('hotTemp');
+        const coldTempSlider = document.getElementById('coldTemp');
+        const materialSelect = document.getElementById('material');
+        const areaSlider = document.getElementById('area');
+        const lengthSlider = document.getElementById('length');
+
+        // Two rods elements
+        const material1Select = document.getElementById('material1');
+        const material2Select = document.getElementById('material2');
+        const length1Slider = document.getElementById('length1');
+        const length2Slider = document.getElementById('length2');
+        const areaTwoSlider = document.getElementById('areaTwo');
+
+        // Insulation elements
+        const materialInsulationSelect = document.getElementById('materialInsulation');
+        const lengthInsulationSlider = document.getElementById('lengthInsulation');
+        const areaInsulationSlider = document.getElementById('areaInsulation');
+        const ambientTempSlider = document.getElementById('ambientTemp');
+        const heatTransferCoeffSlider = document.getElementById('heatTransferCoeff');
+
+        // Get display elements
+        const hotTempValue = document.getElementById('hotTempValue');
+        const coldTempValue = document.getElementById('coldTempValue');
+        const areaValue = document.getElementById('areaValue');
+        const lengthValue = document.getElementById('lengthValue');
+        const length1Value = document.getElementById('length1Value');
+        const length2Value = document.getElementById('length2Value');
+        const areaTwoValue = document.getElementById('areaTwoValue');
+        const lengthInsulationValue = document.getElementById('lengthInsulationValue');
+        const areaInsulationValue = document.getElementById('areaInsulationValue');
+        const ambientTempValue = document.getElementById('ambientTempValue');
+        const heatTransferCoeffValue = document.getElementById('heatTransferCoeffValue');
+
+        // Mode switching functions
+        function switchToSingleRod() {
+            currentMode = 'single';
+            
+            // Update button styles
+            singleRodBtn.className = 'px-4 py-3 rounded-lg font-semibold transition-all duration-300 bg-blue-600 text-white text-sm';
+            twoRodsBtn.className = 'px-4 py-3 rounded-lg font-semibold transition-all duration-300 text-blue-100 hover:bg-blue-600 hover:text-white text-sm';
+            insulationBtn.className = 'px-4 py-3 rounded-lg font-semibold transition-all duration-300 text-blue-100 hover:bg-blue-600 hover:text-white text-sm';
+            
+            // Show/hide controls
+            document.getElementById('singleRodControls').classList.remove('hidden');
+            document.getElementById('twoRodsControls').classList.add('hidden');
+            document.getElementById('insulationControls').classList.add('hidden');
+            
+            // Show/hide visualizations
+            document.getElementById('singleRodViz').classList.remove('hidden');
+            document.getElementById('twoRodsViz').classList.add('hidden');
+            document.getElementById('insulationViz').classList.add('hidden');
+            
+            // Show/hide results
+            document.getElementById('singleRodResults').classList.remove('hidden');
+            document.getElementById('twoRodsResults').classList.add('hidden');
+            document.getElementById('insulationResults').classList.add('hidden');
+            
+            // Show/hide material properties
+            document.getElementById('singleRodMaterial').classList.remove('hidden');
+            document.getElementById('twoRodsMaterial').classList.add('hidden');
+            
+            // Show/hide concepts
+            document.getElementById('singleRodConcepts').classList.remove('hidden');
+            document.getElementById('twoRodsConcepts').classList.add('hidden');
+            document.getElementById('insulationConcepts').classList.add('hidden');
+            
+            updateSimulation();
+        }
+
+        function switchToTwoRods() {
+            currentMode = 'two';
+            
+            // Update button styles
+            twoRodsBtn.className = 'px-4 py-3 rounded-lg font-semibold transition-all duration-300 bg-blue-600 text-white text-sm';
+            singleRodBtn.className = 'px-4 py-3 rounded-lg font-semibold transition-all duration-300 text-blue-100 hover:bg-blue-600 hover:text-white text-sm';
+            insulationBtn.className = 'px-4 py-3 rounded-lg font-semibold transition-all duration-300 text-blue-100 hover:bg-blue-600 hover:text-white text-sm';
+            
+            // Show/hide controls
+            document.getElementById('singleRodControls').classList.add('hidden');
+            document.getElementById('twoRodsControls').classList.remove('hidden');
+            document.getElementById('insulationControls').classList.add('hidden');
+            
+            // Show/hide visualizations
+            document.getElementById('singleRodViz').classList.add('hidden');
+            document.getElementById('twoRodsViz').classList.remove('hidden');
+            document.getElementById('insulationViz').classList.add('hidden');
+            
+            // Show/hide results
+            document.getElementById('singleRodResults').classList.add('hidden');
+            document.getElementById('twoRodsResults').classList.remove('hidden');
+            document.getElementById('insulationResults').classList.add('hidden');
+            
+            // Show/hide material properties
+            document.getElementById('singleRodMaterial').classList.add('hidden');
+            document.getElementById('twoRodsMaterial').classList.remove('hidden');
+            
+            // Show/hide concepts
+            document.getElementById('singleRodConcepts').classList.add('hidden');
+            document.getElementById('twoRodsConcepts').classList.remove('hidden');
+            document.getElementById('insulationConcepts').classList.add('hidden');
+            
+            updateSimulation();
+        }
+
+        function switchToInsulation() {
+            currentMode = 'insulation';
+            
+            // Update button styles
+            insulationBtn.className = 'px-4 py-3 rounded-lg font-semibold transition-all duration-300 bg-blue-600 text-white text-sm';
+            singleRodBtn.className = 'px-4 py-3 rounded-lg font-semibold transition-all duration-300 text-blue-100 hover:bg-blue-600 hover:text-white text-sm';
+            twoRodsBtn.className = 'px-4 py-3 rounded-lg font-semibold transition-all duration-300 text-blue-100 hover:bg-blue-600 hover:text-white text-sm';
+            
+            // Show/hide controls
+            document.getElementById('singleRodControls').classList.add('hidden');
+            document.getElementById('twoRodsControls').classList.add('hidden');
+            document.getElementById('insulationControls').classList.remove('hidden');
+            
+            // Show/hide visualizations
+            document.getElementById('singleRodViz').classList.add('hidden');
+            document.getElementById('twoRodsViz').classList.add('hidden');
+            document.getElementById('insulationViz').classList.remove('hidden');
+            
+            // Show/hide results
+            document.getElementById('singleRodResults').classList.add('hidden');
+            document.getElementById('twoRodsResults').classList.add('hidden');
+            document.getElementById('insulationResults').classList.remove('hidden');
+            
+            // Show/hide material properties
+            document.getElementById('singleRodMaterial').classList.add('hidden');
+            document.getElementById('twoRodsMaterial').classList.add('hidden');
+            
+            // Show/hide concepts
+            document.getElementById('singleRodConcepts').classList.add('hidden');
+            document.getElementById('twoRodsConcepts').classList.add('hidden');
+            document.getElementById('insulationConcepts').classList.remove('hidden');
+            
+            updateSimulation();
+        }
+
+        function updateSingleRodSimulation() {
+            // Get current values
+            const hotTemp = parseFloat(hotTempSlider.value);
+            const coldTemp = parseFloat(coldTempSlider.value);
+            const k = parseFloat(materialSelect.value);
+            const area = parseFloat(areaSlider.value) / 10000; // Convert cm² to m²
+            const length = parseFloat(lengthSlider.value);
+
+            // Update display values
+            hotTempValue.textContent = hotTemp + '°C';
+            coldTempValue.textContent = coldTemp + '°C';
+            areaValue.textContent = areaSlider.value + ' cm²';
+            lengthValue.textContent = length + ' m';
+            document.getElementById('hotTempDisplay').textContent = hotTemp + '°C';
+            document.getElementById('coldTempDisplay').textContent = coldTemp + '°C';
+            document.getElementById('currentK').textContent = k + ' W/m·K';
+            document.getElementById('currentArea').textContent = areaSlider.value + ' cm²';
+
+            // Calculate temperature gradient (°C/m)
+            const tempGradient = (hotTemp - coldTemp) / length;
+            document.getElementById('gradient').textContent = Math.round(tempGradient * 10) / 10;
+
+            // Calculate heat flux using Fourier's law: q = kA(dT/dx)
+            const heatFluxValue = k * area * tempGradient;
+            document.getElementById('heatFlux').textContent = Math.round(heatFluxValue);
+
+            // Update rod gradient based on temperature difference
+            const rod = document.getElementById('rod');
+            const tempRatio = (hotTemp - coldTemp) / 180; // Normalize for visual effect
+            const gradientIntensity = Math.min(Math.max(tempRatio, 0.2), 1);
+            
+            // Create dynamic gradient based on temperature difference
+            if (hotTemp > coldTemp) {
+                rod.style.background = `linear-gradient(to right, 
+                    rgb(239, 68, 68) 0%, 
+                    rgb(234, 179, 8) ${50 * gradientIntensity}%, 
+                    rgb(59, 130, 246) 100%)`;
+            } else {
+                rod.style.background = `linear-gradient(to right, 
+                    rgb(59, 130, 246), 
+                    rgb(59, 130, 246))`;
+            }
+        }
+
+        function updateTwoRodsSimulation() {
+            // Get current values
+            const hotTemp = parseFloat(hotTempSlider.value);
+            const coldTemp = parseFloat(coldTempSlider.value);
+            const k1 = parseFloat(material1Select.value);
+            const k2 = parseFloat(material2Select.value);
+            const L1 = parseFloat(length1Slider.value);
+            const L2 = parseFloat(length2Slider.value);
+            const area = parseFloat(areaTwoSlider.value) / 10000; // Convert cm² to m²
+
+            // Update display values
+            hotTempValue.textContent = hotTemp + '°C';
+            coldTempValue.textContent = coldTemp + '°C';
+            length1Value.textContent = L1 + 'm';
+            length2Value.textContent = L2 + 'm';
+            areaTwoValue.textContent = areaTwoSlider.value + ' cm²';
+
+            // Calculate thermal resistances
+            const R1 = L1 / (k1 * area);
+            const R2 = L2 / (k2 * area);
+            const Rtotal = R1 + R2;
+
+            // Calculate heat flux (same through both rods in series)
+            const heatFluxValue = (hotTemp - coldTemp) / Rtotal;
+
+            // Calculate interface temperature
+            const interfaceTemp = hotTemp - (heatFluxValue * R1);
+
+            // Calculate temperature gradients
+            const gradient1 = (hotTemp - interfaceTemp) / L1;
+            const gradient2 = (interfaceTemp - coldTemp) / L2;
+
+            // Update displays
+            document.getElementById('hotTempDisplay2').textContent = hotTemp + '°C';
+            document.getElementById('coldTempDisplay2').textContent = coldTemp + '°C';
+            document.getElementById('interfaceTempDisplay').textContent = Math.round(interfaceTemp * 10) / 10 + '°C';
+            document.getElementById('gradient1').textContent = Math.round(gradient1 * 10) / 10;
+            document.getElementById('gradient2').textContent = Math.round(gradient2 * 10) / 10;
+            document.getElementById('interfaceTemp').textContent = Math.round(interfaceTemp * 10) / 10;
+            document.getElementById('heatFluxTwo').textContent = Math.round(heatFluxValue);
+            document.getElementById('totalResistance').textContent = (Rtotal).toFixed(4);
+
+            // Update material properties display
+            document.getElementById('currentK1').textContent = k1;
+            document.getElementById('currentK2').textContent = k2;
+            document.getElementById('currentL1').textContent = L1;
+            document.getElementById('currentL2').textContent = L2;
+            document.getElementById('currentAreaTwo').textContent = areaTwoSlider.value + ' cm²';
+
+            // Update rod visualizations
+            const rod1 = document.getElementById('rod1');
+            const rod2 = document.getElementById('rod2');
+
+            // Rod 1 gradient (hot to interface)
+            const tempRatio1 = (hotTemp - interfaceTemp) / 180;
+            const gradientIntensity1 = Math.min(Math.max(tempRatio1, 0.1), 1);
+            
+            rod1.style.background = `linear-gradient(to right, 
+                rgb(239, 68, 68) 0%, 
+                rgb(234, 179, 8) ${50 * gradientIntensity1}%, 
+                rgb(34, 197, 94) 100%)`;
+
+            // Rod 2 gradient (interface to cold)
+            const tempRatio2 = (interfaceTemp - coldTemp) / 180;
+            const gradientIntensity2 = Math.min(Math.max(tempRatio2, 0.1), 1);
+            
+            rod2.style.background = `linear-gradient(to right, 
+                rgb(34, 197, 94) 0%, 
+                rgb(234, 179, 8) ${50 * gradientIntensity2}%, 
+                rgb(59, 130, 246) 100%)`;
+
+            // Adjust rod widths based on lengths
+            const totalLength = L1 + L2;
+            const rod1Width = (L1 / totalLength) * 100;
+            const rod2Width = (L2 / totalLength) * 100;
+            
+            rod1.style.flexBasis = rod1Width + '%';
+            rod2.style.flexBasis = rod2Width + '%';
+        }
+
+        function updateInsulationSimulation() {
+            // Get current values
+            const hotTemp = parseFloat(hotTempSlider.value);
+            const coldTemp = parseFloat(coldTempSlider.value);
+            const k = parseFloat(materialInsulationSelect.value);
+            const length = parseFloat(lengthInsulationSlider.value);
+            const area = parseFloat(areaInsulationSlider.value) / 10000; // Convert cm² to m²
+            const ambientTemp = parseFloat(ambientTempSlider.value);
+            const h = parseFloat(heatTransferCoeffSlider.value); // Heat transfer coefficient
+
+            // Update display values
+            hotTempValue.textContent = hotTemp + '°C';
+            coldTempValue.textContent = coldTemp + '°C';
+            lengthInsulationValue.textContent = length + ' m';
+            areaInsulationValue.textContent = areaInsulationSlider.value + ' cm²';
+            ambientTempValue.textContent = ambientTemp + '°C';
+            heatTransferCoeffValue.textContent = h + ' W/m²·K';
+
+            // Calculate perimeter for heat loss (assuming circular cross-section)
+            const radius = Math.sqrt(area / Math.PI);
+            const perimeter = 2 * Math.PI * radius;
+
+            // For uninsulated rod: solve differential equation numerically
+            // dT/dx = -(hP/kA)(T - T_ambient) where P is perimeter
+            const m = Math.sqrt((h * perimeter) / (k * area));
+            
+            // Analytical solution for uninsulated rod with convection
+            // T(x) = T_ambient + (T_hot - T_ambient) * (sinh(m*(L-x)) + (T_cold-T_ambient)/(T_hot-T_ambient) * sinh(m*x)) / sinh(m*L)
+            
+            // Simplified calculation for demonstration
+            const uninsulatedHeatLoss = h * perimeter * length * ((hotTemp + coldTemp) / 2 - ambientTemp);
+            const insulatedHeatLoss = uninsulatedHeatLoss * 0.1; // Assume 90% reduction with insulation
+            const energySavings = ((uninsulatedHeatLoss - insulatedHeatLoss) / uninsulatedHeatLoss) * 100;
+
+            // Update displays
+            document.getElementById('uninsulatedHeatLoss').textContent = Math.round(Math.abs(uninsulatedHeatLoss));
+            document.getElementById('insulatedHeatLoss').textContent = Math.round(Math.abs(insulatedHeatLoss));
+            document.getElementById('uninsulatedLoss').textContent = Math.round(Math.abs(uninsulatedHeatLoss));
+            document.getElementById('insulatedLoss').textContent = Math.round(Math.abs(insulatedHeatLoss));
+            document.getElementById('energySavings').textContent = Math.round(energySavings);
+
+            // Update parameter displays
+            document.getElementById('currentKInsulation').textContent = k + ' W/m·K';
+            document.getElementById('currentLInsulation').textContent = length + ' m';
+            document.getElementById('currentAreaInsulation').textContent = areaInsulationSlider.value + ' cm²';
+            document.getElementById('currentAmbient').textContent = ambientTemp + '°C';
+
+            // Update rod visualizations
+            const uninsulatedRod = document.getElementById('uninsulatedRod');
+            const insulatedRod = document.getElementById('insulatedRod');
+
+            // Color based on heat loss intensity
+            const maxLoss = Math.max(Math.abs(uninsulatedHeatLoss), Math.abs(insulatedHeatLoss));
+            const uninsulatedIntensity = Math.abs(uninsulatedHeatLoss) / maxLoss;
+            const insulatedIntensity = Math.abs(insulatedHeatLoss) / maxLoss;
+
+            uninsulatedRod.style.background = `linear-gradient(to right, 
+                rgb(239, 68, 68), 
+                rgb(${239 - 100 * (1 - uninsulatedIntensity)}, ${68 + 100 * (1 - uninsulatedIntensity)}, 68))`;
+            
+            insulatedRod.style.background = `linear-gradient(to right, 
+                rgb(34, 197, 94), 
+                rgb(34, ${197 - 50 * insulatedIntensity}, 94))`;
+
+            // Draw temperature-distance graph
+            drawTemperatureGraph(hotTemp, coldTemp, ambientTemp, length, k, area, h, perimeter);
+        }
+
+        function drawTemperatureGraph(hotTemp, coldTemp, ambientTemp, length, k, area, h, perimeter) {
+            const canvas = document.getElementById('tempDistanceGraph');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const margin = 60; // Increased margin to prevent text overlap
+            const graphWidth = width - 2 * margin;
+            const graphHeight = height - 2 * margin;
+            
+            // Calculate temperature profiles
+            const numPoints = 100;
+            const dx = length / numPoints;
+            
+            // For uninsulated rod (exponential decay due to heat loss)
+            const m = Math.sqrt((h * 2 * Math.PI * Math.sqrt(area / Math.PI)) / (k * area));
+            const uninsulatedTemps = [];
+            const insulatedTemps = [];
+            
+            for (let i = 0; i <= numPoints; i++) {
+                const x = i * dx;
+                
+                // Uninsulated: exponential profile due to heat loss
+                const uninsulatedTemp = ambientTemp + (hotTemp - ambientTemp) * Math.exp(-m * x) + 
+                                       (coldTemp - ambientTemp) * (x / length);
+                uninsulatedTemps.push(Math.max(coldTemp, uninsulatedTemp));
+                
+                // Insulated: linear profile (minimal heat loss)
+                const insulatedTemp = hotTemp - (hotTemp - coldTemp) * (x / length);
+                insulatedTemps.push(insulatedTemp);
+            }
+            
+            // Find temperature range for scaling with padding
+            const allTemps = [...uninsulatedTemps, ...insulatedTemps];
+            const minTemp = Math.min(...allTemps) - 5; // Add padding
+            const maxTemp = Math.max(...allTemps) + 5; // Add padding
+            const tempRange = maxTemp - minTemp;
+            
+            // Draw axes
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(margin, margin);
+            ctx.lineTo(margin, height - margin);
+            ctx.lineTo(width - margin, height - margin);
+            ctx.stroke();
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#E5E7EB';
+            ctx.lineWidth = 1;
+            for (let i = 1; i < 4; i++) { // Reduced grid lines to prevent crowding
+                const y = margin + (i * graphHeight / 4);
+                ctx.beginPath();
+                ctx.moveTo(margin, y);
+                ctx.lineTo(width - margin, y);
+                ctx.stroke();
+                
+                const x = margin + (i * graphWidth / 4);
+                ctx.beginPath();
+                ctx.moveTo(x, margin);
+                ctx.lineTo(x, height - margin);
+                ctx.stroke();
+            }
+            
+            // Draw temperature profiles
+            function drawProfile(temps, color) {
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                for (let i = 0; i <= numPoints; i++) {
+                    const x = margin + (i / numPoints) * graphWidth;
+                    const y = height - margin - ((temps[i] - minTemp) / tempRange) * graphHeight;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // Draw profiles
+            drawProfile(uninsulatedTemps, '#EF4444'); // Red for uninsulated
+            drawProfile(insulatedTemps, '#10B981');   // Green for insulated
+            
+            // Add labels with better spacing
+            ctx.fillStyle = '#374151';
+            ctx.font = '11px Inter';
+            
+            // X-axis label
+            ctx.textAlign = 'center';
+            ctx.fillText('Distance (m)', width / 2, height - 5);
+            
+            // Y-axis label
+            ctx.save();
+            ctx.translate(12, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText('Temperature (°C)', 0, 0);
+            ctx.restore();
+            
+            // Temperature scale with better spacing
+            ctx.textAlign = 'right';
+            ctx.font = '10px Inter';
+            for (let i = 0; i <= 4; i++) { // Reduced to 4 labels
+                const temp = minTemp + (i / 4) * tempRange;
+                const y = height - margin - (i / 4) * graphHeight;
+                // Only show labels that won't overlap
+                if (i === 0 || i === 4 || (i === 2 && tempRange > 20)) {
+                    ctx.fillText(Math.round(temp) + '°C', margin - 8, y + 3);
+                }
+            }
+            
+            // Distance scale with better spacing
+            ctx.textAlign = 'center';
+            for (let i = 0; i <= 4; i++) { // Reduced to 4 labels
+                const dist = (i / 4) * length;
+                const x = margin + (i / 4) * graphWidth;
+                // Only show labels that won't overlap
+                if (i === 0 || i === 4 || (i === 2 && length > 0.5)) {
+                    ctx.fillText(dist.toFixed(1), x, height - margin + 18);
+                }
+            }
+            
+            // Add title
+            ctx.font = '12px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#1F2937';
+            ctx.fillText('Temperature Distribution Along Rod Length', width / 2, 20);
+        }
+
+        function updateSimulation() {
+            if (currentMode === 'single') {
+                updateSingleRodSimulation();
+            } else if (currentMode === 'two') {
+                updateTwoRodsSimulation();
+            } else {
+                updateInsulationSimulation();
+            }
+        }
+
+        // Add event listeners for mode switching
+        singleRodBtn.addEventListener('click', switchToSingleRod);
+        twoRodsBtn.addEventListener('click', switchToTwoRods);
+        insulationBtn.addEventListener('click', switchToInsulation);
+
+        // Add event listeners for single rod
+        hotTempSlider.addEventListener('input', updateSimulation);
+        coldTempSlider.addEventListener('input', updateSimulation);
+        materialSelect.addEventListener('change', updateSimulation);
+        areaSlider.addEventListener('input', updateSimulation);
+        lengthSlider.addEventListener('input', updateSimulation);
+
+        // Add event listeners for two rods
+        material1Select.addEventListener('change', updateSimulation);
+        material2Select.addEventListener('change', updateSimulation);
+        length1Slider.addEventListener('input', updateSimulation);
+        length2Slider.addEventListener('input', updateSimulation);
+        areaTwoSlider.addEventListener('input', updateSimulation);
+
+        // Add event listeners for insulation mode
+        materialInsulationSelect.addEventListener('change', updateSimulation);
+        lengthInsulationSlider.addEventListener('input', updateSimulation);
+        areaInsulationSlider.addEventListener('input', updateSimulation);
+        ambientTempSlider.addEventListener('input', updateSimulation);
+        heatTransferCoeffSlider.addEventListener('input', updateSimulation);
+
+        // Ensure hot temperature is always greater than cold temperature
+        hotTempSlider.addEventListener('input', function() {
+            if (parseFloat(hotTempSlider.value) <= parseFloat(coldTempSlider.value)) {
+                coldTempSlider.value = parseFloat(hotTempSlider.value) - 10;
+            }
+            updateSimulation();
+        });
+
+        coldTempSlider.addEventListener('input', function() {
+            if (parseFloat(coldTempSlider.value) >= parseFloat(hotTempSlider.value)) {
+                hotTempSlider.value = parseFloat(coldTempSlider.value) + 10;
+            }
+            updateSimulation();
+        });
+
+        // Initialize simulation
+        updateSimulation();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'979f6b7bb37ed04c',t:'MTc1NzAwOTE3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

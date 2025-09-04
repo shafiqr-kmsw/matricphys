@@ -14,10 +14,15 @@ const documents = [
   { name: "Sound Waves explorer", link: "files/sound-waves.html" },
   { name: "Sound Waves Practice", link: "files/wave-prac.html" },
   { name: "Match Closed Tube", link: "files/match-closed-tube.html" },
-  { name: "Thermodynamic Process Calculator", link: "files/pv-calc.html" },
   { name: "Thermal Expansion Duel", link: "files/therm-expand-duel.html" },
   { name: "Doppler's Tic Tac Toe", link: "files/doppler-tic.html" },
   { name: "Sound Wave Quiz", link: "files/sound-quiz.html" },
+  { name: "Young's Modulus Battle ", link: "files/youngs-2-play.html" },
+  { name: "Heat Conduction Mysteries ", link: "files/heat-conduction.html" },
+  { name: "Heat Conduction Simulation ", link: "files/heat-conduct-simulate.html" },
+  { name: "Monoatomic vs Diatomic Simulation ", link: "files/dof-molecule.html" },
+  { name: "Thermodynamic Process Calculator", link: "files/pv-calc.html" },
+  { name: "First Law TD Simulate", link: "files/first-law-simulate.html" },
   
 ]
 ;
