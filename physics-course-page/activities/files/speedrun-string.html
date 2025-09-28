@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stretched String Speed Run: Resonant Frequency Quiz</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .welcome-screen, .quiz-screen, .certificate-screen {
+            text-align: center;
+        }
+        
+        .welcome-screen input {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .welcome-screen input:focus {
+            outline: none;
+            border-color: #eab308;
+            box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .timer {
+            background: #dc2626;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+        
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border-left: 5px solid #eab308;
+        }
+        
+        .question-number {
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        
+        .question-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .answer-input {
+            width: 150px;
+            padding: 12px;
+            font-size: 1.1em;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            margin: 0 10px;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #eab308;
+        }
+        
+        .score-display {
+            background: linear-gradient(135deg, #eab308 0%, #f59e0b 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.3em;
+        }
+        
+        .certificate {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 8px solid #d97706;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .certificate::before {
+            content: "🏆";
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3em;
+            background: white;
+            padding: 10px;
+            border-radius: 50%;
+            border: 4px solid #d97706;
+        }
+        
+        .certificate h2 {
+            color: #1e40af;
+            font-size: 2.5em;
+            margin: 30px 0 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .certificate .student-name {
+            font-size: 2em;
+            color: #dc2626;
+            font-weight: bold;
+            margin: 20px 0;
+            text-decoration: underline;
+        }
+        
+        .certificate .achievement {
+            font-size: 1.3em;
+            color: #1e40af;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .formula-hint {
+            background: #dbeafe;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-style: italic;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Stretched String Speed Run</h1>
+            <p>Resonant Frequency in Stretched Strings</p>
+        </div>
+        
+        <div class="content">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-screen">
+                <h2>Welcome to the Stretched String Speed Run!</h2>
+                <p>Test your knowledge of fundamental resonant frequency calculations.</p>
+
+                <input type="text" id="studentName" placeholder="Enter your name" maxlength="50">
+                <br>
+                <div style="margin: 20px 0;">
+                    <label for="timeSelect" style="font-size: 1.1em; font-weight: 600; color: #1e40af;">Choose Speed Run Duration:</label>
+                    <br>
+                    <select id="timeSelect" style="padding: 12px; font-size: 1.1em; border: 2px solid #e0e0e0; border-radius: 8px; margin: 10px 0; background: white;">
+                        <option value="5">5 Minutes</option>
+                        <option value="10">10 Minutes</option>
+                        <option value="15" selected>15 Minutes</option>
+                        <option value="20">20 Minutes</option>
+                        <option value="30">30 Minutes</option>
+                        <option value="45">45 Minutes</option>
+                        <option value="60">60 Minutes</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="startQuiz()">Start Speed Run</button>
+            </div>
+            
+            <!-- Quiz Screen -->
+            <div id="quizScreen" class="quiz-screen hidden">
+                <div class="timer" id="timer">Time Remaining</div>
+                <div class="score-display">
+                    Questions Completed: <span id="score">0</span>
+                </div>
+                
+                <div class="question-card">
+                    <div class="question-number">Question <span id="questionNumber">1</span></div>
+                    <div class="question-text" id="questionText"></div>
+                    <input type="number" class="answer-input" id="answerInput" placeholder="Answer" step="0.01">
+                    <button class="btn" onclick="submitAnswer()">Submit</button>
+                </div>
+                
+                <button class="btn" onclick="skipQuestion()" style="background: #6c757d;">Skip Question</button>
+            </div>
+            
+            <!-- Certificate Screen -->
+            <div id="certificateScreen" class="certificate-screen hidden">
+                <div class="certificate">
+                    <h2>Certificate of Achievement</h2>
+                    <p style="font-size: 1.2em; color: #1e40af;">This certifies that</p>
+                    <div class="student-name" id="certificateName"></div>
+                    <div class="achievement">
+                        has successfully completed<br>
+                        <strong style="font-size: 1.5em; color: #d97706;"><span id="finalScore"></span> questions</strong><br>
+                        in the <span id="certificateDuration"></span>-minute Stretched String Speed Run<br>
+                        on Resonant Frequency in Stretched Strings
+                    </div>
+                    <p style="color: #1e40af; margin-top: 30px;">
+                        <strong>Date:</strong> <span id="certificateDate"></span>
+                    </p>
+                </div>
+                <button class="btn" onclick="restartQuiz()">Take Speed Run Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 1;
+        let score = 0;
+        let timeLeft = 900; // Default 15 minutes in seconds
+        let selectedMinutes = 15;
+        let timer;
+        let studentName = '';
+        let currentAnswer = 0;
+
+        function generateQuestion() {
+            // Generate random values for the physics problem
+            const length = Math.round((Math.random() * 2 + 0.5) * 100) / 100; // 0.5 to 2.5 meters
+            const mass = Math.round((Math.random() * 0.05 + 0.01) * 1000) / 1000; // 0.01 to 0.06 kg
+            const tension = Math.round((Math.random() * 200 + 50) * 10) / 10; // 50 to 250 N
+            
+            // Randomly select harmonic (1st, 2nd, 3rd, or 4th)
+            const harmonics = [1, 2, 3, 4];
+            const harmonicNames = ['fundamental', 'second', 'third', 'fourth'];
+            const harmonicNumber = harmonics[Math.floor(Math.random() * harmonics.length)];
+            const harmonicName = harmonicNames[harmonicNumber - 1];
+            
+            // Calculate the correct answer: f = (n/2L) * sqrt(T/μ) where μ = m/L and n is harmonic number
+            const linearDensity = mass / length;
+            const fundamentalFreq = (1 / (2 * length)) * Math.sqrt(tension / linearDensity);
+            const frequency = fundamentalFreq * harmonicNumber;
+            currentAnswer = Math.round(frequency * 100) / 100; // Round to 2 decimal places
+            
+            const questionText = `
+                A string has the following properties:<br><br>
+                <strong>Length (L):</strong> ${length} m<br>
+                <strong>Mass (m):</strong> ${mass} kg<br>
+                <strong>Tension (T):</strong> ${tension} N<br><br>
+                Calculate the <strong>${harmonicName} harmonic frequency</strong> (in Hz).<br>
+                <em>Round your answer to 2 decimal places.</em>
+            `;
+            
+            document.getElementById('questionText').innerHTML = questionText;
+            document.getElementById('questionNumber').textContent = currentQuestion;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').focus();
+        }
+
+        function startQuiz() {
+            studentName = document.getElementById('studentName').value.trim();
+            if (!studentName) {
+                alert('Please enter your name to start the speed run!');
+                return;
+            }
+            
+            // Get selected time duration
+            selectedMinutes = parseInt(document.getElementById('timeSelect').value);
+            timeLeft = selectedMinutes * 60; // Convert to seconds
+            
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            
+            generateQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        function submitAnswer() {
+            const userAnswer = parseFloat(document.getElementById('answerInput').value);
+            
+            if (isNaN(userAnswer)) {
+                alert('Please enter a valid number!');
+                return;
+            }
+            
+            // Check if answer is within 5% tolerance
+            const tolerance = Math.abs(currentAnswer * 0.05);
+            if (Math.abs(userAnswer - currentAnswer) <= tolerance) {
+                score++;
+                document.getElementById('score').textContent = score;
+            }
+            
+            nextQuestion();
+        }
+
+        function skipQuestion() {
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            generateQuestion();
+        }
+
+        function endQuiz() {
+            clearInterval(timer);
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('certificateScreen').classList.remove('hidden');
+            
+            document.getElementById('certificateName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('certificateDuration').textContent = selectedMinutes;
+            document.getElementById('certificateDate').textContent = new Date().toLocaleDateString();
+        }
+
+        function restartQuiz() {
+            currentQuestion = 1;
+            score = 0;
+            timeLeft = 900;
+            selectedMinutes = 15;
+            studentName = '';
+            
+            document.getElementById('certificateScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+            document.getElementById('timeSelect').value = '15';
+            document.getElementById('score').textContent = '0';
+        }
+
+        // Allow Enter key to submit answers
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (!document.getElementById('quizScreen').classList.contains('hidden')) {
+                    submitAnswer();
+                } else if (!document.getElementById('welcomeScreen').classList.contains('hidden')) {
+                    startQuiz();
+                }
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9864976150dae628',t:'MTc1OTA3NjY3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

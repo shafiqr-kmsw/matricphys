@@ -23,6 +23,7 @@ const documents = [
   { name: "Monoatomic vs Diatomic Simulation ", link: "files/dof-molecule.html" },
   { name: "Thermodynamic Process Calculator", link: "files/pv-calc.html" },
   { name: "First Law TD Simulate", link: "files/first-law-simulate.html" },
+  { name: "Stretched String SpeedRun", link: "files/speedrun-string.html" },
   
 ]
 ;
