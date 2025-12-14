@@ -24,6 +24,7 @@ const documents = [
   { name: "Thermodynamic Process Calculator", link: "files/pv-calc.html" },
   { name: "First Law TD Simulate", link: "files/first-law-simulate.html" },
   { name: "Stretched String SpeedRun", link: "files/speedrun-string.html" },
+  { name: "Ohm's Law", link: "files/ohms-law.html" },
   
 ]
 ;
