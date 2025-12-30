@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Two Resistors in Series – Virtual Experiment</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h2>Experiment: Two Identical Resistors in Series</h2>
+
+<p>
+In this virtual experiment, you will investigate the relationship between current and voltage
+for two identical resistors connected in series.
+</p>
+
+<p>
+When the <b>Generate</b> button is pressed:
+</p>
+
+<ol>
+  <li>A theoretical resistance value (between 3 Ω and 9 Ω) for a single resistor is randomly generated.</li>
+  <li>An actual resistance value is internally produced with a deviation of less than 10% from the theoretical value.</li>
+  <li>Using this actual resistance, voltage–current data for two resistors in series is generated.</li>
+  <li>A best-fit straight line is calculated from the data to determine the effective resistance.</li>
+  <li>The uncertainty in the gradient and the percentage error relative to the theoretical value are computed.</li>
+</ol>
+
+<p>
+Assume Ohm’s Law applies and that measurement uncertainty arises from experimental variation only.
+</p>
+
+<button id="generate">Generate</button>
+
+<div id="output"></div>
+
+<p style="margin-top: 25px; font-size: 0.9em; color: #444;">
+<b>Note:</b> Each click produces a new dataset. Record all values before refreshing or regenerating.
+</p>
+
+<script src="script.js"></script>
+</body>
+</html>
