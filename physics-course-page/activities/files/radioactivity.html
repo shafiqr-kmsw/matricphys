@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radioactive Decay Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    * {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glow {
+      box-shadow: 0 0 30px rgba(34, 197, 94, 0.2);
+    }
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #22c55e, #15803d);
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+      50% { transform: translateY(-10px) scale(1.1); opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .decay-pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .graph-line {
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      animation: draw 1.5s ease-out forwards;
+    }
+    @keyframes draw {
+      to { stroke-dashoffset: 0; }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-slate-900 text-slate-100 overflow-auto">
+  <div class="min-h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950"><!-- Floating particles background -->
+   <div class="fixed inset-0 overflow-hidden pointer-events-none" id="particles"></div>
+   <div class="relative z-10 max-w-6xl mx-auto px-6 py-8"><!-- Header -->
+    <header class="text-center mb-10">
+     <div class="inline-flex items-center gap-3 mb-4">
+      <svg class="w-10 h-10 text-emerald-400 decay-pulse" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3" /> <path d="M12 2v4M12 18v4M2 12h4M18 12h4" /> <circle cx="12" cy="12" r="8" stroke-dasharray="4 4" />
+      </svg>
+      <h1 id="main-title" class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Radioactive Decay</h1>
+     </div>
+     <p id="subtitle" class="text-slate-400 text-lg">Interactive exploration for algebra-based physics</p>
+    </header><!-- Main Content Grid -->
+    <div class="grid lg:grid-cols-2 gap-8 mb-10"><!-- Interactive Graph Section -->
+     <section class="bg-slate-800/50 backdrop-blur rounded-2xl p-6 border border-slate-700 glow">
+      <h2 class="text-xl font-semibold text-emerald-400 mb-4 flex items-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+       </svg> Decay Graph</h2><!-- SVG Graph -->
+      <div class="bg-slate-900 rounded-xl p-4 mb-4">
+       <svg id="decay-graph" viewbox="0 0 400 250" class="w-full"><!-- Grid lines --> <defs>
+         <pattern id="grid" width="40" height="25" patternunits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 25" fill="none" stroke="#334155" stroke-width="0.5" />
+         </pattern>
+        </defs> <rect x="50" y="20" width="340" height="200" fill="url(#grid)" /> <!-- Axes --> <line x1="50" y1="220" x2="390" y2="220" stroke="#64748b" stroke-width="2" /> <line x1="50" y1="20" x2="50" y2="220" stroke="#64748b" stroke-width="2" /> <!-- Axis labels --> <text x="220" y="245" fill="#94a3b8" text-anchor="middle" class="text-sm">
+         Time (half-lives)
+        </text> <text x="20" y="120" fill="#94a3b8" text-anchor="middle" transform="rotate(-90, 20, 120)" class="text-sm">
+         N/N₀ (%)
+        </text> <!-- Y-axis ticks --> <text x="45" y="25" fill="#94a3b8" text-anchor="end" class="text-xs">
+         100
+        </text> <text x="45" y="70" fill="#94a3b8" text-anchor="end" class="text-xs">
+         75
+        </text> <text x="45" y="120" fill="#94a3b8" text-anchor="end" class="text-xs">
+         50
+        </text> <text x="45" y="170" fill="#94a3b8" text-anchor="end" class="text-xs">
+         25
+        </text> <text x="45" y="220" fill="#94a3b8" text-anchor="end" class="text-xs">
+         0
+        </text> <!-- X-axis ticks --> <text x="50" y="235" fill="#94a3b8" text-anchor="middle" class="text-xs">
+         0
+        </text> <text x="118" y="235" fill="#94a3b8" text-anchor="middle" class="text-xs">
+         1
+        </text> <text x="186" y="235" fill="#94a3b8" text-anchor="middle" class="text-xs">
+         2
+        </text> <text x="254" y="235" fill="#94a3b8" text-anchor="middle" class="text-xs">
+         3
+        </text> <text x="322" y="235" fill="#94a3b8" text-anchor="middle" class="text-xs">
+         4
+        </text> <text x="390" y="235" fill="#94a3b8" text-anchor="middle" class="text-xs">
+         5
+        </text> <!-- Decay curve --> <path id="decay-curve" class="graph-line" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" /> <!-- Half-life markers --> <g id="half-life-markers"></g> <!-- Current point indicator --> <circle id="current-point" r="8" fill="#22c55e" stroke="#fff" stroke-width="2" style="display:none" />
+       </svg>
+      </div><!-- Controls -->
+      <div class="space-y-4">
+       <div><label for="time-slider" class="block text-sm text-slate-300 mb-2"> Time: <span id="time-display" class="mono text-emerald-400">0.0</span> half-lives </label> <input type="range" id="time-slider" min="0" max="5" step="0.1" value="0" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+       </div>
+       <div class="grid grid-cols-2 gap-4">
+        <div class="bg-slate-900 rounded-lg p-3 text-center">
+         <div class="text-xs text-slate-400 mb-1">
+          Remaining
+         </div>
+         <div id="remaining-display" class="mono text-2xl text-emerald-400">
+          100.0%
+         </div>
+        </div>
+        <div class="bg-slate-900 rounded-lg p-3 text-center">
+         <div class="text-xs text-slate-400 mb-1">
+          Decayed
+         </div>
+         <div id="decayed-display" class="mono text-2xl text-rose-400">
+          0.0%
+         </div>
+        </div>
+       </div><button id="animate-btn" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M8 5v14l11-7z" />
+        </svg> Animate Decay </button>
+      </div>
+     </section><!-- Key Equations Section -->
+     <section class="bg-slate-800/50 backdrop-blur rounded-2xl p-6 border border-slate-700">
+      <h2 class="text-xl font-semibold text-cyan-400 mb-4 flex items-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+       </svg> Key Equations</h2>
+      <div class="space-y-4"><!-- Exponential Decay Law -->
+       <div class="bg-slate-900 rounded-xl p-4 border-l-4 border-emerald-500">
+        <div class="text-sm text-slate-400 mb-2">
+         Exponential Decay Law
+        </div>
+        <div class="mono text-xl text-center py-2 text-emerald-300">
+         N(t) = N₀ · e<sup>-λt</sup>
+        </div>
+        <div class="text-xs text-slate-500 mt-2">
+         N₀ = initial quantity, λ = decay constant, t = time
+        </div>
+       </div><!-- Half-life Form -->
+       <div class="bg-slate-900 rounded-xl p-4 border-l-4 border-cyan-500">
+        <div class="text-sm text-slate-400 mb-2">
+         Half-Life Form
+        </div>
+        <div class="mono text-xl text-center py-2 text-cyan-300">
+         N(t) = N₀ · (½)<sup>t/t<sub>½</sub></sup>
+        </div>
+        <div class="text-xs text-slate-500 mt-2">
+         t½ = half-life (time for half to decay)
+        </div>
+       </div><!-- Decay Constant Relation -->
+       <div class="bg-slate-900 rounded-xl p-4 border-l-4 border-violet-500">
+        <div class="text-sm text-slate-400 mb-2">
+         Decay Constant &amp; Half-Life
+        </div>
+        <div class="mono text-xl text-center py-2 text-violet-300">
+         λ = ln(2) / t<sub>½</sub> ≈ 0.693 / t<sub>½</sub>
+        </div>
+       </div><!-- Activity -->
+       <div class="bg-slate-900 rounded-xl p-4 border-l-4 border-amber-500">
+        <div class="text-sm text-slate-400 mb-2">
+         Activity (Decay Rate)
+        </div>
+        <div class="mono text-xl text-center py-2 text-amber-300">
+         A = λN = A₀ · e<sup>-λt</sup>
+        </div>
+        <div class="text-xs text-slate-500 mt-2">
+         Measured in Becquerels (Bq) = decays/second
+        </div>
+       </div>
+      </div>
+     </section>
+    </div><!-- Calculator Section -->
+    <section class="bg-slate-800/50 backdrop-blur rounded-2xl p-6 border border-slate-700 mb-10">
+     <h2 class="text-xl font-semibold text-amber-400 mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+      </svg> Decay Calculator</h2>
+     <div class="grid md:grid-cols-3 gap-6">
+      <div><label for="calc-initial" class="block text-sm text-slate-300 mb-2">Initial Amount (N₀)</label> <input type="number" id="calc-initial" value="1000" min="0" class="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg focus:border-emerald-500 focus:outline-none mono">
+      </div>
+      <div><label for="calc-halflife" class="block text-sm text-slate-300 mb-2">Half-Life (years)</label> <input type="number" id="calc-halflife" value="5.27" min="0.01" step="0.01" class="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg focus:border-emerald-500 focus:outline-none mono">
+      </div>
+      <div><label for="calc-time" class="block text-sm text-slate-300 mb-2">Time Elapsed (years)</label> <input type="number" id="calc-time" value="10" min="0" step="0.1" class="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg focus:border-emerald-500 focus:outline-none mono">
+      </div>
+     </div><button id="calculate-btn" class="mt-4 px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-lg font-medium transition-colors"> Calculate Remaining </button>
+     <div id="calc-result" class="mt-4 p-4 bg-slate-900 rounded-xl hidden">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+       <div>
+        <div class="text-xs text-slate-400">
+         Remaining
+        </div>
+        <div id="result-remaining" class="mono text-lg text-emerald-400">
+         —
+        </div>
+       </div>
+       <div>
+        <div class="text-xs text-slate-400">
+         Decayed
+        </div>
+        <div id="result-decayed" class="mono text-lg text-rose-400">
+         —
+        </div>
+       </div>
+       <div>
+        <div class="text-xs text-slate-400">
+         Half-Lives Passed
+        </div>
+        <div id="result-halflives" class="mono text-lg text-cyan-400">
+         —
+        </div>
+       </div>
+       <div>
+        <div class="text-xs text-slate-400">
+         Decay Constant (λ)
+        </div>
+        <div id="result-lambda" class="mono text-lg text-violet-400">
+         —
+        </div>
+       </div>
+      </div>
+     </div>
+    </section><!-- Common Isotopes Reference -->
+    <section class="bg-slate-800/50 backdrop-blur rounded-2xl p-6 border border-slate-700 mb-10">
+     <h2 class="text-xl font-semibold text-rose-400 mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+      </svg> Common Radioactive Isotopes</h2>
+     <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+       <thead>
+        <tr class="border-b border-slate-600">
+         <th class="text-left py-3 px-4 text-slate-300">Isotope</th>
+         <th class="text-left py-3 px-4 text-slate-300">Half-Life</th>
+         <th class="text-left py-3 px-4 text-slate-300">Decay Type</th>
+         <th class="text-left py-3 px-4 text-slate-300">Common Use</th>
+        </tr>
+       </thead>
+       <tbody class="divide-y divide-slate-700">
+        <tr class="hover:bg-slate-700/50 cursor-pointer isotope-row" data-halflife="5.27" data-unit="years">
+         <td class="py-3 px-4 mono text-emerald-400">⁶⁰Co (Cobalt-60)</td>
+         <td class="py-3 px-4 mono">5.27 years</td>
+         <td class="py-3 px-4">β⁻, γ</td>
+         <td class="py-3 px-4 text-slate-400">Cancer treatment, sterilization</td>
+        </tr>
+        <tr class="hover:bg-slate-700/50 cursor-pointer isotope-row" data-halflife="5730" data-unit="years">
+         <td class="py-3 px-4 mono text-cyan-400">¹⁴C (Carbon-14)</td>
+         <td class="py-3 px-4 mono">5,730 years</td>
+         <td class="py-3 px-4">β⁻</td>
+         <td class="py-3 px-4 text-slate-400">Radiocarbon dating</td>
+        </tr>
+        <tr class="hover:bg-slate-700/50 cursor-pointer isotope-row" data-halflife="8.02" data-unit="days">
+         <td class="py-3 px-4 mono text-violet-400">¹³¹I (Iodine-131)</td>
+         <td class="py-3 px-4 mono">8.02 days</td>
+         <td class="py-3 px-4">β⁻, γ</td>
+         <td class="py-3 px-4 text-slate-400">Thyroid treatment</td>
+        </tr>
+        <tr class="hover:bg-slate-700/50 cursor-pointer isotope-row" data-halflife="4.47" data-unit="billion years">
+         <td class="py-3 px-4 mono text-amber-400">²³⁸U (Uranium-238)</td>
+         <td class="py-3 px-4 mono">4.47 billion years</td>
+         <td class="py-3 px-4">α</td>
+         <td class="py-3 px-4 text-slate-400">Geological dating</td>
+        </tr>
+        <tr class="hover:bg-slate-700/50 cursor-pointer isotope-row" data-halflife="1600" data-unit="years">
+         <td class="py-3 px-4 mono text-rose-400">²²⁶Ra (Radium-226)</td>
+         <td class="py-3 px-4 mono">1,600 years</td>
+         <td class="py-3 px-4">α, γ</td>
+         <td class="py-3 px-4 text-slate-400">Historical medical use</td>
+        </tr>
+       </tbody>
+      </table>
+     </div>
+     <p class="text-xs text-slate-500 mt-3">💡 Click any isotope to load its half-life into the calculator</p>
+    </section><!-- Key Concepts -->
+    <section class="bg-slate-800/50 backdrop-blur rounded-2xl p-6 border border-slate-700">
+     <h2 class="text-xl font-semibold text-emerald-400 mb-4">Key Concepts to Remember</h2>
+     <div class="grid md:grid-cols-2 gap-4">
+      <div class="flex gap-3 p-4 bg-slate-900 rounded-xl"><span class="text-2xl">📉</span>
+       <div>
+        <h3 class="font-medium text-slate-200">Exponential Nature</h3>
+        <p class="text-sm text-slate-400">Decay rate is proportional to the amount present. More atoms = more decays per second.</p>
+       </div>
+      </div>
+      <div class="flex gap-3 p-4 bg-slate-900 rounded-xl"><span class="text-2xl">⏱️</span>
+       <div>
+        <h3 class="font-medium text-slate-200">Half-Life Consistency</h3>
+        <p class="text-sm text-slate-400">Half-life is constant for each isotope, regardless of the amount of material or external conditions.</p>
+       </div>
+      </div>
+      <div class="flex gap-3 p-4 bg-slate-900 rounded-xl"><span class="text-2xl">🎲</span>
+       <div>
+        <h3 class="font-medium text-slate-200">Statistical Process</h3>
+        <p class="text-sm text-slate-400">We cannot predict when a specific atom will decay, only the probability over time.</p>
+       </div>
+      </div>
+      <div class="flex gap-3 p-4 bg-slate-900 rounded-xl"><span class="text-2xl">♾️</span>
+       <div>
+        <h3 class="font-medium text-slate-200">Never Truly Zero</h3>
+        <p class="text-sm text-slate-400">Mathematically, some material always remains. Practically, we use ~10 half-lives as "complete" decay.</p>
+       </div>
+      </div>
+     </div>
+    </section><!-- Practice Problems Section -->
+    <section class="bg-slate-800/50 backdrop-blur rounded-2xl p-6 border border-slate-700 mb-10">
+     <h2 class="text-xl font-semibold text-indigo-400 mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0m-5.36 4.24l-.707-.707M9 12a3 3 0 11 6 0 3 3 0 01-6 0z" />
+      </svg> Practice Problems</h2>
+     <p class="text-slate-300 mb-4">Test your understanding with randomly generated problems!</p><button id="generate-problem-btn" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-medium transition-colors flex items-center gap-2 mb-6">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg> Generate New Problem </button> <!-- Problem Display -->
+     <div id="problem-container" class="hidden space-y-4">
+      <div class="bg-slate-900 rounded-xl p-6 border-l-4 border-indigo-500">
+       <div class="text-sm text-slate-400 mb-2">
+        Problem
+       </div>
+       <div id="problem-text" class="text-lg text-slate-200 leading-relaxed"></div>
+      </div><!-- Answer Reveal Section -->
+      <div class="flex gap-4"><button id="show-answer-btn" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg> Show Answer </button> <button id="copy-problem-btn" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg> Copy </button>
+      </div><!-- Answer Display -->
+      <div id="answer-container" class="hidden bg-emerald-900/30 rounded-xl p-6 border-l-4 border-emerald-500">
+       <div class="text-sm text-slate-400 mb-2">
+        Solution
+       </div>
+       <div id="answer-text" class="mono text-lg text-emerald-300 mb-4"></div>
+       <div class="bg-slate-900 rounded-lg p-4 border border-slate-700">
+        <div class="text-xs text-slate-400 mb-1">
+         Key Steps:
+        </div>
+        <div id="solution-steps" class="text-sm text-slate-300 space-y-2"></div>
+       </div>
+      </div>
+     </div>
+    </section><!-- Footer -->
+    <footer class="text-center mt-10 pb-8 text-slate-500 text-sm">
+     <p>Interactive Physics Learning Tool • Algebra-Based College Physics</p>
+    </footer>
+   </div>
+  </div>
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      main_title: 'Radioactive Decay',
+      subtitle: 'Interactive exploration for algebra-based physics',
+      background_color: '#0f172a',
+      surface_color: '#1e293b',
+      text_color: '#f1f5f9',
+      primary_color: '#22c55e',
+      secondary_color: '#06b6d4'
+    };
+
+    let config = { ...defaultConfig };
+
+    // Initialize particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 3 + 's';
+        particle.style.opacity = 0.3 + Math.random() * 0.4;
+        container.appendChild(particle);
+      }
+    }
+
+    // Draw decay curve
+    function drawDecayCurve() {
+      const curve = document.getElementById('decay-curve');
+      const markers = document.getElementById('half-life-markers');
+      
+      let pathD = 'M 50 20';
+      const points = [];
+      
+      for (let t = 0; t <= 5; t += 0.05) {
+        const x = 50 + (t / 5) * 340;
+        const remaining = Math.pow(0.5, t);
+        const y = 20 + (1 - remaining) * 200;
+        pathD += ` L ${x} ${y}`;
+        points.push({ t, x, y, remaining });
+      }
+      
+      curve.setAttribute('d', pathD);
+      
+      // Add half-life markers
+      markers.innerHTML = '';
+      for (let i = 1; i <= 5; i++) {
+        const x = 50 + (i / 5) * 340;
+        const remaining = Math.pow(0.5, i);
+        const y = 20 + (1 - remaining) * 200;
+        
+        // Horizontal dashed line
+        const hLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        hLine.setAttribute('x1', '50');
+        hLine.setAttribute('y1', y);
+        hLine.setAttribute('x2', x);
+        hLine.setAttribute('y2', y);
+        hLine.setAttribute('stroke', '#64748b');
+        hLine.setAttribute('stroke-width', '1');
+        hLine.setAttribute('stroke-dasharray', '4 4');
+        hLine.setAttribute('opacity', '0.5');
+        markers.appendChild(hLine);
+        
+        // Vertical dashed line
+        const vLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        vLine.setAttribute('x1', x);
+        vLine.setAttribute('y1', y);
+        vLine.setAttribute('x2', x);
+        vLine.setAttribute('y2', '220');
+        vLine.setAttribute('stroke', '#64748b');
+        vLine.setAttribute('stroke-width', '1');
+        vLine.setAttribute('stroke-dasharray', '4 4');
+        vLine.setAttribute('opacity', '0.5');
+        markers.appendChild(vLine);
+        
+        // Marker dot
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', x);
+        dot.setAttribute('cy', y);
+        dot.setAttribute('r', '4');
+        dot.setAttribute('fill', '#06b6d4');
+        markers.appendChild(dot);
+      }
+    }
+
+    // Update displays based on time
+    function updateDisplays(t) {
+      const remaining = Math.pow(0.5, t) * 100;
+      const decayed = 100 - remaining;
+      
+      document.getElementById('time-display').textContent = t.toFixed(1);
+      document.getElementById('remaining-display').textContent = remaining.toFixed(1) + '%';
+      document.getElementById('decayed-display').textContent = decayed.toFixed(1) + '%';
+      
+      // Update point on graph
+      const point = document.getElementById('current-point');
+      const x = 50 + (t / 5) * 340;
+      const y = 20 + (1 - remaining / 100) * 200;
+      point.setAttribute('cx', x);
+      point.setAttribute('cy', y);
+      point.style.display = 'block';
+    }
+
+    // Animation
+    let animationId = null;
+    let isAnimating = false;
+
+    function animateDecay() {
+      const btn = document.getElementById('animate-btn');
+      const slider = document.getElementById('time-slider');
+      
+      if (isAnimating) {
+        cancelAnimationFrame(animationId);
+        isAnimating = false;
+        btn.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Animate Decay';
+        return;
+      }
+      
+      isAnimating = true;
+      btn.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> Pause';
+      
+      let t = parseFloat(slider.value);
+      if (t >= 5) t = 0;
+      
+      const startTime = performance.now();
+      const startT = t;
+      const duration = (5 - startT) * 1500;
+      
+      function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        t = startT + progress * (5 - startT);
+        
+        slider.value = t;
+        updateDisplays(t);
+        
+        if (progress < 1 && isAnimating) {
+          animationId = requestAnimationFrame(animate);
+        } else {
+          isAnimating = false;
+          btn.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Animate Decay';
+        }
+      }
+      
+      animationId = requestAnimationFrame(animate);
+    }
+
+    // Calculator function
+    function calculate() {
+      const N0 = parseFloat(document.getElementById('calc-initial').value);
+      const halfLife = parseFloat(document.getElementById('calc-halflife').value);
+      const time = parseFloat(document.getElementById('calc-time').value);
+      
+      if (isNaN(N0) || isNaN(halfLife) || isNaN(time) || halfLife <= 0) {
+        return;
+      }
+      
+      const lambda = Math.LN2 / halfLife;
+      const halfLivesPassed = time / halfLife;
+      const remaining = N0 * Math.pow(0.5, halfLivesPassed);
+      const decayed = N0 - remaining;
+      
+      document.getElementById('result-remaining').textContent = remaining.toFixed(2);
+      document.getElementById('result-decayed').textContent = decayed.toFixed(2);
+      document.getElementById('result-halflives').textContent = halfLivesPassed.toFixed(2);
+      document.getElementById('result-lambda').textContent = lambda.toFixed(4) + '/yr';
+      
+      document.getElementById('calc-result').classList.remove('hidden');
+    }
+
+    // Config change handler
+    async function onConfigChange(newConfig) {
+      config = { ...defaultConfig, ...newConfig };
+      
+      document.getElementById('main-title').textContent = config.main_title || defaultConfig.main_title;
+      document.getElementById('subtitle').textContent = config.subtitle || defaultConfig.subtitle;
+    }
+
+    // Map to capabilities
+    function mapToCapabilities(cfg) {
+      return {
+        recolorables: [
+          {
+            get: () => cfg.background_color || defaultConfig.background_color,
+            set: (value) => {
+              cfg.background_color = value;
+              window.elementSdk.setConfig({ background_color: value });
+            }
+          },
+          {
+            get: () => cfg.surface_color || defaultConfig.surface_color,
+            set: (value) => {
+              cfg.surface_color = value;
+              window.elementSdk.setConfig({ surface_color: value });
+            }
+          },
+          {
+            get: () => cfg.text_color || defaultConfig.text_color,
+            set: (value) => {
+              cfg.text_color = value;
+              window.elementSdk.setConfig({ text_color: value });
+            }
+          },
+          {
+            get: () => cfg.primary_color || defaultConfig.primary_color,
+            set: (value) => {
+              cfg.primary_color = value;
+              window.elementSdk.setConfig({ primary_color: value });
+            }
+          },
+          {
+            get: () => cfg.secondary_color || defaultConfig.secondary_color,
+            set: (value) => {
+              cfg.secondary_color = value;
+              window.elementSdk.setConfig({ secondary_color: value });
+            }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    // Map to edit panel values
+    function mapToEditPanelValues(cfg) {
+      return new Map([
+        ['main_title', cfg.main_title || defaultConfig.main_title],
+        ['subtitle', cfg.subtitle || defaultConfig.subtitle]
+      ]);
+    }
+
+    // Initialize
+    function init() {
+      createParticles();
+      drawDecayCurve();
+      updateDisplays(0);
+      
+      // Event listeners
+      document.getElementById('time-slider').addEventListener('input', (e) => {
+        updateDisplays(parseFloat(e.target.value));
+      });
+      
+      document.getElementById('animate-btn').addEventListener('click', animateDecay);
+      document.getElementById('calculate-btn').addEventListener('click', calculate);
+      
+      // Isotope row clicks
+      document.querySelectorAll('.isotope-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const halflife = parseFloat(row.dataset.halflife);
+          document.getElementById('calc-halflife').value = halflife;
+          document.getElementById('calc-halflife').focus();
+        });
+      });
+      
+      // Practice Problems Generator
+      const problemTypes = [
+        {
+          type: 'remaining',
+          generate: () => {
+            const N0 = Math.floor(Math.random() * 8000) + 2000; // 2000-10000
+            const halfLife = Math.floor(Math.random() * 40) + 5; // 5-45 years
+            const numHalfLives = Math.floor(Math.random() * 4) + 1; // 1-4 half-lives
+            const time = numHalfLives * halfLife;
+            
+            const remaining = N0 * Math.pow(0.5, numHalfLives);
+            const decayed = N0 - remaining;
+            
+            return {
+              problem: `A sample of radioactive material has an initial mass of <strong>${N0} grams</strong> and a half-life of <strong>${halfLife} years</strong>. How much material remains after <strong>${time} years</strong>?`,
+              answer: remaining.toFixed(1),
+              answerText: `Remaining mass: <strong>${remaining.toFixed(1)} grams</strong>`,
+              steps: [
+                `Number of half-lives = ${time} years ÷ ${halfLife} years = ${numHalfLives}`,
+                `Using N = N₀ · (½)^(t/t½)`,
+                `N = ${N0} · (½)^${numHalfLives}`,
+                `N = ${N0} · ${Math.pow(0.5, numHalfLives).toFixed(6)}`,
+                `N = ${remaining.toFixed(1)} grams`
+              ]
+            };
+          }
+        },
+        {
+          type: 'decayConstant',
+          generate: () => {
+            const halfLife = Math.floor(Math.random() * 40) + 5; // 5-45 years
+            const lambda = Math.LN2 / halfLife;
+            
+            return {
+              problem: `A radioactive isotope has a half-life of <strong>${halfLife} years</strong>. Calculate the decay constant (λ) in units of year⁻¹.`,
+              answer: lambda.toFixed(5),
+              answerText: `Decay constant: λ = <strong>${lambda.toFixed(5)} year⁻¹</strong>`,
+              steps: [
+                `Using λ = ln(2) / t½`,
+                `λ = 0.693147 / ${halfLife}`,
+                `λ = ${lambda.toFixed(5)} year⁻¹`
+              ]
+            };
+          }
+        },
+        {
+          type: 'halfLife',
+          generate: () => {
+            const N0 = Math.floor(Math.random() * 8000) + 2000;
+            const halfLife = Math.floor(Math.random() * 40) + 5;
+            const numHalfLives = Math.floor(Math.random() * 3) + 1;
+            const time = numHalfLives * halfLife;
+            const remaining = N0 * Math.pow(0.5, numHalfLives);
+            
+            return {
+              problem: `A radioactive sample initially contains <strong>${N0} grams</strong>. After <strong>${time} years</strong>, <strong>${remaining.toFixed(1)} grams</strong> remain. What is the half-life?`,
+              answer: halfLife.toFixed(1),
+              answerText: `Half-life: <strong>${halfLife.toFixed(1)} years</strong>`,
+              steps: [
+                `Given: N = ${remaining.toFixed(1)} g, N₀ = ${N0} g, t = ${time} years`,
+                `Using N = N₀ · (½)^(t/t½)`,
+                `${remaining.toFixed(1)} = ${N0} · (½)^(${time}/t½)`,
+                `${(remaining.toFixed(1) / N0).toFixed(4)} = (½)^(${time}/t½)`,
+                `Number of half-lives = ${numHalfLives}`,
+                `${time} / t½ = ${numHalfLives}`,
+                `t½ = ${(time / numHalfLives).toFixed(1)} years`
+              ]
+            };
+          }
+        },
+        {
+          type: 'activity',
+          generate: () => {
+            const N = Math.floor(Math.random() * 5e15) + 1e15; // Large number of atoms
+            const halfLife = Math.floor(Math.random() * 40) + 5;
+            const lambda = Math.LN2 / halfLife;
+            const activity = lambda * N / (365 * 24 * 3600); // Convert to decays/second
+            
+            return {
+              problem: `A sample contains <strong>${(N / 1e15).toFixed(1)} × 10¹⁵ atoms</strong> and has a half-life of <strong>${halfLife} years</strong>. Calculate the activity in Becquerels (decays/second). <em style="font-size: 0.9em">(Use 1 year = 3.156 × 10⁷ seconds)</em>`,
+              answer: activity.toFixed(2),
+              answerText: `Activity: <strong>${activity.toFixed(2)} Bq</strong> (or <strong>${(activity / 1e9).toFixed(2)} GBq</strong>)`,
+              steps: [
+                `λ = ln(2) / t½ = 0.693147 / ${halfLife} years = ${lambda.toFixed(6)} year⁻¹`,
+                `Convert to s⁻¹: λ = ${lambda.toFixed(6)} / (3.156 × 10⁷ s/yr) = ${(lambda / 3.156e7).toFixed(3)} s⁻¹`,
+                `A = λN = ${(lambda / 3.156e7).toFixed(3)} × ${(N / 1e15).toFixed(1)} × 10¹⁵`,
+                `A = ${activity.toFixed(2)} Bq`
+              ]
+            };
+          }
+        },
+        {
+          type: 'age',
+          generate: () => {
+            const halfLife = 5730; // Carbon-14
+            const fractionRemaining = (Math.random() * 0.5) + 0.1; // 10%-60% remaining
+            const numHalfLives = -Math.log2(fractionRemaining);
+            const age = numHalfLives * halfLife;
+            
+            return {
+              problem: `An archaeological sample is found to contain <strong>${(fractionRemaining * 100).toFixed(1)}%</strong> of its original ¹⁴C. Using radiocarbon dating with a half-life of 5,730 years, determine the age of the sample.`,
+              answer: age.toFixed(0),
+              answerText: `Age of sample: <strong>${age.toFixed(0)} years</strong>`,
+              steps: [
+                `Given: N/N₀ = ${fractionRemaining.toFixed(3)}, t½ = 5,730 years`,
+                `Using N = N₀ · (½)^(t/t½)`,
+                `${fractionRemaining.toFixed(3)} = (½)^(t/5730)`,
+                `Take log₂: log₂(${fractionRemaining.toFixed(3)}) = -t/5730`,
+                `Number of half-lives = ${numHalfLives.toFixed(2)}`,
+                `t = ${numHalfLives.toFixed(2)} × 5,730 = ${age.toFixed(0)} years`
+              ]
+            };
+          }
+        }
+      ];
+
+      function generateProblem() {
+        const problemType = problemTypes[Math.floor(Math.random() * problemTypes.length)];
+        const problem = problemType.generate();
+        
+        // Store current problem for copy functionality
+        window.currentProblem = problem;
+        
+        // Display problem
+        document.getElementById('problem-text').innerHTML = problem.problem;
+        document.getElementById('problem-container').classList.remove('hidden');
+        document.getElementById('answer-container').classList.add('hidden');
+        document.getElementById('show-answer-btn').innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Show Answer';
+        
+        // Prepare solution steps
+        const stepsHTML = problem.steps.map((step, i) => 
+          `<div><strong>Step ${i + 1}:</strong> ${step}</div>`
+        ).join('');
+        document.getElementById('solution-steps').innerHTML = stepsHTML;
+        document.getElementById('answer-text').innerHTML = problem.answerText;
+      }
+
+      function toggleAnswer() {
+        const container = document.getElementById('answer-container');
+        const btn = document.getElementById('show-answer-btn');
+        const isHidden = container.classList.contains('hidden');
+        
+        if (isHidden) {
+          container.classList.remove('hidden');
+          btn.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Hide Answer';
+        } else {
+          container.classList.add('hidden');
+          btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg> Show Answer';
+        }
+      }
+
+      function copyProblem() {
+        if (!window.currentProblem) return;
+        
+        const problem = window.currentProblem;
+        const text = `Problem:\n${document.getElementById('problem-text').innerText}\n\nAnswer:\n${problem.answer}`;
+        
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById('copy-problem-btn');
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Copied!';
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+          }, 2000);
+        });
+      }
+      
+      // Event listeners for practice problems
+      document.getElementById('generate-problem-btn').addEventListener('click', generateProblem);
+      document.getElementById('show-answer-btn').addEventListener('click', toggleAnswer);
+      document.getElementById('copy-problem-btn').addEventListener('click', copyProblem);
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities,
+          mapToEditPanelValues
+        });
+      }
+    }
+
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ca77413f09b46c4',t:'MTc3MDUxNTE4OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

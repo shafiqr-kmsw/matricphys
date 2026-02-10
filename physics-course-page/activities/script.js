@@ -25,6 +25,7 @@ const documents = [
   { name: "First Law TD Simulate", link: "files/first-law-simulate.html" },
   { name: "Stretched String SpeedRun", link: "files/speedrun-string.html" },
   { name: "Ohm's Law", link: "files/ohms-law.html" },
+  { name: "Radioactivity", link: "files/radioactivity.html" },
   
 ]
 ;
