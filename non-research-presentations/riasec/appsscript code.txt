@@ -1,0 +1,88 @@
+// ============================================================
+// KMSw RIASEC Assessment – Data Logger
+// ============================================================
+// 1. Create a new Google Sheet (or use an existing one)
+// 2. Copy this script into the Apps Script editor (Extensions > Apps Script)
+// 3. Set the SPREADSHEET_ID constant below to your sheet's ID
+// 4. Deploy as a web app (Execute as "Me", Who has access "Anyone")
+// 5. Copy the deployment URL and paste it into the HTML file (APPS_SCRIPT_URL)
+// ============================================================
+
+const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE'; // Replace with your Google Sheet ID
+
+function doPost(e) {
+  try {
+    // Parse the incoming JSON payload
+    const data = JSON.parse(e.postData.contents);
+    
+    // Prepare the row to insert
+    const row = [
+      data.timestamp || '',
+      data.name || '',
+      data.studentClass || '',
+      data.scores?.R || 0,
+      data.scores?.I || 0,
+      data.scores?.A || 0,
+      data.scores?.S || 0,
+      data.scores?.E || 0,
+      data.scores?.C || 0,
+      data.interestCode || '',
+      data.allBroadFields || '',
+      data.topBroadFields || '',
+      data.topNarrowFields || '',
+      data.topDetailedFields || '',
+      // Semantic items (6 items)
+      data.semantic?.sd1 || 0,
+      data.semantic?.sd2 || 0,
+      data.semantic?.sd3 || 0,
+      data.semantic?.sd4 || 0,
+      data.semantic?.sd5 || 0,
+      data.semantic?.sd6 || 0,
+      // Feedback items (6 items)
+      data.feedback?.fb1 || 0,
+      data.feedback?.fb2 || 0,
+      data.feedback?.fb3 || 0,
+      data.feedback?.fb4 || 0,
+      data.feedback?.fb5 || 0,
+      data.feedback?.fb6 || 0,
+      // Optional: full semantic labels as one string (you can split later if needed)
+      JSON.stringify(data.semanticLabels || {}),
+      JSON.stringify(data.feedbackLabels || {})
+    ];
+    
+    // Open the spreadsheet and append the row
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheets()[0]; // Assumes data goes to the first sheet
+    
+    // If the sheet is empty, add headers first
+    if (sheet.getLastRow() === 0) {
+      const headers = [
+        'Timestamp', 'Name', 'Class',
+        'R_Score', 'I_Score', 'A_Score', 'S_Score', 'E_Score', 'C_Score',
+        'InterestCode',
+        'AllBroadFields', 'TopBroadFields', 'TopNarrowFields', 'TopDetailedFields',
+        'sd1', 'sd2', 'sd3', 'sd4', 'sd5', 'sd6',
+        'fb1', 'fb2', 'fb3', 'fb4', 'fb5', 'fb6',
+        'SemanticLabelsJSON', 'FeedbackLabelsJSON'
+      ];
+      sheet.appendRow(headers);
+    }
+    
+    sheet.appendRow(row);
+    
+    // Return a success response (though client uses no-cors, this is for logging)
+    return ContentService.createTextOutput(JSON.stringify({ result: 'success' }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    // Log error to Stackdriver
+    console.error('Error processing request: ' + error.message);
+    return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: error.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// Optional: a doGet for testing
+function doGet() {
+  return ContentService.createTextOutput('KMSw RIASEC Logger is running.');
+}

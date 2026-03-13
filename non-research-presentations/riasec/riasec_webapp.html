@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KMSw RIASEC Assessment + Feedback</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+/* ========== STYLES (unchanged, full) ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --primary: #0d3b4f; --primary-mid: #155e75; --primary-light: #1e7a96;
+  --accent: #e8915a; --accent-dark: #c97440;
+  --bg: #eef2f6; --card: #ffffff; --text: #152232; --text-muted: #5a7080; --border: #d9e4ea;
+}
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+.screen { display:none; } .screen.active { display:block; }
+.container { max-width:860px; margin:0 auto; padding:24px 16px; }
+
+.app-header { background:var(--primary); color:white; padding:14px 32px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.2); }
+.logo-icon { width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;flex-shrink:0; }
+.progress-wrap { background:var(--primary-mid);height:4px; }
+.progress-bar { height:4px;background:var(--accent);transition:width .4s ease; }
+
+.card { background:var(--card);border-radius:16px;padding:36px;box-shadow:0 2px 16px rgba(13,59,79,.08);margin-bottom:20px; }
+@media(max-width:600px){.card{padding:22px 18px;}}
+
+.form-group { margin-bottom:20px; }
+.form-group label { display:block;font-size:.85rem;font-weight:600;color:var(--primary);margin-bottom:6px; }
+.form-group input { width:100%;padding:13px 18px;border:2px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:1rem;color:var(--text);transition:border-color .2s;outline:none; }
+.form-group input:focus { border-color:var(--primary-light); }
+.form-group input.error { border-color:#e74c3c; }
+.form-error { color:#e74c3c;font-size:.8rem;margin-top:4px;display:none; }
+
+.how-it-works { display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:28px; }
+.how-step { background:var(--bg);border-radius:12px;padding:18px 14px;text-align:center; }
+.how-step .icon { font-size:1.6rem;margin-bottom:8px; }
+.how-step h4 { font-size:.85rem;font-weight:600;color:var(--primary);margin-bottom:4px; }
+.how-step p { font-size:.78rem;color:var(--text-muted);line-height:1.5; }
+
+.questions-grid { display:flex;flex-direction:column;gap:8px; }
+.question-item { display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:10px;padding:12px 16px;cursor:pointer;border:2px solid transparent;transition:all .2s;user-select:none; }
+.question-item:hover { background:#e4ecf2; }
+.question-item.checked { background:rgba(13,59,79,.06);border-color:var(--primary-light); }
+.q-number { min-width:28px;font-size:.75rem;font-weight:700;color:var(--text-muted); }
+.q-checkbox { width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;background:white; }
+.question-item.checked .q-checkbox { background:var(--primary);border-color:var(--primary); }
+.q-check-icon { color:white;font-size:12px;display:none; }
+.question-item.checked .q-check-icon { display:block; }
+.q-text { font-size:.92rem;line-height:1.5; }
+
+.semantic-domain-label, .feedback-domain-label { display:inline-flex;align-items:center;gap:8px;background:var(--primary);color:white;font-size:.78rem;font-weight:600;padding:5px 14px;border-radius:20px;margin-bottom:16px;letter-spacing:.05em;text-transform:uppercase; }
+.semantic-item, .feedback-item { background:var(--bg);border-radius:12px;padding:20px;margin-bottom:14px; }
+.semantic-poles, .feedback-poles { display:flex;justify-content:space-between;margin-bottom:12px; }
+.semantic-pole-left,.semantic-pole-right, .feedback-pole-left,.feedback-pole-right { font-size:.85rem;font-weight:600;color:var(--primary); }
+.semantic-scale, .feedback-scale { display:flex;gap:8px;justify-content:center;align-items:center; }
+.scale-btn { width:38px;height:38px;border-radius:50%;border:2px solid var(--border);background:white;cursor:pointer;font-size:.8rem;font-weight:600;color:var(--text-muted);transition:all .2s;display:flex;align-items:center;justify-content:center; }
+.scale-btn:hover { border-color:var(--primary-light);background:#e4ecf2; }
+.scale-btn.selected { background:var(--primary);border-color:var(--primary);color:white; }
+.scale-labels { display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-muted);margin-top:6px; }
+
+.section-title { font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--primary);margin-bottom:16px;display:flex;align-items:center;gap:10px; }
+.section-title::after { content:'';flex:1;height:1px;background:var(--border); }
+.scores-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px; }
+@media(max-width:500px){.scores-grid{grid-template-columns:repeat(2,1fr);}}
+.score-card { border-radius:12px;padding:14px 16px;text-align:center;background:var(--bg); }
+.score-card .s-letter { font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700; }
+.score-card .s-name { font-size:.7rem;color:var(--text-muted);margin-bottom:6px; }
+.score-card .s-bar-wrap { height:6px;background:rgba(0,0,0,.08);border-radius:4px;overflow:hidden; }
+.score-card .s-bar { height:100%;border-radius:4px; }
+.score-card .s-score { font-size:1.2rem;font-weight:700;margin-top:6px; }
+.top-badge { display:inline-block;font-size:.65rem;font-weight:700;background:var(--accent);color:white;padding:2px 8px;border-radius:10px;margin-left:6px;vertical-align:middle;text-transform:uppercase;letter-spacing:.05em; }
+
+.broad-field-card { border-radius:12px;padding:20px;background:var(--bg);border-left:4px solid var(--border);margin-bottom:14px; }
+.broad-field-card.rank1 { border-left-color:var(--accent);background:rgba(232,145,90,.07); }
+.broad-field-card.rank2 { border-left-color:var(--primary-light);background:rgba(30,122,150,.05); }
+.bf-header { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px; }
+.bf-header h4 { font-size:1rem;font-weight:700;color:var(--primary); }
+.match-stars { font-size:.8rem;color:var(--text-muted); }
+.narrow-section { margin-bottom:12px; }
+.narrow-label { font-size:.73rem;font-weight:700;color:var(--primary-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px; }
+.detailed-tags { display:flex;flex-wrap:wrap;gap:6px; }
+.d-tag { background:white;border:1px solid var(--border);border-radius:16px;padding:4px 12px;font-size:.78rem;color:var(--text); }
+.d-tag.highlight { background:rgba(13,59,79,.07);border-color:var(--primary-light);color:var(--primary);font-weight:500; }
+
+.sd-result-item, .fb-result-item { background:var(--bg);border-radius:10px;padding:14px; }
+.sd-result-item .sd-label, .fb-result-item .fb-label { font-size:.8rem;font-weight:600;color:var(--primary);margin-bottom:8px; }
+.sd-slider-display, .fb-slider-display { position:relative;height:6px;background:linear-gradient(to right,#1B4F72,#6C3483);border-radius:4px; }
+.sd-marker, .fb-marker { position:absolute;top:-4px;width:14px;height:14px;border-radius:50%;background:var(--primary);border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.3);transform:translateX(-50%); }
+.sd-poles, .fb-poles { display:flex;justify-content:space-between;margin-top:6px;font-size:.7rem;color:var(--text-muted); }
+
+.btn { display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 28px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;border:none;transition:all .2s; }
+.btn-primary { background:var(--primary);color:white; }
+.btn-primary:hover { background:var(--primary-mid);transform:translateY(-1px);box-shadow:0 4px 14px rgba(13,59,79,.25); }
+.btn-accent { background:var(--accent);color:white; }
+.btn-accent:hover { background:var(--accent-dark);transform:translateY(-1px);box-shadow:0 4px 14px rgba(232,145,90,.35); }
+.btn-ghost { background:var(--bg);color:var(--text);border:2px solid var(--border); }
+.btn-ghost:hover { border-color:var(--primary);color:var(--primary); }
+.btn-lg { padding:16px 36px;font-size:1rem;border-radius:12px; }
+.btn-row { display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end;margin-top:28px; }
+.btn-row.center { justify-content:center; }
+
+.loader-overlay { display:none;position:fixed;inset:0;background:rgba(13,59,79,.55);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:16px;color:white; }
+.loader-overlay.show { display:flex; }
+.spinner { width:44px;height:44px;border-radius:50%;border:4px solid rgba(255,255,255,.3);border-top-color:white;animation:spin .85s linear infinite; }
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast { position:fixed;bottom:24px;right:24px;background:#1a2332;color:white;padding:12px 20px;border-radius:10px;font-size:.88rem;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:1000;transform:translateY(80px);opacity:0;transition:all .3s;max-width:340px; }
+.toast.show { transform:translateY(0);opacity:1; }
+.toast.success { background:#1a5c3a; } .toast.error { background:#7b1c1c; }
+.code-block { width:64px;height:64px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;font-weight:700; }
+.code-block .letter { font-family:'Cormorant Garamond',serif;font-size:1.8rem;line-height:1; }
+.code-block .rank { font-size:.65rem;opacity:.85;letter-spacing:.05em;text-transform:uppercase; }
+
+.mohe-button { background:var(--primary); color:white; border:none; padding:12px 24px; border-radius:40px; font-size:1rem; font-weight:600; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; gap:8px; text-decoration:none; }
+.mohe-button:hover { background:var(--primary-mid); transform:translateY(-2px); box-shadow:0 6px 14px rgba(13,59,79,.3); }
+
+/* ── Custom confirm modal (replaces blocked window.confirm) ── */
+.modal-backdrop { display:none;position:fixed;inset:0;background:rgba(13,59,79,.55);z-index:2000;align-items:center;justify-content:center; }
+.modal-backdrop.show { display:flex; }
+.modal-box { background:white;border-radius:16px;padding:32px 28px;max-width:360px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25);text-align:center; }
+.modal-box .modal-icon { font-size:2.2rem;margin-bottom:12px; }
+.modal-box h3 { font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--primary);margin-bottom:8px; }
+.modal-box p { font-size:.9rem;color:var(--text-muted);margin-bottom:24px;line-height:1.6; }
+.modal-btns { display:flex;gap:10px;justify-content:center; }
+.modal-btns .btn { padding:10px 22px;font-size:.88rem; }
+
+@media print {
+  body{background:white!important;}
+  .app-header,.btn-row,.no-print,.loader-overlay,.toast{display:none!important;}
+  #screen-welcome,#screen-questions,#screen-semantic,#screen-feedback{display:none!important;}
+  #screen-results{display:block!important;}
+  .card{box-shadow:none!important;border:1px solid #ddd!important;break-inside:avoid;margin-bottom:12px!important;}
+  .print-header{display:flex!important;}
+  .container{max-width:100%;padding:0;}
+  .progress-wrap{display:none;}
+}
+.print-header{display:none;}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="logo-icon">R</div>
+  <div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;">KMSw RIASEC Assessment + Feedback</div>
+    <div style="font-size:.72rem;opacity:.7;">Discover & share your experience</div>
+  </div>
+</div>
+<div class="progress-wrap no-print"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+
+<!-- SCREEN 1: WELCOME -->
+<div id="screen-welcome" class="screen active">
+  <div class="container">
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="background:linear-gradient(135deg,var(--primary) 0%,var(--primary-mid) 100%);padding:40px 32px;color:white;text-align:center;">
+        <div style="font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;opacity:.75;margin-bottom:10px;">Career Exploration Tool</div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;line-height:1.2;margin-bottom:12px;">Find Your Career<br>Interest Code</h2>
+        <p style="opacity:.8;font-size:.95rem;max-width:460px;margin:0 auto;line-height:1.7;">Answer 42 quick statements to discover your RIASEC profile and get matched to internationally-coded career fields.</p>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+          <span style="padding:6px 14px;border-radius:40px;font-size:.78rem;font-weight:600;color:white;background:rgba(45,106,79,.85)">Realistic</span>
+          <span style="padding:6px 14px;border-radius:40px;font-size:.78rem;font-weight:600;color:white;background:rgba(27,79,114,.85)">Investigative</span>
+          <span style="padding:6px 14px;border-radius:40px;font-size:.78rem;font-weight:600;color:white;background:rgba(108,52,131,.85)">Artistic</span>
+          <span style="padding:6px 14px;border-radius:40px;font-size:.78rem;font-weight:600;color:white;background:rgba(154,125,10,.85)">Social</span>
+          <span style="padding:6px 14px;border-radius:40px;font-size:.78rem;font-weight:600;color:white;background:rgba(176,58,46,.85)">Enterprising</span>
+          <span style="padding:6px 14px;border-radius:40px;font-size:.78rem;font-weight:600;color:white;background:rgba(26,82,118,.85)">Conventional</span>
+        </div>
+      </div>
+      <div style="padding:32px;">
+        <div class="how-it-works" style="margin-bottom:32px;">
+          <div class="how-step"><div class="icon">📝</div><h4>42 Statements</h4><p>Check each statement you agree with — no wrong answers!</p></div>
+          <div class="how-step"><div class="icon">🧭</div><h4>3-Letter Code</h4><p>Your top 3 RIASEC domains form your unique interest code</p></div>
+          <div class="how-step"><div class="icon">🎯</div><h4>Field Match</h4><p>Matched to Broad, Narrow & Detailed career fields</p></div>
+          <div class="how-step"><div class="icon">📊</div><h4>Work Style</h4><p>6-item scale reveals your ideal work environment</p></div>
+        </div>
+        <div style="max-width:440px;margin:0 auto;">
+          <div class="form-group">
+            <label for="studentName">Your Full Name</label>
+            <input type="text" id="studentName" placeholder="e.g. Ali bin Abu" autocomplete="name">
+            <div class="form-error" id="nameError">Please enter your full name to continue.</div>
+          </div>
+          <div class="form-group">
+            <label for="studentClass">Tutorial Class <span style="font-weight:400;color:var(--text-muted)">(optional)</span></label>
+            <input type="text" id="studentClass" placeholder="e.g. K1T1A">
+          </div>
+          <div class="btn-row center">
+            <button class="btn btn-accent btn-lg" id="startTestBtn">Start Assessment →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 2: QUESTIONS -->
+<div id="screen-questions" class="screen">
+  <div class="container">
+    <div class="card">
+      <div style="margin-bottom:20px;">
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--primary);margin-bottom:6px;">Career Interest Statements</h2>
+        <p style="color:var(--text-muted);font-size:.9rem;">Read each statement. Check <strong>only those you agree with</strong>. There are no right or wrong answers!</p>
+        <div style="margin-top:10px;font-size:.85rem;color:var(--text-muted);">Selected: <strong id="selectedCount" style="color:var(--accent-dark);">0</strong> of 42</div>
+      </div>
+      <div class="questions-grid" id="questionsContainer"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="backFromQuestionsBtn">← Back</button>
+        <button class="btn btn-primary btn-lg" id="submitQuestionsBtn">Continue to Work Style →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3: WORK STYLE (SEMANTIC) -->
+<div id="screen-semantic" class="screen">
+  <div class="container">
+    <div class="card">
+      <div style="margin-bottom:24px;">
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--primary);margin-bottom:6px;">Work Style Preferences</h2>
+        <p style="color:var(--text-muted);font-size:.9rem;">Click the number that best describes where you fall between each pair of opposites.<br><strong>1</strong> = strongly left &nbsp;|&nbsp; <strong>4</strong> = neutral &nbsp;|&nbsp; <strong>7</strong> = strongly right.</p>
+      </div>
+      <div id="semanticContainer"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="backFromSemanticBtn">← Back</button>
+        <button class="btn btn-accent btn-lg" id="submitSemanticBtn">Continue to Feedback →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 4: USER FEEDBACK -->
+<div id="screen-feedback" class="screen">
+  <div class="container">
+    <div class="card">
+      <div style="margin-bottom:24px;">
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--primary);margin-bottom:6px;">User Feedback</h2>
+        <p style="color:var(--text-muted);font-size:.9rem;">Please rate the following aspects of this assessment.<br><strong>1</strong> = strongly left &nbsp;|&nbsp; <strong>4</strong> = neutral &nbsp;|&nbsp; <strong>7</strong> = strongly right.</p>
+      </div>
+      <div id="feedbackContainer"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="backFromFeedbackBtn">← Back to Work Style</button>
+        <button class="btn btn-accent btn-lg" id="submitFeedbackBtn">Submit & View Results →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 5: RESULTS -->
+<div id="screen-results" class="screen">
+  <div class="container">
+
+    <!-- Print-only header -->
+    <div class="print-header" style="align-items:center;gap:14px;border-bottom:2px solid var(--primary);padding-bottom:12px;margin-bottom:20px;">
+      <div style="width:40px;height:40px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:18px;">R</div>
+      <div>
+        <div style="font-weight:700;color:var(--primary);font-size:1.1rem;">KMSw RIASEC Assessment</div>
+        <div style="font-size:.78rem;color:var(--text-muted);">Career Pathway Results</div>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="card" style="text-align:center;background:linear-gradient(135deg,var(--primary),var(--primary-mid));color:white;padding:32px;">
+      <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;opacity:.75;margin-bottom:8px;">Assessment Complete</div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;margin-bottom:4px;" id="resultName">Your Career Results</h2>
+      <div style="opacity:.8;font-size:.88rem;" id="resultMeta"></div>
+      <div style="display:flex;gap:14px;justify-content:center;margin-top:20px;" id="interestCodeDisplay"></div>
+      <div style="margin-top:14px;"><span style="background:rgba(255,255,255,.15);padding:6px 18px;border-radius:20px;font-size:.88rem;font-weight:600;letter-spacing:.1em;" id="codeLabel"></span></div>
+    </div>
+
+    <!-- Scores -->
+    <div class="card">
+      <div class="section-title">Your RIASEC Scores</div>
+      <div class="scores-grid" id="scoresGrid"></div>
+    </div>
+
+    <!-- Fields -->
+    <div class="card">
+      <div class="section-title">Recommended Career Fields</div>
+      <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:20px;">
+        Fields below are matched to your 3-letter code using the international ISCED/NEC field classification.<br>
+        <strong>★★★ Top Match</strong> = all 3 of your codes align. Highlighted tags are your strongest specific matches.
+      </p>
+      <div id="broadFieldContainer"></div>
+    </div>
+
+    <!-- Semantic results -->
+    <div class="card">
+      <div class="section-title">Work Style Profile</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" id="semanticResultsGrid"></div>
+    </div>
+
+    <!-- Descriptions -->
+    <div class="card">
+      <div class="section-title">About Your Top Interests</div>
+      <div id="riasecDescriptions"></div>
+    </div>
+
+    <!-- MOHE INSTRUCTION CARD -->
+    <div class="card" style="background:var(--bg); border-left:6px solid var(--accent);">
+      <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+        <div style="font-size:2rem;">🎓</div>
+        <div style="flex:1;">
+          <p style="font-size:1rem; font-weight:600; color:var(--primary); margin-bottom:8px;">
+            Now you know what fields are the best for you!
+          </p>
+          <p style="color:var(--text-muted); font-size:.9rem; margin-bottom:12px;">
+            Go to the <strong>MOHE course directory</strong>, choose <strong>'Bidang'</strong> and key in the 4‑digit field code (e.g., 0111) to explore more about the field!
+          </p>
+        </div>
+        <a href="https://online.mohe.gov.my/epanduan/ProgramPengajian/kategoriCalon/N?jenprog=stpm" target="_blank" rel="noopener" class="mohe-button no-print">
+          🔍 Open MOHE e-Panduan
+        </a>
+      </div>
+    </div>
+
+    <div class="btn-row center no-print">
+      <button class="btn btn-ghost" id="restartBtn">↺ Start Over</button>
+      <button class="btn btn-primary btn-lg" id="printBtn">🖨 Print Results as PDF</button>
+    </div>
+    <p style="text-align:center;font-size:.75rem;color:var(--text-muted);margin-top:8px;margin-bottom:32px;" id="submitStatus" class="no-print"></p>
+  </div>
+</div>
+
+<!-- Custom confirm modal (replaces window.confirm which is blocked in iframes) -->
+<div class="modal-backdrop" id="restartModal">
+  <div class="modal-box">
+    <div class="modal-icon">↺</div>
+    <h3>Start Over?</h3>
+    <p>All your answers and results will be cleared. This cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="modalCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="modalConfirmBtn">Yes, Start Over</button>
+    </div>
+  </div>
+</div>
+
+<div class="loader-overlay" id="loader"><div class="spinner"></div><div style="font-weight:500;font-size:.95rem;">Submitting your results…</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIGURATION (replace with your Apps Script URL)
+// ============================================================
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzu2hDHjNGgcocRDeqRvBKgKjXzrTYWPuqvlrvJB5oX9jkl7WV8uOdtByZPJE_YvlgVQw/exec";
+
+// ============================================================
+// QUESTIONS
+// ============================================================
+const QUESTIONS = [
+  {id:1,  text:"I like to work on cars",                                   domain:"R"},
+  {id:2,  text:"I like to do puzzles",                                     domain:"I"},
+  {id:3,  text:"I am good at working independently",                       domain:"C"},
+  {id:4,  text:"I like to work in teams",                                  domain:"S"},
+  {id:5,  text:"I am an ambitious person, I set goals for myself",         domain:"E"},
+  {id:6,  text:"I like to organize things (files, desks/offices)",         domain:"C"},
+  {id:7,  text:"I like to build things",                                   domain:"R"},
+  {id:8,  text:"I like to read about art and music",                       domain:"A"},
+  {id:9,  text:"I like to have clear instructions to follow",              domain:"C"},
+  {id:10, text:"I like to try to influence or persuade people",            domain:"E"},
+  {id:11, text:"I like to do experiments",                                 domain:"I"},
+  {id:12, text:"I like to teach or train people",                          domain:"S"},
+  {id:13, text:"I like trying to help people solve their problems",        domain:"S"},
+  {id:14, text:"I like to take care of animals",                           domain:"R"},
+  {id:15, text:"I wouldn't mind working 8 hours per day in an office",     domain:"C"},
+  {id:16, text:"I like selling things",                                    domain:"E"},
+  {id:17, text:"I enjoy creative writing",                                 domain:"A"},
+  {id:18, text:"I enjoy science",                                          domain:"I"},
+  {id:19, text:"I am quick to take on new responsibilities",               domain:"E"},
+  {id:20, text:"I am interested in healing people",                        domain:"S"},
+  {id:21, text:"I enjoy trying to figure out how things work",             domain:"I"},
+  {id:22, text:"I like putting things together or assembling things",      domain:"R"},
+  {id:23, text:"I am a creative person",                                   domain:"A"},
+  {id:24, text:"I pay attention to details",                               domain:"C"},
+  {id:25, text:"I like to do filing or typing",                            domain:"C"},
+  {id:26, text:"I like to analyze things (problems/situations)",           domain:"I"},
+  {id:27, text:"I like to play instruments or sing",                       domain:"A"},
+  {id:28, text:"I enjoy learning about other cultures",                    domain:"S"},
+  {id:29, text:"I would like to start my own business",                    domain:"E"},
+  {id:30, text:"I like to cook",                                           domain:"R"},
+  {id:31, text:"I like acting in plays",                                   domain:"A"},
+  {id:32, text:"I am a practical person",                                  domain:"R"},
+  {id:33, text:"I like working with numbers or charts",                    domain:"C"},
+  {id:34, text:"I like to get into discussions about issues",              domain:"S"},
+  {id:35, text:"I am good at keeping records of my work",                  domain:"C"},
+  {id:36, text:"I like to lead",                                           domain:"E"},
+  {id:37, text:"I like working outdoors",                                  domain:"R"},
+  {id:38, text:"I would like to work in an office",                        domain:"C"},
+  {id:39, text:"I'm good at math",                                         domain:"I"},
+  {id:40, text:"I like helping people",                                    domain:"S"},
+  {id:41, text:"I like to draw",                                           domain:"A"},
+  {id:42, text:"I like to give speeches",                                  domain:"E"}
+];
+
+const RIASEC_INFO = {
+  R:{name:"Realistic",     color:"#2D6A4F",emoji:"🔧",desc:"Realistic people enjoy hands-on, physical work. They like tools, machines, animals, and working outdoors. They tend to be practical, straightforward, and good at solving concrete problems."},
+  I:{name:"Investigative", color:"#1B4F72",emoji:"🔬",desc:"Investigative people enjoy learning, analyzing, and solving complex problems. They are curious, intellectual, and methodical, preferring to think through challenges systematically."},
+  A:{name:"Artistic",      color:"#6C3483",emoji:"🎨",desc:"Artistic people are creative and expressive. They thrive in unstructured environments and enjoy working through art, music, writing, drama, or design."},
+  S:{name:"Social",        color:"#9A7D0A",emoji:"🤝",desc:"Social people enjoy working with others — teaching, counseling, helping, or serving. They are empathetic and skilled at communication and building relationships."},
+  E:{name:"Enterprising",  color:"#B03A2E",emoji:"💼",desc:"Enterprising people enjoy leading, persuading, and influencing others. They are ambitious and drawn to business, management, sales, and leadership roles."},
+  C:{name:"Conventional",  color:"#1A5276",emoji:"📋",desc:"Conventional people prefer structured, detail-oriented tasks. They excel at organizing data, working with numbers, following procedures, and managing records."}
+};
+const MAX_SCORES = {R:7,I:6,A:6,S:7,E:7,C:9};
+
+// ============================================================
+// FIELD DATA
+// ============================================================
+const FIELD_DATA = [
+  {d1:"S",d2:"E",d3:"A",broad:"01 Education",                                         narrow:"011 Education",                                       detailed:"0111 Education science"},
+  {d1:"S",d2:"E",d3:"A",broad:"01 Education",                                         narrow:"011 Education",                                       detailed:"0112 Training for pre-school teachers"},
+  {d1:"S",d2:"E",d3:"A",broad:"01 Education",                                         narrow:"011 Education",                                       detailed:"0114 Educator training with subject specialisation"},
+  {d1:"A",d2:"S",d3:"I",broad:"02 Arts and humanities",                               narrow:"021 Arts",                                            detailed:"0211 Audio-visual techniques and media production"},
+  {d1:"A",d2:"S",d3:"I",broad:"02 Arts and humanities",                               narrow:"021 Arts",                                            detailed:"0212 Fashion, interior and industrial design"},
+  {d1:"A",d2:"S",d3:"I",broad:"02 Arts and humanities",                               narrow:"021 Arts",                                            detailed:"0213 Fine arts"},
+  {d1:"A",d2:"S",d3:"I",broad:"02 Arts and humanities",                               narrow:"021 Arts",                                            detailed:"0214 Craft skills"},
+  {d1:"A",d2:"S",d3:"I",broad:"02 Arts and humanities",                               narrow:"021 Arts",                                            detailed:"0215 Music and performing arts"},
+  {d1:"A",d2:"S",d3:"I",broad:"02 Arts and humanities",                               narrow:"022 Humanities",                                      detailed:"0221 Religion and theology"},
+  {d1:"A",d2:"S",d3:"I",broad:"02 Arts and humanities",                               narrow:"022 Humanities",                                      detailed:"0222 History and archaeology"},
+  {d1:"A",d2:"S",d3:"I",broad:"02 Arts and humanities",                               narrow:"023 Languages",                                       detailed:"0231 Language acquisition"},
+  {d1:"A",d2:"S",d3:"I",broad:"02 Arts and humanities",                               narrow:"023 Languages",                                       detailed:"0232 Literature and linguistics"},
+  {d1:"A",d2:"S",d3:"I",broad:"02 Arts and humanities",                               narrow:"023 Languages",                                       detailed:"0233 National language"},
+  {d1:"I",d2:"S",d3:null,broad:"03 Social sciences, journalism & information",        narrow:"031 Social and behavioural sciences",                  detailed:"0311 Economics"},
+  {d1:"I",d2:"S",d3:null,broad:"03 Social sciences, journalism & information",        narrow:"031 Social and behavioural sciences",                  detailed:"0312Political sciences and public policy"},
+  {d1:"I",d2:"S",d3:null,broad:"03 Social sciences, journalism & information",        narrow:"031 Social and behavioural sciences",                  detailed:"0313 Psychology"},
+  {d1:"I",d2:"S",d3:null,broad:"03 Social sciences, journalism & information",        narrow:"031 Social and behavioural sciences",                  detailed:"0314 Sociology and cultural studies"},
+  {d1:"I",d2:"S",d3:null,broad:"03 Social sciences, journalism & information",        narrow:"032 Journalism, information and communication",        detailed:"0322 Library, information and archival studies"},
+  {d1:"I",d2:"S",d3:null,broad:"03 Social sciences, journalism & information",        narrow:"032 Journalism, information and communication",        detailed:"0323 Media and communication"},
+  {d1:"E",d2:"C",d3:"S",broad:"04 Business, administration and law",                  narrow:"041 Business and management",                         detailed:"0411 Accounting, auditing and taxation"},
+  {d1:"E",d2:"C",d3:"S",broad:"04 Business, administration and law",                  narrow:"041 Business and management",                         detailed:"0412 Finance, banking and insurance"},
+  {d1:"E",d2:"C",d3:"S",broad:"04 Business, administration and law",                  narrow:"041 Business and management",                         detailed:"0414 Management and administration"},
+  {d1:"E",d2:"C",d3:"S",broad:"04 Business, administration and law",                  narrow:"041 Business and management",                         detailed:"0415 Marketing and advertising"},
+  {d1:"E",d2:"C",d3:"S",broad:"04 Business, administration and law",                  narrow:"041 Business and management",                         detailed:"0417 Work skills"},
+  {d1:"E",d2:"C",d3:"S",broad:"04 Business, administration and law",                  narrow:"042 Law",                                             detailed:"0421 Law"},
+  {d1:"I",d2:"R",d3:"C",broad:"05 Natural sciences, mathematics & statistics",        narrow:"051 Biological and related sciences",                  detailed:"0511 Biology"},
+  {d1:"I",d2:"R",d3:"C",broad:"05 Natural sciences, mathematics & statistics",        narrow:"051 Biological and related sciences",                  detailed:"0512 Biochemistry"},
+  {d1:"I",d2:"R",d3:"C",broad:"05 Natural sciences, mathematics & statistics",        narrow:"052 Environment",                                     detailed:"0521 Environmental sciences"},
+  {d1:"I",d2:"R",d3:"C",broad:"05 Natural sciences, mathematics & statistics",        narrow:"052 Environment",                                     detailed:"0522 Natural environments and wildlife"},
+  {d1:"I",d2:"R",d3:"C",broad:"05 Natural sciences, mathematics & statistics",        narrow:"053 Physical sciences",                               detailed:"0531 Chemistry"},
+  {d1:"I",d2:"R",d3:"C",broad:"05 Natural sciences, mathematics & statistics",        narrow:"053 Physical sciences",                               detailed:"0532 Earth sciences"},
+  {d1:"I",d2:"R",d3:"C",broad:"05 Natural sciences, mathematics & statistics",        narrow:"053 Physical sciences",                               detailed:"0533 Physics"},
+  {d1:"I",d2:"R",d3:"C",broad:"05 Natural sciences, mathematics & statistics",        narrow:"054 Mathematics and statistics",                      detailed:"0541 Mathematics"},
+  {d1:"I",d2:"R",d3:"C",broad:"05 Natural sciences, mathematics & statistics",        narrow:"054 Mathematics and statistics",                      detailed:"0542 Statistics"},
+  {d1:"I",d2:"R",d3:"C",broad:"06 Information and communication technologies",        narrow:"061 ICT",                                             detailed:"0612 Software engineering"},
+  {d1:"I",d2:"R",d3:"C",broad:"06 Information and communication technologies",        narrow:"061 ICT",                                             detailed:"0613 Computer science"},
+  {d1:"I",d2:"R",d3:"C",broad:"06 Information and communication technologies",        narrow:"061 ICT",                                             detailed:"0614 Computer use"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"071 Engineering and engineering trades",               detailed:"0711 Chemical engineering and processes"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"071 Engineering and engineering trades",               detailed:"0712 Electricity and energy"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"071 Engineering and engineering trades",               detailed:"0713 Electronics and automation"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"071 Engineering and engineering trades",               detailed:"0714 Mechanics and metal trades"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"071 Engineering and engineering trades",               detailed:"0715 Motor vehicles, ships and aircraft"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"071 Engineering and engineering trades",               detailed:"0716 Civil engineering"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"071 Engineering and engineering trades",               detailed:"0717 Environmental protection technology"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"072 Manufacturing and processing",                    detailed:"0721 Food processing"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"072 Manufacturing and processing",                    detailed:"0722 Materials (glass, paper, plastic and wood)"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"072 Manufacturing and processing",                    detailed:"0723 Textiles (clothes, footwear and leather)"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"072 Manufacturing and processing",                    detailed:"0724 Mining and extraction"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"073 Architecture, surveying and town planning",       detailed:"0733 Building and construction"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"073 Architecture, surveying and town planning",       detailed:"0734 Surveying"},
+  {d1:"R",d2:"I",d3:"C",broad:"07 Engineering, manufacturing & construction",         narrow:"074 Engineering technology",                         detailed:"0741 Engineering technology"},
+  {d1:"R",d2:"I",d3:null,broad:"08 Agriculture, forestry, fisheries & veterinary",   narrow:"081 Agriculture",                                     detailed:"0811 Crop and livestock production"},
+  {d1:"R",d2:"I",d3:null,broad:"08 Agriculture, forestry, fisheries & veterinary",   narrow:"081 Agriculture",                                     detailed:"0812 Horticulture"},
+  {d1:"R",d2:"I",d3:null,broad:"08 Agriculture, forestry, fisheries & veterinary",   narrow:"082 Forestry",                                        detailed:"0821 Forestry"},
+  {d1:"R",d2:"I",d3:null,broad:"08 Agriculture, forestry, fisheries & veterinary",   narrow:"083 Fisheries",                                       detailed:"0831 Fisheries"},
+  {d1:"R",d2:"I",d3:null,broad:"08 Agriculture, forestry, fisheries & veterinary",   narrow:"084 Veterinary",                                      detailed:"0841 Veterinary"},
+  {d1:"S",d2:"I",d3:"R",broad:"09 Health and welfare",                                narrow:"091 Health",                                          detailed:"0911 Dental studies"},
+  {d1:"S",d2:"I",d3:"R",broad:"09 Health and welfare",                                narrow:"091 Health",                                          detailed:"0912 Medicine"},
+  {d1:"S",d2:"I",d3:"R",broad:"09 Health and welfare",                                narrow:"091 Health",                                          detailed:"0913 Nursing, midwifery and medical assistance"},
+  {d1:"S",d2:"I",d3:"R",broad:"09 Health and welfare",                                narrow:"091 Health",                                          detailed:"0914 Medical diagnostic and treatment technology"},
+  {d1:"S",d2:"I",d3:"R",broad:"09 Health and welfare",                                narrow:"091 Health",                                          detailed:"0915 Therapy and rehabilitation"},
+  {d1:"S",d2:"I",d3:"R",broad:"09 Health and welfare",                                narrow:"091 Health",                                          detailed:"0916 Pharmacy"},
+  {d1:"S",d2:"I",d3:"R",broad:"09 Health and welfare",                                narrow:"092 Welfare",                                         detailed:"0923 Social work and counselling"},
+  {d1:"S",d2:"E",d3:"C",broad:"10 Services",                                          narrow:"101 Personal services",                               detailed:"1013 Hotel, restaurants and catering"},
+  {d1:"S",d2:"E",d3:"C",broad:"10 Services",                                          narrow:"101 Personal services",                               detailed:"1014 Sports"},
+  {d1:"S",d2:"E",d3:"C",broad:"10 Services",                                          narrow:"101 Personal services",                               detailed:"1015 Travel, tourism and leisure"},
+  {d1:"S",d2:"E",d3:"C",broad:"10 Services",                                          narrow:"102 Hygiene and occupational health services",        detailed:"1022 Occupational health and safety"},
+  {d1:"S",d2:"E",d3:"C",broad:"10 Services",                                          narrow:"103 Security services",                               detailed:"1031 Military and defence"},
+  {d1:"S",d2:"E",d3:"C",broad:"10 Services",                                          narrow:"103 Security services",                               detailed:"1032 Protection of persons and property"},
+  {d1:"S",d2:"E",d3:"C",broad:"10 Services",                                          narrow:"104 Transport services",                              detailed:"1041 Transport services"}
+];
+
+// ============================================================
+// SEMANTIC DIFFERENTIAL ITEMS
+// ============================================================
+const SEMANTIC_ITEMS = [
+  {
+    domain:"Domain 1 — Work Environment", domainKey:"environment",
+    items:[
+      {id:"sd1",left:"Prefer working alone",        right:"Prefer working with others"},
+      {id:"sd2",left:"Prefer structured routines",  right:"Prefer flexible, open-ended work"},
+      {id:"sd3",left:"Prefer indoor settings",      right:"Prefer outdoor / field settings"}
+    ]
+  },
+  {
+    domain:"Domain 2 — Task & Skill Preference", domainKey:"task",
+    items:[
+      {id:"sd4",left:"Prefer working with data/things", right:"Prefer working with people"},
+      {id:"sd5",left:"Prefer creative expression",      right:"Prefer logical analysis"},
+      {id:"sd6",left:"Prefer hands-on / physical work", right:"Prefer intellectual / mental work"}
+    ]
+  }
+];
+
+// ============================================================
+// FEEDBACK ITEMS (6 items, same structure)
+// ============================================================
+const FEEDBACK_ITEMS = [
+  { id:"fb1", left:"Assessment was easy to understand", right:"Difficult to understand" },
+  { id:"fb2", left:"Questions were relevant to my interests", right:"Not relevant" },
+  { id:"fb3", left:"The webapp loaded and ran smoothly", right:"Experienced issues or errors" },
+  { id:"fb4", left:"Instructions were clear", right:"Confusing" },
+  { id:"fb5", left:"Interface was user-friendly", right:"Difficult to navigate" },
+  { id:"fb6", left:"I would recommend this to others", right:"Would not recommend" }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let studentName="", studentClass="";
+let answers={}, semanticAnswers={}, feedbackAnswers={};
+let riasecScores={}, topCodes=[];
+let matchedBroadFields=[];
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+function renderQuestions(){
+  document.getElementById("questionsContainer").innerHTML =
+    QUESTIONS.map(q=>`
+      <div class="question-item" data-qid="${q.id}">
+        <span class="q-number">${q.id}.</span>
+        <div class="q-checkbox"><span class="q-check-icon">✓</span></div>
+        <span class="q-text">${q.text}</span>
+      </div>`).join("");
+  // re-apply checked state
+  Object.keys(answers).forEach(id=>{
+    if(answers[id]){
+      const el = document.querySelector(`.question-item[data-qid="${id}"]`);
+      if(el) el.classList.add("checked");
+    }
+  });
+  updateSelectedCount();
+}
+
+function toggleQ(id){
+  answers[id]=!answers[id];
+  const el = document.querySelector(`.question-item[data-qid="${id}"]`);
+  if(el) el.classList.toggle("checked", answers[id]);
+  updateSelectedCount();
+}
+
+function updateSelectedCount(){
+  document.getElementById("selectedCount").textContent = Object.values(answers).filter(Boolean).length;
+}
+
+function renderSemantic(){
+  document.getElementById("semanticContainer").innerHTML =
+    SEMANTIC_ITEMS.map(dom=>`
+      <div style="margin-bottom:28px;">
+        <div class="semantic-domain-label">📊 ${dom.domain}</div>
+        ${dom.items.map(item=>`
+          <div class="semantic-item">
+            <div class="semantic-poles">
+              <span class="semantic-pole-left">${item.left}</span>
+              <span class="semantic-pole-right">${item.right}</span>
+            </div>
+            <div class="semantic-scale" data-scaleid="${item.id}">
+              ${[1,2,3,4,5,6,7].map(n=>`<button class="scale-btn" data-scale="${item.id}" data-value="${n}">${n}</button>`).join("")}
+            </div>
+            <div class="scale-labels"><span>← Strongly Left</span><span>Neutral (4)</span><span>Strongly Right →</span></div>
+          </div>`).join("")}
+      </div>`).join("");
+  // re-apply selected
+  Object.entries(semanticAnswers).forEach(([id,val])=>{
+    document.querySelectorAll(`.scale-btn[data-scale="${id}"][data-value="${val}"]`).forEach(btn=>btn.classList.add("selected"));
+  });
+}
+
+function renderFeedback(){
+  document.getElementById("feedbackContainer").innerHTML = `
+    <div style="margin-bottom:28px;">
+      <div class="feedback-domain-label">📝 Your Experience</div>
+      ${FEEDBACK_ITEMS.map(item=>`
+        <div class="feedback-item">
+          <div class="feedback-poles">
+            <span class="feedback-pole-left">${item.left}</span>
+            <span class="feedback-pole-right">${item.right}</span>
+          </div>
+          <div class="feedback-scale" data-scaleid="${item.id}">
+            ${[1,2,3,4,5,6,7].map(n=>`<button class="scale-btn" data-scale="${item.id}" data-value="${n}">${n}</button>`).join("")}
+          </div>
+          <div class="scale-labels"><span>← Strongly Left</span><span>Neutral (4)</span><span>Strongly Right →</span></div>
+        </div>`).join("")}
+    </div>`;
+  // re-apply selected
+  Object.entries(feedbackAnswers).forEach(([id,val])=>{
+    document.querySelectorAll(`.scale-btn[data-scale="${id}"][data-value="${val}"]`).forEach(btn=>btn.classList.add("selected"));
+  });
+}
+
+function selectScale(itemId, value, type='semantic'){
+  if(type==='semantic') semanticAnswers[itemId]=value;
+  else feedbackAnswers[itemId]=value;
+  document.querySelectorAll(`.scale-btn[data-scale="${itemId}"]`).forEach(btn=>{
+    btn.classList.toggle("selected", btn.dataset.value == value);
+  });
+  const scaleDiv = document.querySelector(`.${type}-scale[data-scaleid="${itemId}"]`);
+  if(scaleDiv) scaleDiv.style.outline="";
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goTo(screen){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(`screen-${screen}`).classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+  const pct = {welcome:0, questions:33, semantic:66, feedback:83, results:100};
+  document.getElementById("progressBar").style.width = (pct[screen]||0)+"%";
+}
+
+function startTest(){
+  const ni=document.getElementById("studentName");
+  studentName=ni.value.trim(); studentClass=document.getElementById("studentClass").value.trim();
+  if(!studentName){ ni.classList.add("error"); document.getElementById("nameError").style.display="block"; ni.focus(); return; }
+  ni.classList.remove("error"); document.getElementById("nameError").style.display="none";
+  renderQuestions(); goTo("questions");
+}
+
+function submitQuestions(){
+  calculateScores();
+  renderSemantic();
+  goTo("semantic");
+}
+
+function submitSemantic(){
+  const allIds=SEMANTIC_ITEMS.flatMap(d=>d.items.map(i=>i.id));
+  const missing=allIds.filter(id=>!semanticAnswers[id]);
+  if(missing.length){
+    showToast("Please rate all 6 work style scales before continuing.","error");
+    missing.forEach(id=>{ const s=document.querySelector(`.semantic-scale[data-scaleid="${id}"]`); if(s){s.style.outline="2px solid #e74c3c";s.style.borderRadius="8px";} });
+    return;
+  }
+  renderFeedback();
+  goTo("feedback");
+}
+
+function submitFeedback(){
+  const allIds=FEEDBACK_ITEMS.map(i=>i.id);
+  const missing=allIds.filter(id=>!feedbackAnswers[id]);
+  if(missing.length){
+    showToast("Please rate all 6 feedback items before continuing.","error");
+    missing.forEach(id=>{ const s=document.querySelector(`.feedback-scale[data-scaleid="${id}"]`); if(s){s.style.outline="2px solid #e74c3c";s.style.borderRadius="8px";} });
+    return;
+  }
+  renderResults();
+  goTo("results");
+  submitToGoogleSheets();
+}
+
+// ============================================================
+// SCORING + FIELD MATCHING
+// ============================================================
+function calculateScores(){
+  riasecScores={R:0,I:0,A:0,S:0,E:0,C:0};
+  QUESTIONS.forEach(q=>{ if(answers[q.id]) riasecScores[q.domain]++; });
+  topCodes = Object.entries(riasecScores).sort((a,b)=>b[1]-a[1]).map(e=>e[0]).slice(0,3);
+
+  const broadMap={};
+  FIELD_DATA.forEach(row=>{
+    const rowCodes=[row.d1,row.d2,row.d3].filter(Boolean);
+    let rowScore = topCodes.filter(c=>rowCodes.includes(c)).length;
+    if(row.d1===topCodes[0]) rowScore += 0.5;
+    if(!broadMap[row.broad]) broadMap[row.broad]={maxScore:0, rows:[]};
+    broadMap[row.broad].maxScore = Math.max(broadMap[row.broad].maxScore, rowScore);
+    broadMap[row.broad].rows.push({...row, rowScore});
+  });
+
+  matchedBroadFields = Object.entries(broadMap)
+    .filter(([,v])=>v.maxScore>0)
+    .sort((a,b)=>b[1].maxScore-a[1].maxScore)
+    .map(([broad,v])=>{
+      const narrowGroups={};
+      v.rows.forEach(r=>{
+        if(!narrowGroups[r.narrow]) narrowGroups[r.narrow]=[];
+        narrowGroups[r.narrow].push({detailed:r.detailed, score:r.rowScore});
+      });
+      Object.keys(narrowGroups).forEach(k=> narrowGroups[k].sort((a,b)=>b.score-a.score));
+      return {broad, score:v.maxScore, narrowGroups};
+    });
+}
+
+// ============================================================
+// RENDER RESULTS
+// ============================================================
+function renderResults(){
+  document.getElementById("resultName").textContent = `${studentName}'s Results`;
+  const today=new Date().toLocaleDateString("en-PH",{year:"numeric",month:"long",day:"numeric"});
+  document.getElementById("resultMeta").textContent = studentClass?`${studentClass} · ${today}`:today;
+
+  document.getElementById("interestCodeDisplay").innerHTML = topCodes.map((code,i)=>`
+    <div class="code-block" style="background:${RIASEC_INFO[code].color};">
+      <span class="letter">${code}</span><span class="rank">#${i+1}</span>
+    </div>`).join("");
+  document.getElementById("codeLabel").textContent = `Interest Code: ${topCodes.join("")}`;
+
+  document.getElementById("scoresGrid").innerHTML = Object.entries(RIASEC_INFO).map(([code,info])=>{
+    const score=riasecScores[code]||0, max=MAX_SCORES[code];
+    const pct=Math.round((score/max)*100), isTop=topCodes.includes(code);
+    return `<div class="score-card" style="${isTop?`border:2px solid ${info.color};`:""}">
+      <div class="s-letter" style="color:${info.color};">${code}</div>
+      <div class="s-name">${info.name}</div>
+      <div class="s-bar-wrap"><div class="s-bar" style="width:${pct}%;background:${info.color};"></div></div>
+      <div class="s-score" style="color:${info.color};">${score}<span style="font-size:.7rem;color:var(--text-muted);font-weight:400;">/${max}</span></div>
+    </div>`;
+  }).join("");
+
+  const starStr = s => s>=2.5 ? "★★★" : "★★☆";
+  const matchStr = s => s>=2.5 ? "Top Match" : "Good Match";
+  const qualifiedFields = matchedBroadFields.filter(bf => bf.score >= 1.5);
+  document.getElementById("broadFieldContainer").innerHTML = qualifiedFields.map(bf=>{
+    const rankCls = bf.score>=2.5 ? "rank1" : "rank2";
+    const narrowHTML = Object.entries(bf.narrowGroups).map(([narrow,fields])=>`
+      <div class="narrow-section">
+        <div class="narrow-label">${narrow}</div>
+        <div class="detailed-tags">
+          ${fields.map(f=>`<span class="d-tag${f.score>=2?" highlight":""}">${f.detailed}</span>`).join("")}
+        </div>
+      </div>`).join("");
+    return `<div class="broad-field-card ${rankCls}">
+      <div class="bf-header">
+        <h4>${bf.broad}${bf.score>=2.5?' <span class="top-badge">Top Match</span>':''}</h4>
+        <span class="match-stars">${starStr(bf.score)} ${matchStr(bf.score)}</span>
+      </div>
+      ${narrowHTML}
+    </div>`;
+  }).join("") || `<p style="color:var(--text-muted);font-size:.9rem;">No strong field matches found. Try selecting more statements.</p>`;
+
+  const allSd=SEMANTIC_ITEMS.flatMap(d=>d.items);
+  document.getElementById("semanticResultsGrid").innerHTML = allSd.map(item=>{
+    const val=semanticAnswers[item.id]||4;
+    const pct=((val-1)/6)*100;
+    const label=val<=2?`Strongly: ${item.left}`:val>=6?`Strongly: ${item.right}`:val===4?"Balanced":(val<4?`Leaning left`:`Leaning right`);
+    return `<div class="sd-result-item">
+      <div class="sd-label">${label} <span style="color:var(--text-muted);font-weight:400;font-size:.75rem;">(${val}/7)</span></div>
+      <div class="sd-slider-display"><div class="sd-marker" style="left:${pct}%;"></div></div>
+      <div class="sd-poles">
+        <span>${item.left.split(" ").slice(0,3).join(" ")}</span>
+        <span>${item.right.split(" ").slice(0,3).join(" ")}</span>
+      </div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("riasecDescriptions").innerHTML = topCodes.map(code=>{
+    const info=RIASEC_INFO[code];
+    return `<div style="display:flex;gap:14px;padding:16px;background:var(--bg);border-radius:12px;margin-bottom:12px;border-left:4px solid ${info.color};">
+      <div style="font-size:1.6rem;">${info.emoji}</div>
+      <div>
+        <div style="font-weight:700;color:${info.color};margin-bottom:4px;">${code} — ${info.name}</div>
+        <div style="font-size:.88rem;line-height:1.65;color:var(--text-muted);">${info.desc}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ============================================================
+// GOOGLE SHEETS SUBMISSION
+// ============================================================
+async function submitToGoogleSheets(){
+  const statusEl=document.getElementById("submitStatus");
+  statusEl.textContent="Submitting results to database…";
+  const allSd=SEMANTIC_ITEMS.flatMap(d=>d.items);
+  const topBroads=matchedBroadFields.filter(b=>b.score>=2.5).map(b=>b.broad).join(", ")||matchedBroadFields[0]?.broad||"";
+  const topDetailed=matchedBroadFields
+    .filter(b=>b.score>=2.5)
+    .flatMap(b=>Object.values(b.narrowGroups).flat().filter(f=>f.score>=2).map(f=>f.detailed))
+    .join(", ");
+  const narrowSummary=matchedBroadFields
+    .filter(b=>b.score>=2.5)
+    .flatMap(b=>Object.keys(b.narrowGroups))
+    .join(", ");
+
+  const fbObj = {};
+  FEEDBACK_ITEMS.forEach(i=> fbObj[i.id] = feedbackAnswers[i.id] || 0);
+  const fbLabels = {};
+  FEEDBACK_ITEMS.forEach(i=> fbLabels[`${i.id}_label`] = `${i.left} [${feedbackAnswers[i.id]||0}] ${i.right}`);
+
+  const payload={
+    timestamp:      new Date().toISOString(),
+    name:           studentName,
+    studentClass,
+    scores:         {R:riasecScores.R,I:riasecScores.I,A:riasecScores.A,S:riasecScores.S,E:riasecScores.E,C:riasecScores.C},
+    interestCode:   topCodes.join(""),
+    allBroadFields: matchedBroadFields.map(b=>b.broad).join(", "),
+    topBroadFields: topBroads,
+    topNarrowFields: narrowSummary,
+    topDetailedFields: topDetailed,
+    semantic:       Object.fromEntries(allSd.map(i=>[i.id, semanticAnswers[i.id]||0])),
+    semanticLabels: Object.fromEntries(allSd.map(i=>[`${i.id}_label`, `${i.left} [${semanticAnswers[i.id]}] ${i.right}`])),
+    feedback:       fbObj,
+    feedbackLabels: fbLabels
+  };
+
+  try{
+    document.getElementById("loader").classList.add("show");
+    await fetch(APPS_SCRIPT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload),mode:"no-cors"});
+    showToast("✅ Results saved successfully!","success");
+    statusEl.textContent="✅ Results submitted to the teacher's database.";
+  } catch(err){
+    showToast("⚠️ Could not reach database. Results are still viewable.","error");
+    statusEl.textContent="⚠️ Submission failed — please inform your teacher.";
+  } finally{
+    document.getElementById("loader").classList.remove("show");
+  }
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function printResults(){
+  // Build a compact, purpose-built 2-page print document.
+  // window.print() is blocked in Google Sites iframes, so we open a new tab.
+
+  const today = new Date().toLocaleDateString("en-MY", {year:"numeric", month:"long", day:"numeric"});
+  const metaLine = studentClass ? `${studentClass} &nbsp;·&nbsp; ${today}` : today;
+
+  // ── Score bars ──
+  const scoreRowsHTML = Object.entries(RIASEC_INFO).map(([code, info]) => {
+    const score = riasecScores[code] || 0;
+    const max   = MAX_SCORES[code];
+    const pct   = Math.round((score / max) * 100);
+    const isTop = topCodes.includes(code);
+    const rank  = topCodes.indexOf(code);
+    return `<div class="pr-score-row${isTop ? ' top' : ''}">
+      <div class="pr-score-label">
+        <span class="pr-code" style="color:${info.color}">${code}</span>
+        <span class="pr-name">${info.name}</span>
+        ${isTop ? `<span class="pr-rank" style="background:${info.color}">#${rank+1}</span>` : ''}
+      </div>
+      <div class="pr-bar-wrap"><div class="pr-bar" style="width:${pct}%;background:${info.color}"></div></div>
+      <div class="pr-score-val" style="color:${info.color}">${score}/${max}</div>
+    </div>`;
+  }).join('');
+
+  // ── Qualified fields (Good + Top Match only) ──
+  const qualifiedFields = matchedBroadFields.filter(b => b.score >= 1.5);
+  const fieldsHTML = qualifiedFields.map(bf => {
+    const isTop = bf.score >= 2.5;
+    const detailedItems = Object.values(bf.narrowGroups).flat();
+    const highlighted  = detailedItems.filter(f => f.score >= 2).map(f => f.detailed);
+    const others       = detailedItems.filter(f => f.score < 2).map(f => f.detailed);
+    const allTags = [
+      ...highlighted.map(d => `<span class="pr-tag hi">${d}</span>`),
+      ...others.map(d => `<span class="pr-tag">${d}</span>`)
+    ].join('');
+    return `<div class="pr-field${isTop ? ' top' : ''}">
+      <div class="pr-field-hd">
+        <strong>${bf.broad}</strong>
+        <span class="pr-badge${isTop ? ' top' : ''}">${isTop ? '★★★ Top Match' : '★★☆ Good Match'}</span>
+      </div>
+      <div class="pr-tags">${allTags}</div>
+    </div>`;
+  }).join('');
+
+  // ── Work style bars ──
+  const allSd = SEMANTIC_ITEMS.flatMap(d => d.items);
+  const workStyleHTML = allSd.map(item => {
+    const val = semanticAnswers[item.id] || 4;
+    const pct = ((val - 1) / 6) * 100;
+    return `<div class="pr-ws-row">
+      <div class="pr-ws-poles">
+        <span>${item.left}</span><span>${item.right}</span>
+      </div>
+      <div class="pr-ws-track">
+        <div class="pr-ws-fill" style="width:${pct}%"></div>
+        <div class="pr-ws-dot" style="left:${pct}%"></div>
+      </div>
+      <div class="pr-ws-val">${val}/7</div>
+    </div>`;
+  }).join('');
+
+  // ── RIASEC descriptions (compact) ──
+  const descHTML = topCodes.map(code => {
+    const info = RIASEC_INFO[code];
+    // Trim to first sentence only for print conciseness
+    const shortDesc = info.desc.split('.')[0] + '.';
+    return `<div class="pr-desc" style="border-left:3px solid ${info.color}">
+      <span class="pr-desc-code" style="color:${info.color}">${info.emoji} ${code} — ${info.name}</span>
+      <span class="pr-desc-text">${shortDesc}</span>
+    </div>`;
+  }).join('');
+
+  const printHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RIASEC Results – ${studentName}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;font-size:10pt;color:#152232;background:white;}
+
+  /* ── PAGE LAYOUT ── */
+  @page{size:A4;margin:14mm 16mm;}
+  .page{page-break-after:always;}
+  .page:last-child{page-break-after:auto;}
+
+  /* ── HEADER ── */
+  .pr-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2.5px solid #0d3b4f;padding-bottom:8px;margin-bottom:14px;}
+  .pr-header-left{display:flex;align-items:center;gap:10px;}
+  .pr-logo{width:32px;height:32px;background:#0d3b4f;border-radius:7px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:15px;}
+  .pr-title{font-family:'Cormorant Garamond',serif;font-size:14pt;font-weight:700;color:#0d3b4f;}
+  .pr-sub{font-size:8pt;color:#5a7080;}
+  .pr-meta{text-align:right;font-size:8.5pt;color:#5a7080;line-height:1.5;}
+  .pr-meta strong{color:#0d3b4f;}
+
+  /* ── HERO BAND ── */
+  .pr-hero{background:linear-gradient(135deg,#0d3b4f,#155e75);color:white;border-radius:10px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .pr-hero-name{font-family:'Cormorant Garamond',serif;font-size:17pt;font-weight:700;line-height:1.1;}
+  .pr-hero-code{display:flex;gap:8px;align-items:center;}
+  .pr-code-block{width:48px;height:48px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;}
+  .pr-code-block .lt{font-family:'Cormorant Garamond',serif;font-size:1.5rem;line-height:1;font-weight:700;}
+  .pr-code-block .rk{font-size:7pt;opacity:.85;text-transform:uppercase;letter-spacing:.04em;}
+  .pr-code-label{font-size:8pt;opacity:.8;margin-top:4px;text-align:center;}
+
+  /* ── TWO COLUMNS ── */
+  .pr-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .pr-col-full{margin-bottom:12px;}
+
+  /* ── SECTION HEADER ── */
+  .pr-section{font-family:'Cormorant Garamond',serif;font-size:11pt;font-weight:700;color:#0d3b4f;border-bottom:1px solid #d9e4ea;padding-bottom:4px;margin-bottom:8px;}
+
+  /* ── SCORES ── */
+  .pr-score-row{display:grid;grid-template-columns:130px 1fr 36px;align-items:center;gap:6px;margin-bottom:5px;}
+  .pr-score-row.top .pr-score-label{font-weight:600;}
+  .pr-score-label{display:flex;align-items:center;gap:5px;font-size:9pt;}
+  .pr-code{font-family:'Cormorant Garamond',serif;font-size:12pt;font-weight:700;width:16px;}
+  .pr-name{font-size:8.5pt;color:#5a7080;}
+  .pr-rank{font-size:7pt;font-weight:700;color:white;padding:1px 5px;border-radius:8px;line-height:1.4;}
+  .pr-bar-wrap{height:7px;background:#e8eef2;border-radius:4px;overflow:hidden;}
+  .pr-bar{height:100%;border-radius:4px;}
+  .pr-score-val{font-size:8.5pt;font-weight:600;text-align:right;color:#5a7080;}
+
+  /* ── FIELDS ── */
+  .pr-field{border-left:3px solid #d9e4ea;padding:7px 10px;margin-bottom:7px;border-radius:0 6px 6px 0;background:#f8fafc;}
+  .pr-field.top{border-left-color:#e8915a;background:#fef6f0;}
+  .pr-field-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+  .pr-field-hd strong{font-size:9pt;color:#0d3b4f;}
+  .pr-badge{font-size:7.5pt;font-weight:600;color:#5a7080;background:#e8eef2;padding:2px 7px;border-radius:8px;}
+  .pr-badge.top{background:#fde8d8;color:#c97440;}
+  .pr-tags{display:flex;flex-wrap:wrap;gap:4px;}
+  .pr-tag{font-size:7.5pt;padding:2px 8px;border-radius:10px;border:1px solid #d9e4ea;background:white;color:#152232;}
+  .pr-tag.hi{background:#e8f0f5;border-color:#1e7a96;color:#0d3b4f;font-weight:600;}
+
+  /* ── WORK STYLE ── */
+  .pr-ws-row{margin-bottom:8px;}
+  .pr-ws-poles{display:flex;justify-content:space-between;font-size:7.5pt;color:#5a7080;margin-bottom:3px;}
+  .pr-ws-track{position:relative;height:7px;background:#e8eef2;border-radius:4px;margin-bottom:1px;}
+  .pr-ws-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(to right,#1B4F72,#6C3483);border-radius:4px;}
+  .pr-ws-dot{position:absolute;top:-3px;width:13px;height:13px;border-radius:50%;background:#0d3b4f;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,.25);transform:translateX(-50%);}
+  .pr-ws-val{font-size:7.5pt;color:#5a7080;text-align:right;}
+
+  /* ── DESCRIPTIONS ── */
+  .pr-desc{padding:6px 10px;border-radius:0 6px 6px 0;background:#f8fafc;margin-bottom:5px;display:flex;flex-direction:column;gap:2px;}
+  .pr-desc-code{font-size:9pt;font-weight:600;}
+  .pr-desc-text{font-size:8pt;color:#5a7080;line-height:1.5;}
+
+  /* ── MOHE FOOTER ── */
+  .pr-mohe{border:1.5px solid #e8915a;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px;margin-top:10px;}
+  .pr-mohe-text{font-size:8.5pt;color:#0d3b4f;line-height:1.5;}
+  .pr-mohe-text strong{color:#c97440;}
+  .pr-mohe-url{font-size:8pt;color:#1e7a96;word-break:break-all;}
+
+  /* ── PAGE 2 LABEL ── */
+  .pr-pg2-header{display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid #d9e4ea;padding-bottom:6px;margin-bottom:14px;}
+  .pr-pg2-title{font-family:'Cormorant Garamond',serif;font-size:12pt;font-weight:700;color:#0d3b4f;}
+  .pr-pg2-name{font-size:8.5pt;color:#5a7080;}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ PAGE 1 ══════════════ -->
+<div class="page">
+
+  <!-- Header -->
+  <div class="pr-header">
+    <div class="pr-header-left">
+      <div class="pr-logo">R</div>
+      <div>
+        <div class="pr-title">KMSw RIASEC Assessment</div>
+        <div class="pr-sub">Career Pathway Results</div>
+      </div>
+    </div>
+    <div class="pr-meta">
+      <strong>${studentName}</strong><br>
+      ${metaLine}
+    </div>
+  </div>
+
+  <!-- Hero band -->
+  <div class="pr-hero">
+    <div>
+      <div class="pr-hero-name">${studentName}</div>
+      <div style="font-size:9pt;opacity:.8;margin-top:3px;">Interest Code: <strong>${topCodes.join('')}</strong></div>
+    </div>
+    <div style="text-align:center;">
+      <div class="pr-hero-code">
+        ${topCodes.map((code,i)=>`<div class="pr-code-block" style="background:${RIASEC_INFO[code].color}">
+          <span class="lt">${code}</span><span class="rk">#${i+1}</span>
+        </div>`).join('')}
+      </div>
+      <div class="pr-code-label">Top 3 RIASEC Domains</div>
+    </div>
+  </div>
+
+  <!-- Two columns: Scores | Fields -->
+  <div class="pr-cols">
+    <!-- Left: RIASEC Scores -->
+    <div>
+      <div class="pr-section">RIASEC Scores</div>
+      ${scoreRowsHTML}
+    </div>
+
+    <!-- Right: Recommended Fields -->
+    <div>
+      <div class="pr-section">Recommended Career Fields</div>
+      ${fieldsHTML || '<p style="font-size:8.5pt;color:#5a7080;">No strong matches found.</p>'}
+    </div>
+  </div>
+
+</div><!-- end page 1 -->
+
+<!-- ══════════════ PAGE 2 ══════════════ -->
+<div class="page">
+
+  <div class="pr-pg2-header">
+    <div class="pr-pg2-title">Work Style &amp; Interest Profile</div>
+    <div class="pr-pg2-name">${studentName} &nbsp;·&nbsp; ${today}</div>
+  </div>
+
+  <!-- Work Style -->
+  <div class="pr-col-full">
+    <div class="pr-section">Work Style Preferences</div>
+    ${workStyleHTML}
+  </div>
+
+  <!-- About Top Interests -->
+  <div class="pr-col-full">
+    <div class="pr-section">About Your Top Interests</div>
+    ${descHTML}
+  </div>
+
+  <!-- MOHE callout -->
+  <div class="pr-mohe">
+    <div style="font-size:1.5rem;">🎓</div>
+    <div>
+      <div class="pr-mohe-text">
+        <strong>Next step:</strong> Go to the MOHE course directory → choose <strong>'Bidang'</strong> → enter a 4-digit field code (e.g., 0111) to explore programmes.
+      </div>
+      <div class="pr-mohe-url">https://online.mohe.gov.my/epanduan/ProgramPengajian/kategoriCalon/N?jenprog=stpm</div>
+    </div>
+  </div>
+
+</div><!-- end page 2 -->
+
+<script>
+  window.onload = function(){ window.print(); };
+<\/script>
+</body>
+</html>`;
+
+  const printWin = window.open('', '_blank');
+  if (printWin) {
+    printWin.document.write(printHTML);
+    printWin.document.close();
+  } else {
+    showToast('⚠️ Pop-up blocked. Please allow pop-ups for this site, then try again.', 'error');
+  }
+}
+
+function restartTest(){
+  // window.confirm() is blocked in Google Sites iframes — use custom modal instead
+  document.getElementById('restartModal').classList.add('show');
+}
+
+function doRestart(){
+  document.getElementById('restartModal').classList.remove('show');
+  answers={}; semanticAnswers={}; feedbackAnswers={}; riasecScores={}; topCodes=[]; matchedBroadFields=[];
+  document.getElementById("studentName").value=""; document.getElementById("studentClass").value="";
+  document.getElementById("selectedCount").textContent="0";
+  goTo("welcome");
+}
+
+function showToast(msg, type=""){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove("show"), 4000);
+}
+
+// ============================================================
+// EVENT LISTENER SETUP
+// ============================================================
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("startTestBtn").addEventListener("click", startTest);
+  document.getElementById("backFromQuestionsBtn").addEventListener("click", ()=>goTo("welcome"));
+  document.getElementById("submitQuestionsBtn").addEventListener("click", submitQuestions);
+  document.getElementById("backFromSemanticBtn").addEventListener("click", ()=>goTo("questions"));
+  document.getElementById("submitSemanticBtn").addEventListener("click", submitSemantic);
+  document.getElementById("backFromFeedbackBtn").addEventListener("click", ()=>goTo("semantic"));
+  document.getElementById("submitFeedbackBtn").addEventListener("click", submitFeedback);
+  document.getElementById("restartBtn").addEventListener("click", restartTest);
+  document.getElementById("printBtn").addEventListener("click", printResults);
+
+  // Custom modal buttons
+  document.getElementById("modalCancelBtn").addEventListener("click", ()=>{
+    document.getElementById("restartModal").classList.remove("show");
+  });
+  document.getElementById("modalConfirmBtn").addEventListener("click", doRestart);
+  // Close modal if backdrop clicked
+  document.getElementById("restartModal").addEventListener("click", (e)=>{
+    if(e.target === document.getElementById("restartModal"))
+      document.getElementById("restartModal").classList.remove("show");
+  });
+
+  document.getElementById("questionsContainer").addEventListener("click", (e)=>{
+    const questionItem = e.target.closest(".question-item");
+    if(questionItem) {
+      const qid = questionItem.dataset.qid;
+      if(qid) toggleQ(parseInt(qid));
+    }
+  });
+
+  document.getElementById("semanticContainer").addEventListener("click", (e)=>{
+    const btn = e.target.closest(".scale-btn");
+    if(btn && btn.dataset.scale) {
+      const scaleId = btn.dataset.scale;
+      const value = parseInt(btn.dataset.value);
+      if(!isNaN(value)) selectScale(scaleId, value, 'semantic');
+    }
+  });
+
+  document.getElementById("feedbackContainer").addEventListener("click", (e)=>{
+    const btn = e.target.closest(".scale-btn");
+    if(btn && btn.dataset.scale) {
+      const scaleId = btn.dataset.scale;
+      const value = parseInt(btn.dataset.value);
+      if(!isNaN(value)) selectScale(scaleId, value, 'feedback');
+    }
+  });
+
+  document.getElementById("studentName").addEventListener("input", function(){
+    this.classList.remove("error");
+    document.getElementById("nameError").style.display="none";
+  });
+});
+</script>
+</body>
+</html>

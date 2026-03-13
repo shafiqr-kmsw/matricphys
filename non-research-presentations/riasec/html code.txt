@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RIASEC Career Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background: #f5f9ff;
+            color: #333;
+        }
+        h1, h2 {
+            color: #1e3c72;
+        }
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .name-field {
+            margin: 15px 0;
+            font-size: 1.2em;
+        }
+        .name-field input {
+            padding: 8px;
+            width: 250px;
+            font-size: 1em;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+        }
+        .statements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 20px 0;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .statement-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+        .statement-item input {
+            transform: scale(1.2);
+            margin-right: 8px;
+        }
+        button {
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1em;
+            border-radius: 40px;
+            cursor: pointer;
+            margin: 10px 5px 0 0;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #2e4e8f;
+        }
+        .results-area {
+            background: #e6f0fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1em;
+        }
+        .field-list {
+            margin-top: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .field-item {
+            border-bottom: 1px solid #ccc;
+            padding: 6px 0;
+        }
+        .feedback-item {
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-left: 10px;
+        }
+        .radio-group label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8em;
+        }
+        .print-only {
+            display: none;
+        }
+        @media print {
+            .no-print { display: none; }
+            .print-only { display: block; }
+            body { background: white; }
+        }
+        .status {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+        }
+        .score-badge {
+            background: #1e3c72;
+            color: white;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧭 RIASEC Career Explorer</h1>
+    <div class="section">
+        <div class="name-field">
+            <label><strong>Your name:</strong></label>
+            <input type="text" id="studentName" placeholder="e.g., Alex">
+        </div>
+    </div>
+
+    <!-- RIASEC Statements (single list) -->
+    <div class="section">
+        <h2>📋 Check all statements that describe you</h2>
+        <div class="statements-list" id="statementsContainer"></div>
+        <button id="calcBtn">🔍 Calculate my RIASEC code</button>
+    </div>
+
+    <!-- Results -->
+    <div class="section" id="resultsSection" style="display:none;">
+        <h2>📊 Your Results</h2>
+        <div class="results-area" id="resultsArea"></div>
+        <div id="fieldMapping"></div>
+    </div>
+
+    <!-- Feedback: Semantic Differential -->
+    <div class="section" id="feedbackSection" style="display:none;">
+        <h2>⭐ Your feedback about this tool</h2>
+        <p>For each pair, select the circle that best matches your feeling (1 = left, 7 = right).</p>
+        <div id="feedbackItems"></div>
+    </div>
+
+    <!-- Submit & Print -->
+    <div class="section" id="submitSection" style="display:none;">
+        <button id="submitBtn">📤 Submit & Print Results (PDF)</button>
+        <p id="submitStatus"></p>
+    </div>
+
+    <script>
+        // ---------- ALL RIASEC STATEMENTS (your 42 items, now with "I like to...") ----------
+        const baseStatements = [
+            // Realistic (R) – 7 items
+            { text: "I like to repair electrical or mechanical equipment", type: "R" },
+            { text: "I like to build or assemble things with tools", type: "R" },
+            { text: "I like to operate machines or heavy equipment", type: "R" },
+            { text: "I like to work outdoors (construction, agriculture, etc.)", type: "R" },
+            { text: "I like to fix mechanical problems", type: "R" },
+            { text: "I like to install equipment or machinery", type: "R" },
+            { text: "I like to work with engines, tools, or physical materials", type: "R" },
+            // Investigative (I) – 7 items
+            { text: "I like to conduct scientific experiments", type: "I" },
+            { text: "I like to solve mathematical or technical problems", type: "I" },
+            { text: "I like to study scientific theories or concepts", type: "I" },
+            { text: "I like to analyze data to understand patterns", type: "I" },
+            { text: "I like to work in a laboratory", type: "I" },
+            { text: "I like to investigate how natural phenomena occur", type: "I" },
+            { text: "I like to develop scientific explanations for problems", type: "I" },
+            // Artistic (A) – 7 items
+            { text: "I like to write stories, poems, or creative texts", type: "A" },
+            { text: "I like to create artwork such as drawings or paintings", type: "A" },
+            { text: "I like to perform music, acting, or dance", type: "A" },
+            { text: "I like to design graphics, posters, or visual materials", type: "A" },
+            { text: "I like to express ideas creatively", type: "A" },
+            { text: "I like to work in creative media (film, design, writing)", type: "A" },
+            { text: "I like to develop original artistic projects", type: "A" },
+            // Social (S) – 7 items
+            { text: "I like to teach or tutor others", type: "S" },
+            { text: "I like to help people solve personal problems", type: "S" },
+            { text: "I like to provide guidance or counseling", type: "S" },
+            { text: "I like to work with children or students", type: "S" },
+            { text: "I like to support people with health or learning needs", type: "S" },
+            { text: "I like to lead educational or community activities", type: "S" },
+            { text: "I like to care for others’ wellbeing", type: "S" },
+            // Enterprising (E) – 7 items
+            { text: "I like to lead a team or manage projects", type: "E" },
+            { text: "I like to persuade others to adopt an idea or product", type: "E" },
+            { text: "I like to sell products or services", type: "E" },
+            { text: "I like to start or manage a business", type: "E" },
+            { text: "I like to organize campaigns or promotions", type: "E" },
+            { text: "I like to negotiate deals or agreements", type: "E" },
+            { text: "I like to take leadership roles in organizations", type: "E" },
+            // Conventional (C) – 7 items
+            { text: "I like to organize files, records, or data", type: "C" },
+            { text: "I like to work with spreadsheets or financial records", type: "C" },
+            { text: "I like to follow structured procedures", type: "C" },
+            { text: "I like to perform clerical or administrative tasks", type: "C" },
+            { text: "I like to manage schedules, documents, or reports", type: "C" },
+            { text: "I like to ensure accuracy in detailed work", type: "C" },
+            { text: "I like to maintain orderly systems or databases", type: "C" }
+        ];
+
+        // Function to shuffle an array (Fisher-Yates algorithm)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Create a randomized copy of the statements
+        let statements = shuffleArray([...baseStatements]);
+
+        // Render statements as a simple list in the randomized order
+        function renderStatements() {
+            const container = document.getElementById('statementsContainer');
+            container.innerHTML = '';
+            statements.forEach((stmt, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'statement-item';
+                itemDiv.innerHTML = `
+                    <input type="checkbox" id="stmt_${index}" class="riasec-chk" data-type="${stmt.type}">
+                    <label for="stmt_${index}">${stmt.text}</label>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+        renderStatements();
+
+        // ---------- FIELD MAPPING DATA (from riasec-field.xlsx - all rows included) ----------
+        const fieldData = [
+            {first:"S", second:"E", third:"A", broad:"01 Education", narrow:"011 Education", detailed:"0111 Education science"},
+            {first:"S", second:"E", third:"A", broad:"01 Education", narrow:"011 Education", detailed:"0112 Training for pre-school teachers"},
+            {first:"S", second:"E", third:"A", broad:"01 Education", narrow:"011 Education", detailed:"0114 Educator training with subject specialisation"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"021 Arts", detailed:"0210 Arts not further defined"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"021 Arts", detailed:"0211 Audio-visual techniques and media production"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"021 Arts", detailed:"0212 Fashion, interior and industrial design"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"021 Arts", detailed:"0213 Fine arts"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"021 Arts", detailed:"0214 Craft skills"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"021 Arts", detailed:"0215 Music and performing arts"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"022 Humanities (except languages)", detailed:"0220 Humanities (except languages) not further defined"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"022 Humanities (except languages)", detailed:"0221 Religion and theology"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"022 Humanities (except languages)", detailed:"0222 History and archaeology"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"023 Languages", detailed:"0230 Languages not further defined"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"023 Languages", detailed:"0231 Language acquisition"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"023 Languages", detailed:"0232 Literature and linguistics"},
+            {first:"A", second:"S", third:"I", broad:"02 Arts and humanities", narrow:"023 Languages", detailed:"0233 National language"},
+            {first:"I", second:"S", third:"", broad:"03 Social sciences, journalism and information", narrow:"031 Social and behavioural sciences", detailed:"0310 Social and behavioural sciences not further defined"},
+            {first:"I", second:"S", third:"", broad:"03 Social sciences, journalism and information", narrow:"031 Social and behavioural sciences", detailed:"0311 Economics"},
+            {first:"I", second:"S", third:"", broad:"03 Social sciences, journalism and information", narrow:"031 Social and behavioural sciences", detailed:"0312 Political sciences and public policy"},
+            {first:"I", second:"S", third:"", broad:"03 Social sciences, journalism and information", narrow:"031 Social and behavioural sciences", detailed:"0313 Psychology"},
+            {first:"I", second:"S", third:"", broad:"03 Social sciences, journalism and information", narrow:"031 Social and behavioural sciences", detailed:"0314 Sociology and cultural studies"},
+            {first:"I", second:"S", third:"", broad:"03 Social sciences, journalism and information", narrow:"031 Social and behavioural sciences", detailed:"0319 Social and behavioural sciences not elsewhere classified"},
+            {first:"I", second:"S", third:"", broad:"03 Social sciences, journalism and information", narrow:"032 Journalism, information and communication", detailed:"0320 Journalism, information and communication not further defined"},
+            {first:"I", second:"S", third:"", broad:"03 Social sciences, journalism and information", narrow:"032 Journalism, information and communication", detailed:"0322 Library, information and archival studies"},
+            {first:"I", second:"S", third:"", broad:"03 Social sciences, journalism and information", narrow:"032 Journalism, information and communication", detailed:"0323 Media and communication"},
+            {first:"E", second:"C", third:"S", broad:"04 Business, administration and law", narrow:"041 Business and management", detailed:"0410 Business and administration not further defined"},
+            {first:"E", second:"C", third:"S", broad:"04 Business, administration and law", narrow:"041 Business and management", detailed:"0411 Accounting, auditing and taxation"},
+            {first:"E", second:"C", third:"S", broad:"04 Business, administration and law", narrow:"041 Business and management", detailed:"0412 Finance, banking and insurance"},
+            {first:"E", second:"C", third:"S", broad:"04 Business, administration and law", narrow:"041 Business and management", detailed:"0414 Management and administration"},
+            {first:"E", second:"C", third:"S", broad:"04 Business, administration and law", narrow:"041 Business and management", detailed:"0415 Marketing and advertising"},
+            {first:"E", second:"C", third:"S", broad:"04 Business, administration and law", narrow:"041 Business and management", detailed:"0417 Work skills"},
+            {first:"E", second:"C", third:"S", broad:"04 Business, administration and law", narrow:"042 Law", detailed:"0421 Law"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"051 Biological and related sciences", detailed:"0510 Biological and related sciences not further defined"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"051 Biological and related sciences", detailed:"0511 Biology"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"051 Biological and related sciences", detailed:"0512 Biochemistry"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"051 Biological and related sciences", detailed:"0519 Biological and related sciences not elsewhere classified"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"052 Environment", detailed:"0520 Environment not further defined"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"052 Environment", detailed:"0521 Environmental sciences"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"052 Environment", detailed:"0522 Natural environments and wildlife"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"053 Physical sciences", detailed:"0530 Physical sciences not further defined"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"053 Physical sciences", detailed:"0531 Chemistry"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"053 Physical sciences", detailed:"0532 Earth sciences"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"053 Physical sciences", detailed:"0533 Physics"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"053 Physical sciences", detailed:"0539 Physical sciences not elsewhere classified"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"054 Mathematics and statistics", detailed:"0540 Mathematics and statistics not further defined"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"054 Mathematics and statistics", detailed:"0541 Mathematics"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"054 Mathematics and statistics", detailed:"0542 Statistics"},
+            {first:"I", second:"R", third:"C", broad:"05 Natural sciences, mathematics and statistics", narrow:"058 Inter-disciplinary programmes and qualifications involving natural sciences, mathematics and statistics", detailed:"0588 Inter-disciplinary programmes and qualifications involving natural sciences, mathematics and statistics"},
+            {first:"I", second:"R", third:"C", broad:"06 Information and communication technologies", narrow:"061 Information and communication technologies", detailed:"0610 Information and communication technologies (ICTs) not further defined"},
+            {first:"I", second:"R", third:"C", broad:"06 Information and communication technologies", narrow:"061 Information and communication technologies", detailed:"0612 Software engineering"},
+            {first:"I", second:"R", third:"C", broad:"06 Information and communication technologies", narrow:"061 Information and communication technologies", detailed:"0613 Computer science"},
+            {first:"I", second:"R", third:"C", broad:"06 Information and communication technologies", narrow:"061 Information and communication technologies", detailed:"0614 Computer use"},
+            {first:"I", second:"R", third:"C", broad:"06 Information and communication technologies", narrow:"068 Inter-disciplinary programmes and qualifications involving information and communication technologies", detailed:"0688 Inter-disciplinary programmes and qualifications involving information and communication technologies"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"071 Engineering and engineering trades", detailed:"0710 Engineering and engineering trades not further defined"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"071 Engineering and engineering trades", detailed:"0711 Chemical engineering and processes"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"071 Engineering and engineering trades", detailed:"0712 Electricity and energy"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"071 Engineering and engineering trades", detailed:"0713 Electronics and automation"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"071 Engineering and engineering trades", detailed:"0714 Mechanics and metal trades"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"071 Engineering and engineering trades", detailed:"0715 Motor vehicles, ships and aircraft"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"071 Engineering and engineering trades", detailed:"0716 Civil engineering"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"071 Engineering and engineering trades", detailed:"0717 Environmental protection technology"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"072 Manufacturing and processing", detailed:"0720 Manufacturing and processing not further defined"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"072 Manufacturing and processing", detailed:"0721 Food processing"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"072 Manufacturing and processing", detailed:"0722 Materials (glass, paper, plastic and wood)"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"072 Manufacturing and processing", detailed:"0723 Textiles (clothes, footwear and leather)"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"072 Manufacturing and processing", detailed:"0724 Mining and extraction"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"072 Manufacturing and processing", detailed:"0729 Manufacturing and processing not elsewhere classified"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"073 Architecture, surveying and town planning", detailed:"0730 Architecture, surveying and town planning not further defined"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"073 Architecture, surveying and town planning", detailed:"0733 Building and construction"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"073 Architecture, surveying and town planning", detailed:"0734 Surveying"},
+            {first:"R", second:"I", third:"C", broad:"07 Engineering, manufacturing and construction", narrow:"074 Engineering technology", detailed:"0741 Engineering technology"},
+            {first:"R", second:"I", third:"", broad:"08 Agriculture, forestry, fisheries and veterinary", narrow:"080 Agriculture, forestry, fisheries and veterinary not further defined", detailed:"0800 Agriculture, forestry, fisheries and veterinary not further defined"},
+            {first:"R", second:"I", third:"", broad:"08 Agriculture, forestry, fisheries and veterinary", narrow:"081 Agriculture", detailed:"0811 Crop and livestock production"},
+            {first:"R", second:"I", third:"", broad:"08 Agriculture, forestry, fisheries and veterinary", narrow:"081 Agriculture", detailed:"0812 Horticulture"},
+            {first:"R", second:"I", third:"", broad:"08 Agriculture, forestry, fisheries and veterinary", narrow:"082 Forestry", detailed:"0821 Forestry"},
+            {first:"R", second:"I", third:"", broad:"08 Agriculture, forestry, fisheries and veterinary", narrow:"083 Fisheries", detailed:"0831 Fisheries"},
+            {first:"R", second:"I", third:"", broad:"08 Agriculture, forestry, fisheries and veterinary", narrow:"084 Veterinary", detailed:"0841 Veterinary"},
+            {first:"S", second:"I", third:"R", broad:"09 Health and welfare", narrow:"091 Health", detailed:"0911 Dental studies"},
+            {first:"S", second:"I", third:"R", broad:"09 Health and welfare", narrow:"091 Health", detailed:"0912 Medicine"},
+            {first:"S", second:"I", third:"R", broad:"09 Health and welfare", narrow:"091 Health", detailed:"0913 Nursing, midwifery and medical assistance"},
+            {first:"S", second:"I", third:"R", broad:"09 Health and welfare", narrow:"091 Health", detailed:"0914 Medical diagnostic and treatment technology"},
+            {first:"S", second:"I", third:"R", broad:"09 Health and welfare", narrow:"091 Health", detailed:"0915 Therapy and rehabilitation"},
+            {first:"S", second:"I", third:"R", broad:"09 Health and welfare", narrow:"091 Health", detailed:"0916 Pharmacy"},
+            {first:"S", second:"I", third:"R", broad:"09 Health and welfare", narrow:"092 Welfare", detailed:"0923 Social work and counselling"},
+            {first:"S", second:"E", third:"C", broad:"10 Services", narrow:"101 Personal services", detailed:"1013 Hotel, restaurants and catering"},
+            {first:"S", second:"E", third:"C", broad:"10 Services", narrow:"101 Personal services", detailed:"1014 Sports"},
+            {first:"S", second:"E", third:"C", broad:"10 Services", narrow:"101 Personal services", detailed:"1015 Travel, tourism and leisure"},
+            {first:"S", second:"E", third:"C", broad:"10 Services", narrow:"102 Hygiene and occupational health services", detailed:"1022 Occupational health and safety"},
+            {first:"S", second:"E", third:"C", broad:"10 Services", narrow:"103 Security services", detailed:"1031 Military and defence"},
+            {first:"S", second:"E", third:"C", broad:"10 Services", narrow:"103 Security services", detailed:"1032 Protection of persons and property"},
+            {first:"S", second:"E", third:"C", broad:"10 Services", narrow:"104 Transport services", detailed:"1041 Transport services"}
+        ];
+
+        // ---------- Scoring ----------
+        function calculateScores() {
+            const checks = document.querySelectorAll('.riasec-chk');
+            const scores = { R:0, I:0, A:0, S:0, E:0, C:0 };
+            checks.forEach(chk => {
+                if (chk.checked) {
+                    const type = chk.dataset.type;
+                    scores[type]++;
+                }
+            });
+            return scores;
+        }
+
+        // ---------- Get top 3 letters (order by score desc, tie break by original order) ----------
+        function getTop3(scores) {
+            const entries = Object.entries(scores);
+            entries.sort((a, b) => {
+                if (b[1] !== a[1]) return b[1] - a[1];
+                // tie: prefer order R,I,A,S,E,C
+                const order = {R:0, I:1, A:2, S:3, E:4, C:5};
+                return order[a[0]] - order[b[0]];
+            });
+            return entries.slice(0,3).map(e => e[0]);
+        }
+
+        // ---------- Fuzzy match fields: compute relevance score ----------
+        function scoreField(field, top3) {
+            const [t1, t2, t3] = top3;
+            const f1 = field.first;
+            const f2 = field.second;
+            const f3 = field.third || ''; // may be empty string
+
+            let score = 0;
+
+            // Exact position matches (high weight)
+            if (f1 === t1) score += 5;
+            if (f2 === t2) score += 4;
+            if (f3 && f3 === t3) score += 3;
+
+            // Other matches (lower weight) – count each matching letter in any position
+            // but avoid double counting already matched positions (we can just add small bonus)
+            const userSet = new Set([t1, t2, t3]);
+            const fieldSet = new Set([f1, f2, f3].filter(l => l !== ''));
+            // Intersection size gives number of common letters
+            const common = [...userSet].filter(l => fieldSet.has(l)).length;
+            // Base score already counted some, so we add remaining as bonus
+            // Let's add 1 per common letter that wasn't already matched in exact position
+            // But simpler: add 1 for each common letter (capped to avoid overcount)
+            // This rewards fields that share multiple interests
+            score += common * 1; // simple bonus
+
+            return score;
+        }
+
+        // ---------- Find and sort fields by relevance ----------
+        function findRelevantFields(top3) {
+            const scored = fieldData.map(field => ({
+                ...field,
+                score: scoreField(field, top3)
+            }));
+            // sort descending by score
+            scored.sort((a, b) => b.score - a.score);
+            // keep only those with score > 0 (or you can show all, but zero means no match at all)
+            return scored.filter(f => f.score > 0);
+        }
+
+        // ---------- Display results ----------
+        let lastScores = null;
+        let lastTop3 = null;
+        let lastMatches = [];
+
+        document.getElementById('calcBtn').addEventListener('click', () => {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                alert('Please enter your name.');
+                return;
+            }
+
+            const scores = calculateScores();
+            lastScores = scores;
+            const top3 = getTop3(scores);
+            lastTop3 = top3;
+            const matches = findRelevantFields(top3);
+            lastMatches = matches;
+
+            // Show results section
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('feedbackSection').style.display = 'block';
+            document.getElementById('submitSection').style.display = 'block';
+
+            // Build results HTML
+            let html = `<p><strong>Your scores:</strong> R=${scores.R}, I=${scores.I}, A=${scores.A}, S=${scores.S}, E=${scores.E}, C=${scores.C}</p>`;
+            html += `<p><strong>Your RIASEC code (top 3):</strong> ${top3.join(' · ')}</p>`;
+
+            if (matches.length === 0) {
+                html += '<p>No closely matching fields found. Try adjusting your answers?</p>';
+            } else {
+                // Group by broad field for display, but keep sorted order within groups
+                const broadMap = new Map();
+                matches.forEach(row => {
+                    const broad = row.broad;
+                    if (!broadMap.has(broad)) broadMap.set(broad, []);
+                    broadMap.get(broad).push(row);
+                });
+
+                html += '<h3>Recommended broad fields & detailed pathways (ordered by relevance):</h3>';
+                for (let [broad, rows] of broadMap.entries()) {
+                    html += `<div class="field-list"><strong>${broad}</strong><br>`;
+                    // rows are already sorted by score globally, but within a broad field they appear in that order
+                    rows.forEach(r => {
+                        html += `<div class="field-item">📌 ${r.detailed} (${r.narrow}) <span class="score-badge">match score ${r.score}</span></div>`;
+                    });
+                    html += '</div>';
+                }
+            }
+            document.getElementById('resultsArea').innerHTML = html;
+        });
+
+        // ---------- Build semantic differential (6 items, 2 domains) ----------
+        const feedbackPairs = [
+            { left: 'Easy to use', right: 'Difficult to use' },
+            { left: 'Clear', right: 'Confusing' },
+            { left: 'Fast', right: 'Slow' },
+            { left: 'Helpful', right: 'Not helpful' },
+            { left: 'Accurate', right: 'Inaccurate' },
+            { left: 'Relevant', right: 'Irrelevant' }
+        ];
+
+        function renderFeedback() {
+            const container = document.getElementById('feedbackItems');
+            container.innerHTML = '';
+            feedbackPairs.forEach((pair, idx) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'feedback-item';
+                let radios = '';
+                for (let i = 1; i <= 7; i++) {
+                    radios += `<label><input type="radio" name="fb${idx+1}" value="${i}" required> ${i}</label>`;
+                }
+                itemDiv.innerHTML = `
+                    <div style="flex:1; min-width:200px;">
+                        <strong>${pair.left}</strong>  &nbsp;–&nbsp;  <strong>${pair.right}</strong>
+                    </div>
+                    <div class="radio-group">
+                        ${radios}
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+        renderFeedback();
+
+        // ---------- Submit to Apps Script ----------
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) { alert('Name is missing.'); return; }
+
+            // Check all feedback radios are selected
+            let feedbackValues = [];
+            for (let i = 1; i <= 6; i++) {
+                const radios = document.getElementsByName(`fb${i}`);
+                let selected = null;
+                for (let r of radios) {
+                    if (r.checked) { selected = r.value; break; }
+                }
+                if (!selected) {
+                    alert(`Please answer feedback item ${i}.`);
+                    return;
+                }
+                feedbackValues.push(parseInt(selected));
+            }
+
+            if (!lastScores || !lastTop3) {
+                alert('Please calculate your RIASEC code first.');
+                return;
+            }
+
+            const payload = {
+                timestamp: new Date().toISOString(),
+                name: name,
+                scores: lastScores,
+                top3: lastTop3,
+                feedback: feedbackValues
+            };
+
+            // ---- REPLACE WITH YOUR APPS SCRIPT URL ----
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyI59cHWtybgeP4eqvCC-pTo5MuHreuCjlmj3gXQdxBI2ZDEzrNkCHUxjiOAlApZ8XRWw/exec';
+
+            document.getElementById('submitStatus').textContent = 'Submitting...';
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                document.getElementById('submitStatus').textContent = '✓ Data saved. Preparing print...';
+                setTimeout(() => {
+                    window.print();
+                }, 500);
+            })
+            .catch(err => {
+                document.getElementById('submitStatus').textContent = 'Error: ' + err.message;
+            });
+        });
+    </script>
+    <!-- print-only footer -->
+    <div class="print-only">
+        <hr>
+        <p>RIASEC Career Explorer – Report generated on <script>document.write(new Date().toLocaleDateString());</script></p>
+    </div>
+</body>
+</html>
