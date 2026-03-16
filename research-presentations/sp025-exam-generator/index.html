@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Paper Generator</title>
+    <style>
+        /* --- BAUHAUS COLOR PALETTE & VARIABLES --- */
+        :root {
+            --red: #D22730;
+            --blue: #0F3B8C;
+            --yellow: #F2B705;
+            --black: #0D0D0D;
+            --white: #F2F2F2;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background-color: var(--white);
+            color: var(--black);
+            text-align: center;
+        }
+
+        h1 {
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            display: inline-block;
+            border-bottom: 8px solid var(--red);
+            padding-bottom: 10px;
+        }
+
+        .controls {
+            margin-bottom: 50px;
+        }
+
+        button {
+            font-family: inherit;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--white);
+            background-color: var(--black);
+            border: 4px solid var(--black);
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.1s ease;
+            box-shadow: 8px 8px 0px var(--blue);
+        }
+        
+        button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 6px 6px 0px var(--blue);
+        }
+
+        button:active {
+            transform: translate(8px, 8px);
+            box-shadow: 0px 0px 0px var(--blue);
+        }
+
+        #print-btn {
+            display: none;
+            background-color: var(--white);
+            color: var(--black);
+            box-shadow: 8px 8px 0px var(--yellow);
+        }
+
+        #print-btn:hover {
+            box-shadow: 6px 6px 0px var(--yellow);
+        }
+
+        #print-btn:active {
+            box-shadow: 0px 0px 0px var(--yellow);
+        }
+
+        #paper-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 60px;
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 50px;
+            border: 8px solid var(--black);
+            min-height: 200px;
+            position: relative;
+        }
+
+        #paper-container::before {
+            content: '';
+            position: absolute;
+            top: -24px;
+            left: -24px;
+            width: 40px;
+            height: 40px;
+            background-color: var(--yellow);
+            border: 6px solid var(--black);
+            border-radius: 50%;
+        }
+
+        .question-block {
+            width: 100%;
+            text-align: left;
+            border-left: 12px solid var(--black); 
+            padding-left: 20px;
+        }
+
+        .question-block h3 {
+            display: inline-block;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            background-color: var(--black);
+            color: var(--white);
+            padding: 8px 16px;
+            letter-spacing: 1px;
+        }
+
+        .question-block img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border: 4px solid var(--black);
+        }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            .controls, h1, .instruction-text, #paper-container::before {
+                display: none;
+            }
+            #paper-container {
+                border: none;
+                padding: 0;
+                max-width: 100%;
+            }
+            .question-block {
+                page-break-inside: avoid;
+                margin-bottom: 40px;
+                border-left: 8px solid black !important;
+            }
+            .question-block h3 {
+                background-color: black;
+                color: white;
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+            }
+            .question-block img {
+                border: 2px solid black;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="instruction-text">Exam Paper Generator</h1>
+    
+    <div class="controls">
+        <button onclick="generatePaper()">Generate Exam Paper</button>
+        <button id="print-btn" onclick="window.print()">Print / PDF</button>
+    </div>
+
+    <div id="paper-container">
+        <p class="instruction-text" style="color: var(--black); font-weight: bold; text-transform: uppercase;">Click "Generate" to create a paper.</p>
+    </div>
+
+    <script>
+        // CONFIGURATION: 
+        const folderImageCounts = {
+            c1: 3,  
+            c2: 3,  
+            c3: 3, 
+            c4: 3,
+            c5: 3,
+            c6: 3,
+            c7: 3,
+            c8: 3,
+            c9: 3  
+        };
+
+        const bauhausColors = ['var(--red)', 'var(--blue)', 'var(--yellow)'];
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generatePaper() {
+            const container = document.getElementById('paper-container');
+            container.innerHTML = ''; 
+
+            const totalFolders = Object.keys(folderImageCounts).length;
+
+            for (let i = 1; i <= totalFolders; i++) {
+                const folderName = `c${i}`;
+                const maxImages = folderImageCounts[folderName];
+
+                if (maxImages && maxImages > 0) {
+                    const randomFileNumber = getRandomInt(1, maxImages);
+                    
+                    // --- UPDATED FILE NAMING CONVENTION HERE ---
+                    const imagePath = `${folderName}/Slide${randomFileNumber}.png`;
+
+                    const questionBlock = document.createElement('div');
+                    questionBlock.className = 'question-block';
+                    
+                    questionBlock.style.borderLeftColor = bauhausColors[(i - 1) % 3];
+
+                    const label = document.createElement('h3');
+                    label.textContent = `Question ${i}`;
+
+                    const img = document.createElement('img');
+                    img.src = imagePath;
+                    
+                    img.onerror = function() {
+                        this.outerHTML = `<p style="color:var(--red); font-weight: bold;">[ ERROR: Missing file at ${imagePath} ]</p>`;
+                    };
+
+                    questionBlock.appendChild(label);
+                    questionBlock.appendChild(img);
+                    container.appendChild(questionBlock);
+                }
+            }
+
+            document.getElementById('print-btn').style.display = 'inline-block';
+        }
+    </script>
+</body>
+</html>
