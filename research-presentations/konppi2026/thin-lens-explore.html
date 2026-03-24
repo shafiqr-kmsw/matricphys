@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thin Lens Geometrical Optics Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar for sidebar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        
+        /* Styled Range Inputs */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #475569;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Sidebar Controls -->
+    <div class="w-full md:w-80 bg-slate-800 flex flex-col h-full border-r border-slate-700 shadow-xl z-10">
+        <div class="p-4 border-b border-slate-700 bg-slate-900">
+            <h1 class="text-xl font-bold text-white tracking-tight">Geometrical Optics</h1>
+            <p class="text-xs text-slate-400 mt-1">Thin Lens Explorer</p>
+        </div>
+
+        <div class="p-4 overflow-y-auto flex-1 space-y-6">
+            <!-- Equations -->
+            <div class="bg-slate-900 p-3 rounded-lg border border-slate-700 shadow-inner">
+                <div class="text-sm text-center mb-2 overflow-x-auto text-slate-300">
+                    <p>\( \frac{1}{f} = \left(\frac{n_1}{n_2}-1\right)\left(\frac{1}{R_1}-\frac{1}{R_2}\right) \)</p>
+                    <p class="mt-2">\( \frac{1}{f} = \frac{1}{u} + \frac{1}{v} \)</p>
+                </div>
+            </div>
+
+            <!-- Parameters -->
+            <div class="space-y-4">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Lens Maker Parameters</h2>
+                
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label>Lens Refractive Index (\(n_1\))</label>
+                        <span id="val-n1" class="text-blue-400 font-mono">1.50</span>
+                    </div>
+                    <input type="range" id="n1" min="1.0" max="3.0" step="0.01" value="1.50">
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label>Medium Refractive Index (\(n_2\))</label>
+                        <span id="val-n2" class="text-blue-400 font-mono">1.00</span>
+                    </div>
+                    <input type="range" id="n2" min="1.0" max="3.0" step="0.01" value="1.00">
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label>Radius 1 (\(R_1\))</label>
+                        <span id="val-r1" class="text-blue-400 font-mono">100</span>
+                    </div>
+                    <input type="range" id="r1" min="-300" max="300" step="1" value="100">
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label>Radius 2 (\(R_2\))</label>
+                        <span id="val-r2" class="text-blue-400 font-mono">-100</span>
+                    </div>
+                    <input type="range" id="r2" min="-300" max="300" step="1" value="-100">
+                </div>
+            </div>
+
+            <hr class="border-slate-700">
+
+            <div class="space-y-4">
+                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Object Parameters</h2>
+                
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label>Object Position (\(u\))</label>
+                        <span id="val-objX" class="text-blue-400 font-mono">-200</span>
+                    </div>
+                    <input type="range" id="objX" min="-500" max="-10" step="1" value="-200">
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <label>Object Height (\(h_o\))</label>
+                        <span id="val-objY" class="text-blue-400 font-mono">60</span>
+                    </div>
+                    <input type="range" id="objY" min="-150" max="150" step="1" value="60">
+                </div>
+                <p class="text-xs text-slate-500 italic">Tip: You can also drag the blue object directly on the canvas.</p>
+            </div>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="bg-slate-950 p-4 border-t border-slate-700">
+            <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Calculated Results</h2>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <div class="bg-slate-800 p-2 rounded">
+                    <span class="block text-slate-500 text-xs">Focal Length (f)</span>
+                    <span id="out-f" class="font-mono text-white">0.00</span>
+                </div>
+                <div class="bg-slate-800 p-2 rounded">
+                    <span class="block text-slate-500 text-xs">Image Pos (v)</span>
+                    <span id="out-v" class="font-mono text-white">0.00</span>
+                </div>
+                <div class="bg-slate-800 p-2 rounded">
+                    <span class="block text-slate-500 text-xs">Magnification (M)</span>
+                    <span id="out-m" class="font-mono text-white">0.00</span>
+                </div>
+                <div class="bg-slate-800 p-2 rounded">
+                    <span class="block text-slate-500 text-xs">Nature</span>
+                    <span id="out-type" class="font-mono text-white text-xs">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="flex-1 relative cursor-crosshair h-full" id="canvas-container">
+        <canvas id="simCanvas" class="absolute inset-0 w-full h-full"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        // State objects
+        const state = {
+            n1: 1.5,
+            n2: 1.0,
+            r1: 100,
+            r2: -100,
+            objX: -200,
+            objY: 60
+        };
+
+        const derived = { f: 0, imgX: 0, imgY: 0, mag: 0 };
+        let isDragging = false;
+
+        // UI Elements mapping
+        const inputs = ['n1', 'n2', 'r1', 'r2', 'objX', 'objY'];
+
+        function resizeCanvas() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            draw();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // Map logical coordinates to canvas pixels
+        function mapX(x) { return canvas.width / 2 + x; }
+        function mapY(y) { return canvas.height / 2 - y; }
+        // Map canvas pixels back to logical coordinates
+        function unmapX(x) { return x - canvas.width / 2; }
+        function unmapY(y) { return canvas.height / 2 - y; }
+
+        function updateStateFromInputs() {
+            inputs.forEach(id => {
+                let val = parseFloat(document.getElementById(id).value);
+                // Prevent R1 or R2 from being exactly 0 to avoid division by zero
+                if ((id === 'r1' || id === 'r2') && val === 0) val = 0.001; 
+                state[id] = val;
+                document.getElementById(`val-${id}`).innerText = val.toFixed(id === 'n1' || id === 'n2' ? 2 : 0);
+            });
+            calculateDerived();
+            draw();
+        }
+
+        function updateInputsFromState() {
+            document.getElementById('objX').value = state.objX;
+            document.getElementById('objY').value = state.objY;
+            document.getElementById('val-objX').innerText = state.objX.toFixed(0);
+            document.getElementById('val-objY').innerText = state.objY.toFixed(0);
+            calculateDerived();
+            draw();
+        }
+
+        function calculateDerived() {
+            // Lens Maker's Equation
+            let power = (state.n1 / state.n2 - 1) * ((1 / state.r1) - (1 / state.r2));
+            derived.f = Math.abs(power) > 1e-6 ? 1 / power : Infinity;
+
+            // Thin Lens Equation: 1/f = 1/u + 1/v
+            // Standard cartesian coordinate approach: 1/imgX = 1/f + 1/objX
+            let inv_imgX = (1 / derived.f) + (1 / state.objX);
+            derived.imgX = Math.abs(inv_imgX) > 1e-6 ? 1 / inv_imgX : Infinity;
+
+            if (isFinite(derived.imgX)) {
+                derived.mag = derived.imgX / state.objX;
+                derived.imgY = state.objY * derived.mag;
+            } else {
+                derived.mag = Infinity;
+                derived.imgY = Infinity;
+            }
+
+            updateOutputs();
+        }
+
+        function updateOutputs() {
+            document.getElementById('out-f').innerText = isFinite(derived.f) ? derived.f.toFixed(1) : '∞';
+            document.getElementById('out-v').innerText = isFinite(derived.imgX) ? derived.imgX.toFixed(1) : '∞';
+            document.getElementById('out-m').innerText = isFinite(derived.mag) ? derived.mag.toFixed(2) : '∞';
+            
+            let natureStr = "";
+            if (isFinite(derived.imgX)) {
+                natureStr += (derived.imgX > 0) ? "Real, " : "Virtual, ";
+                natureStr += (derived.mag > 0) ? "Upright" : "Inverted";
+            } else {
+                natureStr = "At Infinity";
+            }
+            document.getElementById('out-type').innerText = natureStr;
+        }
+
+        // --- Drawing Functions ---
+
+        function drawLine(x1, y1, x2, y2, color, width = 1, dashed = false) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            if (dashed) ctx.setLineDash([5, 5]);
+            else ctx.setLineDash([]);
+            ctx.moveTo(mapX(x1), mapY(y1));
+            ctx.lineTo(mapX(x2), mapY(y2));
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function drawPoint(x, y, label, color, align='top') {
+            ctx.beginPath();
+            ctx.arc(mapX(x), mapY(y), 4, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            
+            ctx.font = "12px sans-serif";
+            ctx.fillStyle = "#94a3b8"; // slate-400
+            ctx.textAlign = "center";
+            ctx.fillText(label, mapX(x), mapY(y) + (align === 'top' ? -10 : 15));
+        }
+
+        function drawLensSymbol() {
+            const h = 180;
+            drawLine(0, -h, 0, h, '#ffffff', 2);
+            
+            // Draw arrows based on lens type
+            ctx.beginPath();
+            ctx.fillStyle = '#ffffff';
+            if (derived.f > 0 && isFinite(derived.f)) {
+                // Converging: Arrows point outwards
+                // Top
+                ctx.moveTo(mapX(0), mapY(h)); ctx.lineTo(mapX(-8), mapY(h-12)); ctx.lineTo(mapX(8), mapY(h-12)); ctx.fill();
+                // Bottom
+                ctx.moveTo(mapX(0), mapY(-h)); ctx.lineTo(mapX(-8), mapY(-h+12)); ctx.lineTo(mapX(8), mapY(-h+12)); ctx.fill();
+            } else if (derived.f < 0) {
+                // Diverging: Arrows point inwards
+                // Top
+                ctx.moveTo(mapX(0), mapY(h)); ctx.lineTo(mapX(-8), mapY(h+12)); ctx.lineTo(mapX(8), mapY(h+12)); ctx.fill();
+                // Bottom
+                ctx.moveTo(mapX(0), mapY(-h)); ctx.lineTo(mapX(-8), mapY(-h-12)); ctx.lineTo(mapX(8), mapY(-h-12)); ctx.fill();
+            }
+        }
+
+        function drawArrow(x, y, color, label) {
+            if (!isFinite(x) || !isFinite(y)) return;
+            
+            drawLine(x, 0, x, y, color, 3);
+            
+            const dir = y > 0 ? 1 : -1;
+            const headSize = 12;
+            
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.moveTo(mapX(x), mapY(y));
+            ctx.lineTo(mapX(x - 6), mapY(y - dir * headSize));
+            ctx.lineTo(mapX(x + 6), mapY(y - dir * headSize));
+            ctx.fill();
+
+            ctx.font = "14px sans-serif";
+            ctx.fillStyle = color;
+            ctx.textAlign = "center";
+            ctx.fillText(label, mapX(x), mapY(y + dir * 20));
+        }
+
+        function traceRay(startX, startY, lensY, imgX, imgY, color) {
+            // Incident segment
+            drawLine(startX, startY, 0, lensY, color, 2);
+
+            const FAR = Math.max(canvas.width, canvas.height) * 2;
+
+            if (!isFinite(imgX)) return; // Handled specifically in drawRays
+
+            let dx = imgX - 0;
+            let dy = imgY - lensY;
+            let len = Math.sqrt(dx*dx + dy*dy);
+            if(len === 0) return;
+            dx /= len; dy /= len;
+
+            if (imgX > 0) {
+                // Real Image -> Solid line forward
+                drawLine(0, lensY, dx * FAR, lensY + dy * FAR, color, 2);
+            } else {
+                // Virtual Image -> Solid line forward (away), Dashed backwards to image
+                drawLine(0, lensY, -dx * FAR, lensY - dy * FAR, color, 2);
+                drawLine(0, lensY, imgX, imgY, color, 2, true);
+            }
+        }
+
+        function drawRays() {
+            const { f, imgX, imgY } = derived;
+            const { objX, objY } = state;
+
+            // Handle object at Focal Point
+            if (!isFinite(imgX)) {
+                let dx = -objX;
+                let dy = -objY;
+                let len = Math.sqrt(dx*dx + dy*dy);
+                dx /= len; dy /= len;
+                let FAR = 3000;
+
+                // Parallel Ray
+                drawLine(objX, objY, 0, objY, '#eab308', 2); // Incident
+                drawLine(0, objY, dx * FAR, objY + dy * FAR, '#eab308', 2); // Refracted
+                drawLine(0, objY, -dx * FAR, objY - dy * FAR, '#eab308', 2, true); // Virtual back
+
+                // Central Ray
+                drawLine(objX, objY, 0, 0, '#22c55e', 2);
+                drawLine(0, 0, dx * FAR, dy * FAR, '#22c55e', 2);
+                drawLine(0, 0, -dx * FAR, -dy * FAR, '#22c55e', 2, true);
+                return;
+            }
+
+            // Ray 1: Parallel to axis -> Through Focal Point
+            traceRay(objX, objY, objY, imgX, imgY, '#eab308'); // Yellow
+
+            // Ray 2: Through Optical Center
+            traceRay(objX, objY, 0, imgX, imgY, '#22c55e'); // Green
+
+            // Ray 3: Through incident Focal Point -> Parallel to axis
+            traceRay(objX, objY, imgY, imgX, imgY, '#a855f7'); // Purple
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Grid & Axes
+            ctx.strokeStyle = "#334155";
+            ctx.lineWidth = 1;
+            
+            // Grid lines (every 50 units)
+            ctx.beginPath();
+            for(let x = 0; x <= canvas.width/2; x+=50) {
+                ctx.moveTo(mapX(x), 0); ctx.lineTo(mapX(x), canvas.height);
+                ctx.moveTo(mapX(-x), 0); ctx.lineTo(mapX(-x), canvas.height);
+            }
+            for(let y = 0; y <= canvas.height/2; y+=50) {
+                ctx.moveTo(0, mapY(y)); ctx.lineTo(canvas.width, mapY(y));
+                ctx.moveTo(0, mapY(-y)); ctx.lineTo(canvas.width, mapY(-y));
+            }
+            ctx.stroke();
+
+            // Principal Axis
+            drawLine(-canvas.width/2, 0, canvas.width/2, 0, '#64748b', 2);
+            // Optical Y Axis
+            drawLine(0, -canvas.height/2, 0, canvas.height/2, '#475569', 1);
+
+            // Draw Lens & Points
+            drawLensSymbol();
+            
+            if (isFinite(derived.f)) {
+                drawPoint(derived.f, 0, "F'", "#eab308", 'top');
+                drawPoint(-derived.f, 0, "F", "#eab308", 'top');
+            }
+            
+            drawPoint(state.r1, 0, "C₁", "#ef4444", 'bottom');
+            drawPoint(state.r2, 0, "C₂", "#ef4444", 'bottom');
+
+            // Draw Rays
+            drawRays();
+
+            // Draw Object & Image
+            drawArrow(state.objX, state.objY, '#3b82f6', 'Object');
+            
+            if (isFinite(derived.imgX)) {
+                drawArrow(derived.imgX, derived.imgY, '#ef4444', 'Image');
+            }
+        }
+
+        // --- Interaction Logic ---
+
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: unmapX(evt.clientX - rect.left),
+                y: unmapY(evt.clientY - rect.top)
+            };
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            const pos = getMousePos(e);
+            // Check if clicking near object arrowhead
+            if (Math.abs(pos.x - state.objX) < 20 && Math.abs(pos.y - state.objY) < 20) {
+                isDragging = true;
+                canvas.style.cursor = 'grabbing';
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const pos = getMousePos(e);
+                // Constrain object to stay on the left side to avoid breaking simple physical models
+                state.objX = Math.min(-10, pos.x); 
+                state.objY = pos.y;
+                updateInputsFromState();
+            } else {
+                const pos = getMousePos(e);
+                if (Math.abs(pos.x - state.objX) < 20 && Math.abs(pos.y - state.objY) < 20) {
+                    canvas.style.cursor = 'grab';
+                } else {
+                    canvas.style.cursor = 'crosshair';
+                }
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            canvas.style.cursor = 'crosshair';
+        });
+
+        // Touch support
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const pos = {
+                x: unmapX(touch.clientX - rect.left),
+                y: unmapY(touch.clientY - rect.top)
+            };
+            if (Math.abs(pos.x - state.objX) < 30 && Math.abs(pos.y - state.objY) < 30) {
+                isDragging = true;
+            }
+        }, {passive: false});
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                state.objX = Math.min(-10, unmapX(touch.clientX - rect.left));
+                state.objY = unmapY(touch.clientY - rect.top);
+                updateInputsFromState();
+            }
+        }, {passive: false});
+
+        window.addEventListener('touchend', () => isDragging = false);
+
+        // Bind input events
+        inputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', updateStateFromInputs);
+        });
+
+        // Initialization
+        resizeCanvas();
+        updateStateFromInputs();
+    </script>
+</body>
+</html>
