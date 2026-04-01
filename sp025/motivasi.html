@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kata-Kata Motivasi untuk Anda</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #fafafa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-w: 600px;
+            width: 100%;
+            background: #ffffff;
+            padding: 40px;
+            border: 1px solid #eaeaea;
+            border-radius: 8px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 30px;
+            color: #111;
+        }
+
+        #quoteDisplay {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            font-style: italic;
+            margin-bottom: 40px;
+            color: #444;
+        }
+
+        button {
+            background-color: #111;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.875rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Motivasi Peperiksaan</h1>
+        
+        <p id="quoteDisplay">
+            Memuatkan kata-kata semangat...
+        </p>
+
+        <button id="newQuoteBtn">
+            Dapatkan Kata-Kata Lain
+        </button>
+        
+        <p class="footer">
+            Selamat Berjaya untuk peperiksaan anda!
+        </p>
+    </div>
+
+    <script>
+        const quotes = [
+            "Kejayaan tidak datang kepada manusia yang leka. Teruskan usaha, peperiksaan sudah hampir!",
+            "Setiap titik peluh yang mengalir hari ini adalah benih kejayaan untuk hari esok. Selamat mengulang kaji!",
+            "Jangan berputus asa apabila letih, berhentilah apabila kamu telah selesai. Teruskan berjuang!",
+            "Masa depan adalah milik mereka yang percaya kepada keindahan impian mereka. Fokus untuk peperiksaan!",
+            "Usaha tangga kejayaan. Tiada jalan pintas untuk mencapai kecemerlangan melainkan dengan tekun belajar.",
+            "Kesusahan hari ini adalah kebahagiaan pada masa hadapan. Bertabahlah wahai pelajar!",
+            "Gagal merancang bermakna merancang untuk gagal. Susun jadual belajar anda dengan bijak.",
+            "Doa, usaha, ikhtiar dan tawakal. Itu adalah empat kunci utama kejayaan yang sebenar.",
+            "Percaya pada diri sendiri. Anda lebih berani, lebih kuat dan lebih pintar daripada yang anda sangkakan.",
+            "Jangan biarkan ketakutan menguasai diri. Hadapi peperiksaan dengan tenang, yakin, dan persediaan yang rapi.",
+            "Setiap helai muka surat yang dibaca membawa anda selangkah lebih dekat ke menara gading.",
+            "Penat belajar itu hanya sementara, tetapi penyesalan kerana tidak belajar akan kekal selamanya.",
+            "Buktikan kepada diri sendiri dan orang tersayang bahawa anda mampu mencapai keputusan yang cemerlang!",
+            "Tidak mengapa jika anda bergerak perlahan dalam memahami pelajaran, asalkan anda tidak berhenti melangkah.",
+            "Fokus pada matlamat. Abaikan segala gangguan. Peperiksaan ini penentu langkah anda yang seterusnya.",
+            "Anggaplah peperiksaan sebagai pentas untuk menguji sejauh mana kehebatan minda anda, bukan sebagai satu bebanan.",
+            "Kejayaan adalah jumlah usaha-usaha kecil, yang diulang hari demi hari. Teruskan konsistensi anda mengulang kaji.",
+            "Jangan bandingkan langkah anda dengan orang lain. Fokus pada kemajuan dan peningkatan diri anda sendiri.",
+            "Tidur yang cukup, pemakanan yang sihat dan minda yang cerdas adalah senjata utama anda di dewan peperiksaan.",
+            "Biar apa pun keputusannya nanti, asalkan anda tahu anda telah memberikan yang terbaik. Selamat maju jaya!"
+        ];
+
+        const quoteDisplay = document.getElementById('quoteDisplay');
+        const newQuoteBtn = document.getElementById('newQuoteBtn');
+
+        function generateRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            quoteDisplay.textContent = `"${quotes[randomIndex]}"`;
+        }
+
+        window.addEventListener('DOMContentLoaded', generateRandomQuote);
+        newQuoteBtn.addEventListener('click', generateRandomQuote);
+    </script>
+</body>
+</html>
