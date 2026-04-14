@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educator's Hub: AI Classroom Tools</title>
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Header Section */
+        header {
+            background-color: #2c3e50;
+            color: #ffffff;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            letter-spacing: 1px;
+        }
+        header p {
+            font-size: 1.2em;
+            margin-top: 10px;
+            color: #bdc3c7;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Welcome Message */
+        .welcome-text {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        /* Grid for Resource Cards */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Individual Card Styling */
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none; /* Removes underline from links */
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            border-top: 5px solid #3498db;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.5em;
+        }
+
+        .card p {
+            color: #666;
+            flex-grow: 1;
+        }
+
+        .card .tag {
+            display: inline-block;
+            background-color: #e8f4fd;
+            color: #3498db;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            width: max-content;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Educator's AI Toolkit</h1>
+        <p>Empowering teachers to build interactive classrooms, zero coding required.</p>
+    </header>
+
+    <div class="container">
+        <div class="welcome-text">
+            <p>Welcome! Select a resource below to start building engaging, custom web apps for your students. These guides are designed specifically for educators with no prior programming experience.</p>
+        </div>
+
+        <div class="resource-grid">
+            
+            <a href="#link-to-your-guide" class="card">
+                <span class="tag">Step-by-Step Guide</span>
+                <h2>Gemini to Google Sites</h2>
+                <p>Learn how to use Gemini Canvas to generate custom classroom activities and easily host them on your Google Site.</p>
+            </a>
+
+            <a href="#link-to-prompt-guide" class="card">
+                <span class="tag">Cheatsheet</span>
+                <h2>Prompt Recipes for Teachers</h2>
+                <p>A collection of copy-and-paste prompts to generate quizzes, flashcards, drag-and-drop games, and more.</p>
+            </a>
+
+            <a href="#link-to-troubleshooting" class="card">
+                <span class="tag">Troubleshooting</span>
+                <h2>Fixing Common App Glitches</h2>
+                <p>App looking a little strange on mobile? Buttons not working? Read this quick guide to getting your app back on track.</p>
+            </a>
+
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Educator's AI Toolkit. Made with care for teachers.</p>
+    </footer>
+
+</body>
+</html>
