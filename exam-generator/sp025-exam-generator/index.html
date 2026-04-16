@@ -159,7 +159,31 @@
             .question-block img {
                 border: 2px solid black;
             }
+			#footer {
+				display: block;
+				position: fixed;
+				bottom: 0;
+				width: 100%;
+				border-top: 2px solid black;
+				padding-top: 10px;
+				font-size: 12px;
+			  }
+			@page {
+				size: A4 portrait;
+				margin: 10mm;
+			  }
+			html, body {
+				overflow: visible;
+			  }
         }
+		#footer {
+			  margin-top: 60px;
+			  padding-top: 20px;
+			  border-top: 4px solid var(--black);
+			  font-weight: bold;
+			  text-transform: uppercase;
+			  letter-spacing: 1px;
+				}
     </style>
 </head>
 <body>
@@ -170,7 +194,7 @@
         <button onclick="generatePaper()">Generate Exam Paper</button>
         <button id="print-btn" onclick="window.print()">Print / PDF</button>
     </div>
-
+	<p id="timestamp" style="font-weight:bold; margin-bottom:20px;"></p>
     <div id="paper-container">
         <p class="instruction-text" style="color: var(--black); font-weight: bold; text-transform: uppercase;">Click "Generate" to create a paper.</p>
     </div>
@@ -178,15 +202,15 @@
     <script>
         // CONFIGURATION: 
         const folderImageCounts = {
-            c1: 3,  
-            c2: 3,  
-            c3: 3, 
-            c4: 3,
-            c5: 3,
-            c6: 3,
-            c7: 3,
-            c8: 3,
-            c9: 3  
+            c1: 9,  
+            c2: 9,  
+            c3: 9, 
+            c4: 9,
+            c5: 9,
+            c6: 9,
+            c7: 9,
+            c8: 9,
+            c9: 9  
         };
 
         const bauhausColors = ['var(--red)', 'var(--blue)', 'var(--yellow)'];
@@ -198,7 +222,17 @@
         function generatePaper() {
             const container = document.getElementById('paper-container');
             container.innerHTML = ''; 
+			    // --- ADD TIMESTAMP HERE ---
+			const now = new Date();
+			const formattedTime = now.toLocaleString(); // e.g. 16/4/2026, 21:30:12
 
+			const timestampEl = document.createElement('p');
+			timestampEl.id = 'timestamp';
+			timestampEl.style.fontWeight = 'bold';
+			timestampEl.style.marginBottom = '20px';
+			timestampEl.textContent = `Generated on: ${formattedTime}`;
+
+			container.appendChild(timestampEl);
             const totalFolders = Object.keys(folderImageCounts).length;
 
             for (let i = 1; i <= totalFolders; i++) {
@@ -209,7 +243,7 @@
                     const randomFileNumber = getRandomInt(1, maxImages);
                     
                     // --- UPDATED FILE NAMING CONVENTION HERE ---
-                    const imagePath = `${folderName}/Slide${randomFileNumber}.PNG`;
+                    const imagePath = `${folderName}/Slide${randomFileNumber}.JPG`;
 
                     const questionBlock = document.createElement('div');
                     questionBlock.className = 'question-block';
@@ -235,5 +269,6 @@
             document.getElementById('print-btn').style.display = 'inline-block';
         }
     </script>
+	<footer id="footer">© <span id="year"></span> Shafiq Rasulan. All rights reserved.</footer>
 </body>
 </html>
