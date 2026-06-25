@@ -1,0 +1,71 @@
+Role: Act as a postgraduate educational technology researcher writing a conference paper for a Malaysian education conference
+Task: Write a complete conference paper titled "Validating AI Perception Scales and Establishing Baseline Attitudes Among Malaysian Physics Students" based on the provided dataset and statistical outputs.
+Target Audience: Academics, educators, and researchers interested in psychometric validation and baseline perceptions of AI in STEM education.
+Style Requirements:
+Abstract: 150–300 words, Arial 10, single paragraph.
+Body: Arial 10, 1.0 line spacing.
+Tables: Arial 10, numbered sequentially, with titles above the table, first letter of each word capitalized.
+References: APA 7th edition.
+Language: Formal, academic, concise.
+Manuscript Sections & Content to Include
+
+1. Title
+Validating AI Perception Scales and Establishing Baseline Attitudes Among Malaysian Physics Students
+
+2. Abstract
+(Write a 200-250 word abstract covering the following points):
+Purpose: To evaluate the psychometric properties (internal consistency) of adapted Short GAAIS-10 and AI-EdTech Trust Scale instruments and to establish baseline levels of attitudes and trust towards AI among Malaysian matriculation Physics students.
+Methodology: Quantitative cross-sectional survey design. N=88 students (58% female) from Sarawak Matriculation College. Instruments used. Data analyzed using Jamovi for Cronbach's α, McDonald's ω, and descriptive statistics.
+Key Findings: Briefly report the reliability coefficients (Positive α=0.902, Negative α=0.825, Trust α=0.921). Report the means: Positive Attitude (M=4.08), Negative Dependency (M=3.23), Trust (M=3.92). Mention the demographic finding that 56.8% use AI "Often".
+Conclusion: The instruments are valid for Malaysian contexts, and the baseline indicates high digital readiness and receptivity to AI, providing a foundation for future research.
+
+3. Keywords
+Instrument Validation, AI Attitudes, Trust in AI, STEM Education, Malaysian Students
+
+4. Introduction
+Write a literature-based introduction covering:
+The rise of AI in education (ChatGPT, Gemini, etc.) and its specific relevance to Physics problem-solving.
+The importance of measuring psychological responses (attitudes and trust) for successful technology adoption (cite Venkatesh et al., 2003).
+The lack of validated instruments in the Malaysian matriculation context.
+
+Research Objectives:
+To evaluate the internal consistency (reliability) of the adapted Short GAAIS-10 and AI-EdTech Trust Scale.
+To identify the demographic profile and AI usage frequency of respondents.
+To determine the level of positive attitudes, negative dependency concerns, and trust towards AI.
+
+5. Methodology
+Write a detailed methodology section covering:
+Research Design: Quantitative cross-sectional survey.
+Sample & Sampling: Convenience sampling. N=88 Physics students from Sarawak Matriculation College. Provide demographics (51 Female, 37 Male; 60 Life Sciences, 28 Physical Sciences; Usage: Often=50, Sometimes=23, Very Often=12, Rarely=3). Include a proper Table 1 for demographics.
+Instruments: Describe the adapted Short GAAIS-10 (Items B1-B5 for Positive, B6-B10 reverse coded for Negative) and the AI-EdTech Trust Scale (C1-C10). Mention the 5-point Likert scale.
+Data Collection: Briefly describe online distribution via Google Forms.
+Data Analysis: Specific use of Jamovi software for Reliability Analysis (Cronbach's α and McDonald's ω) and Descriptive Statistics (Means and Standard Deviations).
+
+6. Research Findings
+Introductory text: State that all instruments demonstrated excellent reliability.
+Table 2 (Reliability): Create a table with columns: Instrument / Subscale, Items, Cronbach's α, McDonald's ω. Rows: Positive Attitude (0.902, 0.903), Negative Attitude (0.825, 0.828), AI-EdTech Trust (0.921, 0.922). Interpretation: All exceed 0.70, confirming strong reliability.
+Descriptives (Attitudes & Trust): Report the means. State that students exhibit high Positive Attitude (M=4.08, SD=0.69), high Trust (M=3.92, SD=0.69), and moderate Negative Dependency (M=3.23, SD=0.90).
+Table 3 (Descriptives): Create a table with Construct, Mean, SD, and Interpretation (High/Moderate).
+
+7. Discussion and Conclusion
+Discussion:
+Relate the findings to the literature: High α values indicate the instruments are reliable for this demographic (Nunnally & Bernstein, 1994).
+Interpret the means: The high Trust and Positive scores suggest students are digitally ready. The moderate Negative score shows awareness of over-reliance risks without overwhelming skepticism.
+Link high usage frequency (56.8%) to the "familiarity breeds comfort" concept.
+
+Conclusion:
+Summarize: The study successfully validated two instruments and provided a positive baseline snapshot.
+Recommendation: Future research can confidently use these instruments to explore deeper psychological factors (such as anxiety).
+Limitation: Acknowledges the single-site, moderate sample size (N=88).
+
+8. References
+Cite the following in APA 7th edition based on the provided text
+
+Critical Reminders for the AI Writer:
+DO NOT include the Repeated Measures ANOVA (the F(1.48, 129) = 55.7 data) or the Anxiety subscale means (Learning 2.62, Job 3.59, Control 3.64) in this paper. They belong strictly to the future Journal article.
+
+DO NOT include the T-Tests (Gender) or Welch's ANOVA (Usage vs Trust) here. Keep it purely to Reliability and Descriptive Means.
+
+Word Count: Aim for approximately 3,000–4,000 words for the full paper.
+
+Tables: Ensure the tables for Demographics, Reliability, and Descriptives are clearly labeled with titles capitalized (e.g., "Table 1. Demographic Profile of Participants").
