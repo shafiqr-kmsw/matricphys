@@ -1,0 +1,45 @@
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+      .setTitle('Student Results Dashboard')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/**
+ * Fetches all academic rows tied to a single Student ID.
+ * @param {string} studentId The ID provided by the user.
+ * @return {Array<Object>} An array containing the matching subject records.
+ */
+function getStudentData(studentId) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Database");
+  
+  if (!sheet) {
+    throw new Error("Sheet tab named 'Database' could not be found!");
+  }
+  
+  var data = sheet.getDataRange().getValues();
+  var studentRecords = [];
+  
+  // Format the target ID to string and trim trailing spaces
+  var targetId = studentId.toString().trim().toLowerCase();
+  
+  // Loop through data row by row, skipping header row (index 0)
+  for (var i = 1; i < data.length; i++) {
+    var currentId = data[i][0].toString().trim().toLowerCase();
+    
+    if (currentId === targetId) {
+      studentRecords.push({
+        id: data[i][0],
+        name: data[i][1],
+        class: data[i][2],
+        subject: data[i][3],
+        a1: data[i][4],
+        a2: data[i][5],
+        a3: data[i][6]
+      });
+    }
+  }
+  
+  return studentRecords;
+}

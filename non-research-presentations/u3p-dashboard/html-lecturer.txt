@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lecturer Performance Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
+
+    <div class="container mx-auto p-4 max-w-6xl">
+        <header class="bg-gradient-to-r from-emerald-700 to-teal-800 text-white p-6 rounded-xl shadow-md mb-6">
+            <h1 class="text-3xl font-black text-center tracking-tight">Lecturer Academic Insights Portal</h1>
+            <p class="text-center text-emerald-100 text-sm mt-1">Cohort Distribution & Performance Diagnostics Dashboard</p>
+        </header>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+                <label for="subjectDropdown" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Academic Subject Course</label>
+                <select id="subjectDropdown" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-slate-50 font-medium">
+                    <option value="">Loading options...</option>
+                </select>
+            </div>
+            <div>
+                <label for="classDropdown" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Class Section Cohort</label>
+                <select id="classDropdown" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-slate-50 font-medium">
+                    <option value="overall">Overall (All Classes)</option>
+                </select>
+            </div>
+            <div>
+                <button onclick="fetchCohortData()" id="analyzeBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-lg transition shadow-sm">
+                    Generate Analytical View
+                </button>
+            </div>
+        </div>
+
+        <div id="globalLoader" class="hidden text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-emerald-600 border-t-transparent"></div>
+            <p class="text-slate-500 font-medium mt-3 text-sm">Aggregating database array statistics...</p>
+        </div>
+
+        <div id="systemAlert" class="hidden bg-amber-50 border-l-4 border-amber-500 text-amber-800 p-4 rounded-r-lg mb-6 shadow-sm" role="alert">
+            <p id="alertMessage" class="font-medium text-sm"></p>
+        </div>
+
+        <div id="analyticsWorkspace" class="hidden space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 text-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Total Dataset Volume</span>
+                    <span id="statVolume" class="text-3xl font-black text-slate-700">-</span>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 text-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Cohort Term Mean</span>
+                    <span id="statMean" class="text-3xl font-black text-emerald-600">-</span>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 text-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Active Target Subject</span>
+                    <span id="statSubject" class="text-lg font-black text-slate-600 truncate block mt-1">-</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <h2 id="chartHeading" class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Cohort Performance Distributions</h2>
+                <div id="graphContainer" style="position: relative; height: 340px; width: 100%;">
+                    <canvas id="lecturerChartCanvas"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
+                <h2 id="tableHeading" class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Detailed Matrix Logs</h2>
+                <table class="min-w-full divide-y divide-slate-100 text-sm">
+                    <thead id="matrixHead">
+                        </thead>
+                    <tbody id="matrixBody" class="divide-y divide-slate-100 font-medium">
+                        </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let rawServerPayload = [];
+        let internalChartRef = null;
+
+        // Code bootstrapping sequence executing on client terminal launch
+        window.addEventListener('DOMContentLoaded', () => {
+            google.script.run
+                .withSuccessHandler(setupFilters)
+                .withFailureHandler(err => displayAlert('Failed to establish server connection: ' + err.message))
+                .getDropdownOptions();
+        });
+
+        function setupFilters(options) {
+            const subjectSelect = document.getElementById('subjectDropdown');
+            const classSelect = document.getElementById('classDropdown');
+            
+            subjectSelect.innerHTML = '';
+            
+            if (!options.subjects || options.subjects.length === 0) {
+                subjectSelect.innerHTML = '<option value="">No subject records identified</option>';
+                return;
+            }
+
+            options.subjects.forEach(sub => {
+                let opt = document.createElement('option');
+                opt.value = sub; opt.innerText = sub;
+                subjectSelect.appendChild(opt);
+            });
+
+            // Re-render class options keeping the 'Overall' control configuration persistent
+            classSelect.innerHTML = '<option value="overall">Overall (All Classes)</option>';
+            options.classes.forEach(cls => {
+                let opt = document.createElement('option');
+                opt.value = cls; opt.innerText = 'Class ' + cls;
+                classSelect.appendChild(opt);
+            });
+        }
+
+        function fetchCohortData() {
+            const activeSubject = document.getElementById('subjectDropdown').value;
+            const activeClass = document.getElementById('classDropdown').value;
+
+            if (!activeSubject) {
+                displayAlert("Input Exception: Clear active subject configuration parameters.");
+                return;
+            }
+
+            hideAlert();
+            document.getElementById('analyticsWorkspace').classList.add('hidden');
+            document.getElementById('globalLoader').classList.remove('hidden');
+            document.getElementById('analyzeBtn').disabled = true;
+
+            google.script.run
+                .withSuccessHandler(function(data) {
+                    document.getElementById('globalLoader').classList.add('hidden');
+                    document.getElementById('analyzeBtn').disabled = false;
+
+                    if (!data || data.length === 0) {
+                        displayAlert("Data Logging Matrix Exception: Selected cohort query returns empty arrays.");
+                        return;
+                    }
+
+                    rawServerPayload = data;
+                    renderLecturerDashboard(activeSubject, activeClass);
+                })
+                .withFailureHandler(function(err) {
+                    document.getElementById('globalLoader').classList.add('hidden');
+                    document.getElementById('analyzeBtn').disabled = false;
+                    displayAlert("Remote execution architecture failure: " + err.message);
+                })
+                .getLecturerData(activeSubject, activeClass);
+        }
+
+        function renderLecturerDashboard(subject, targetClass) {
+            document.getElementById('statSubject').innerText = subject;
+            document.getElementById('statVolume').innerText = rawServerPayload.length;
+            
+            // Computes aggregate cohort means across all standard elements
+            let totalSum = 0, entryPoints = 0;
+            rawServerPayload.forEach(r => {
+                totalSum += (r.a1 + r.a2 + r.a3);
+                entryPoints += 3;
+            });
+            const cumulativeMean = (totalSum / entryPoints).toFixed(1);
+            document.getElementById('statMean').innerText = cumulativeMean + '%';
+
+            // Reveal workspace elements safely before invoking engine execution configurations
+            document.getElementById('analyticsWorkspace').classList.remove('hidden');
+
+            if (targetClass === 'overall') {
+                processOverallDataStructure(subject);
+            } else {
+                processSpecificClassStructure(subject, targetClass);
+            }
+        }
+
+        function processOverallDataStructure(subject) {
+            document.getElementById('chartHeading').innerText = "Class Comparison Metrics - Grouped View";
+            document.getElementById('tableHeading').innerText = "Class Cohort Performance Summary";
+
+            // Aggregate internal arrays grouping student matrix properties by class values
+            let classAggregates = {};
+            rawServerPayload.forEach(r => {
+                if (!classAggregates[r.class]) {
+                    classAggregates[r.class] = { a1Sum: 0, a2Sum: 0, a3Sum: 0, count: 0 };
+                }
+                classAggregates[r.class].a1Sum += r.a1;
+                classAggregates[r.class].a2Sum += r.a2;
+                classAggregates[r.class].a3Sum += r.a3;
+                classAggregates[r.class].count++;
+            });
+
+            const uniqueClassesSorted = Object.keys(classAggregates).sort();
+            
+            let datasetA1 = [], datasetA2 = [], datasetA3 = [];
+            
+            // Build out matrix presentation headers
+            const matrixHead = document.getElementById('matrixHead');
+            matrixHead.innerHTML = `
+                <tr class="bg-slate-100">
+                    <th class="px-4 py-3 text-left font-bold text-slate-500 tracking-wide">Target Class Cohort</th>
+                    <th class="px-4 py-3 text-center font-bold text-slate-500 tracking-wide">Enrolled Count</th>
+                    <th class="px-4 py-3 text-center font-bold text-slate-500 tracking-wide">Assmt. 1 Avg</th>
+                    <th class="px-4 py-3 text-center font-bold text-slate-500 tracking-wide">Assmt. 2 Avg</th>
+                    <th class="px-4 py-3 text-center font-bold text-slate-500 tracking-wide">Assmt. 3 Avg</th>
+                    <th class="px-4 py-3 text-center font-bold text-slate-500 tracking-wide">Combined Mean</th>
+                </tr>
+            `;
+
+            const matrixBody = document.getElementById('matrixBody');
+            matrixBody.innerHTML = '';
+
+            uniqueClassesSorted.forEach(cls => {
+                const group = classAggregates[cls];
+                const a1Avg = (group.a1Sum / group.count).toFixed(1);
+                const a2Avg = (group.a2Sum / group.count).toFixed(1);
+                const a3Avg = (group.a3Sum / group.count).toFixed(1);
+                const totalCombinedAvg = ((group.a1Sum + group.a2Sum + group.a3Sum) / (group.count * 3)).toFixed(1);
+
+                datasetA1.push(parseFloat(a1Avg));
+                datasetA2.push(parseFloat(a2Avg));
+                datasetA3.push(parseFloat(a3Avg));
+
+                let tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="px-4 py-3.5 font-bold text-slate-900">Class ${cls}</td>
+                    <td class="px-4 py-3.5 text-center text-slate-600">${group.count} Students</td>
+                    <td class="px-4 py-3.5 text-center text-slate-600">${a1Avg}%</td>
+                    <td class="px-4 py-3.5 text-center text-slate-600">${a2Avg}%</td>
+                    <td class="px-4 py-3.5 text-center text-slate-600">${a3Avg}%</td>
+                    <td class="px-4 py-3.5 text-center font-bold text-emerald-600 bg-emerald-50/50 rounded-lg">${totalCombinedAvg}%</td>
+                `;
+                matrixBody.appendChild(tr);
+            });
+
+            // Generate Grouped Bar Chart config models
+            const configProperties = {
+                type: 'bar',
+                data: {
+                    labels: uniqueClassesSorted.map(c => 'Class ' + c),
+                    datasets: [
+                        { label: 'Assessment 1 Average', data: datasetA1, backgroundColor: 'rgba(16, 185, 129, 0.85)', borderRadius: 4 },
+                        { label: 'Assessment 2 Average', data: datasetA2, backgroundColor: 'rgba(59, 130, 246, 0.85)', borderRadius: 4 },
+                        { label: 'Assessment 3 Average', data: datasetA3, backgroundColor: 'rgba(236, 72, 153, 0.85)', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 100, title: { display: true, text: 'Percentage Performance (%)', font: { weight: 'bold' } } } }
+                }
+            };
+
+            triggerCanvasDrawEngine(configProperties);
+        }
+
+        function processSpecificClassStructure(subject, targetClass) {
+            document.getElementById('chartHeading').innerText = "Class Cohort Progression Timeline Summary";
+            document.getElementById('tableHeading').innerText = "Individual Class Rosters & Grade Manifests";
+
+            const matrixHead = document.getElementById('matrixHead');
+            matrixHead.innerHTML = `
+                <tr class="bg-slate-100">
+                    <th class="px-4 py-3 text-left font-bold text-slate-500 tracking-wide">ID Parameter</th>
+                    <th class="px-4 py-3 text-left font-bold text-slate-500 tracking-wide">Student Identity Name</th>
+                    <th class="px-4 py-3 text-center font-bold text-slate-500 tracking-wide">Assmt. 1</th>
+                    <th class="px-4 py-3 text-center font-bold text-slate-500 tracking-wide">Assmt. 2</th>
+                    <th class="px-4 py-3 text-center font-bold text-slate-500 tracking-wide">Assmt. 3</th>
+                    <th class="px-4 py-3 text-center font-bold text-slate-500 tracking-wide">Personal Mean</th>
+                </tr>
+            `;
+
+            let cumulativeA1 = 0, cumulativeA2 = 0, cumulativeA3 = 0;
+            const matrixBody = document.getElementById('matrixBody');
+            matrixBody.innerHTML = '';
+
+            rawServerPayload.forEach(student => {
+                cumulativeA1 += student.a1;
+                cumulativeA2 += student.a2;
+                cumulativeA3 += student.a3;
+
+                const personalMean = ((student.a1 + student.a2 + student.a3) / 3).toFixed(1);
+
+                let tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-xs font-mono text-slate-400">${student.id}</td>
+                    <td class="px-4 py-3 font-semibold text-slate-900">${student.name}</td>
+                    <td class="px-4 py-3 text-center text-slate-600">${student.a1}</td>
+                    <td class="px-4 py-3 text-center text-slate-600">${student.a2}</td>
+                    <td class="px-4 py-3 text-center text-slate-600">${student.a3}</td>
+                    <td class="px-4 py-3 text-center font-bold text-blue-600 bg-slate-50 rounded-lg">${personalMean}%</td>
+                `;
+                matrixBody.appendChild(tr);
+            });
+
+            const totalCount = rawServerPayload.length;
+            const trackingClassTimelineData = [
+                (cumulativeA1 / totalCount).toFixed(1),
+                (cumulativeA2 / totalCount).toFixed(1),
+                (cumulativeA3 / totalCount).toFixed(1)
+            ];
+
+            // Generate Sleek Trend Progression Line Charts
+            const configProperties = {
+                type: 'line',
+                data: {
+                    labels: ['Assessment 1 Evaluation', 'Assessment 2 Evaluation', 'Assessment 3 Evaluation'],
+                    datasets: [{
+                        label: 'Class ' + targetClass + ' Global Trend Average',
+                        data: trackingClassTimelineData,
+                        borderColor: 'rgba(5, 150, 105, 1)',
+                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                        borderWidth: 4,
+                        pointRadius: 6,
+                        pointHoverRadius: 9,
+                        tension: 0.15,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { min: 0, max: 100, title: { display: true, text: 'Percentage Performance (%)', font: { weight: 'bold' } } } }
+                }
+            };
+
+            triggerCanvasDrawEngine(configProperties);
+        }
+
+        function triggerCanvasDrawEngine(configurationObject) {
+            // Implements an explicit timeout strategy giving layout paint layers time to register viewport constraints
+            setTimeout(function() {
+                try {
+                    if (typeof Chart === 'undefined') {
+                        throw new Error("Critical Dependency Exception: External ChartJS processing components could not initialize.");
+                    }
+
+                    const elementContainer = document.getElementById('graphContainer');
+                    elementContainer.innerHTML = '<canvas id="lecturerChartCanvas"></canvas>';
+                    const graphicContext = document.getElementById('lecturerChartCanvas').getContext('2d');
+
+                    if (internalChartRef) {
+                        internalChartRef.destroy();
+                    }
+
+                    internalChartRef = new Chart(graphicContext, configurationObject);
+                } catch (err) {
+                    displayAlert('Visual Engine Initialization Crash: ' + err.message);
+                }
+            }, 120);
+        }
+
+        function displayAlert(msg) {
+            const el = document.getElementById('systemAlert');
+            document.getElementById('alertMessage').innerText = msg;
+            el.classList.remove('hidden');
+        }
+
+        function hideAlert() {
+            document.getElementById('systemAlert').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

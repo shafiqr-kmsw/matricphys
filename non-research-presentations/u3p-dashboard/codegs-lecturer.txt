@@ -1,0 +1,66 @@
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+      .setTitle('Lecturer Insights Dashboard')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+// Automatically scans spreadsheet to extract unique lists for dropdown selectors
+function getDropdownOptions() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Database");
+  
+  if (!sheet) {
+    return { subjects: [], classes: [] };
+  }
+  
+  var data = sheet.getDataRange().getValues();
+  var subjectsSet = new Set();
+  var classesSet = new Set();
+  
+  // Loops through data starting at row 2 to bypass headers
+  for (var i = 1; i < data.length; i++) {
+    var classVal = data[i][2] ? data[i][2].toString().trim() : "";
+    var subjectVal = data[i][3] ? data[i][3].toString().trim() : "";
+    
+    if (classVal) classesSet.add(classVal);
+    if (subjectVal) subjectsSet.add(subjectVal);
+  }
+  
+  return {
+    subjects: Array.from(subjectsSet).sort(),
+    classes: Array.from(classesSet).sort()
+  };
+}
+
+// Queries database by specific subject and targeted class structure
+function getLecturerData(subject, selectedClass) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Database");
+  
+  if (!sheet) throw new Error("Database sheet not found.");
+  
+  var data = sheet.getDataRange().getValues();
+  var records = [];
+  
+  for (var i = 1; i < data.length; i++) {
+    var rowSubject = data[i][3] ? data[i][3].toString().trim().toLowerCase() : "";
+    var rowClass = data[i][2] ? data[i][2].toString().trim().toLowerCase() : "";
+    
+    var matchSubject = (rowSubject === subject.toLowerCase());
+    var matchClass = (selectedClass.toLowerCase() === "overall" || rowClass === selectedClass.toLowerCase());
+    
+    if (matchSubject && matchClass) {
+      records.push({
+        id: data[i][0],
+        name: data[i][1],
+        class: data[i][2],
+        subject: data[i][3],
+        a1: Number(data[i][4]) || 0,
+        a2: Number(data[i][5]) || 0,
+        a3: Number(data[i][6]) || 0
+      });
+    }
+  }
+  return records;
+}
