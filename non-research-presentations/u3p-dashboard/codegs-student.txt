@@ -36,7 +36,8 @@ function getStudentData(studentId) {
         subject: data[i][3],
         a1: data[i][4],
         a2: data[i][5],
-        a3: data[i][6]
+        a3: data[i][6],
+        targetGrade: data[i][7] // Pulls from the 8th column ("Lecturer's Target Grade")
       });
     }
   }

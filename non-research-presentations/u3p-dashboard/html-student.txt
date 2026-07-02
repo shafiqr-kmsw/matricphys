@@ -62,7 +62,7 @@
                     </div>
                 </div>
                 <p class="mt-6 text-[11px] text-gray-400 italic leading-relaxed border-t pt-4">
-                    * Display structures adjust automatically to map the 4 registered courses specific to this ID profile.
+                    * Display structures adjust automatically to map the registered courses specific to this ID profile.
                 </p>
             </div>
 
@@ -77,10 +77,12 @@
                                 <th class="px-4 py-3 text-center font-bold text-gray-500 tracking-wide">Assmt. 2</th>
                                 <th class="px-4 py-3 text-center font-bold text-gray-500 tracking-wide">Assmt. 3</th>
                                 <th class="px-4 py-3 text-center font-bold text-gray-500 tracking-wide">Mean %</th>
+                                <th class="px-4 py-3 text-center font-bold text-gray-500 tracking-wide">Mean (CGPA)</th>
+                                <th class="px-4 py-3 text-center font-bold text-gray-500 tracking-wide">Lect's Target Grade</th>
                             </tr>
                         </thead>
                         <tbody id="matrixTableRows" class="divide-y divide-gray-100 font-medium">
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
 
@@ -98,6 +100,30 @@
     <script>
         let cachedDataset = [];
         let activeChartObject = null;
+
+        // Standard Letter Grade converter tool map
+        function getGpaFromLetter(letter) {
+            if (!letter) return null;
+            const clean = letter.toString().trim().toUpperCase();
+            switch(clean) {
+                case 'A+': return 4.00;
+                case 'A':  return 4.00;
+                case 'A-': return 3.70;
+                case 'B+': return 3.30;
+                case 'B':  return 3.00;
+                case 'B-': return 2.70;
+                case 'C+': return 2.30;
+                case 'C':  return 2.00;
+                case 'C-': return 1.70;
+                case 'D+': return 1.30;
+                case 'D':  return 1.00;
+                case 'F':  return 0.00;
+                default: 
+                    // If your system logs raw numbers instead of letters, cleanly parse it
+                    const numVal = parseFloat(clean);
+                    return (!isNaN(numVal) && numVal <= 4.0) ? numVal : null;
+            }
+        }
 
         function searchStudent() {
             const idValue = document.getElementById('studentId').value.trim();
@@ -141,14 +167,12 @@
 
             const selector = document.getElementById('subjectSelect');
             selector.innerHTML = '<option value="overall">Overall Results</option>';
-            
             records.forEach(row => {
                 const item = document.createElement('option');
                 item.value = row.subject;
                 item.innerText = row.subject;
                 selector.appendChild(item);
             });
-
             document.getElementById('filterContainer').classList.remove('invisible');
             document.getElementById('dashboardFrame').classList.remove('hidden');
             
@@ -164,23 +188,126 @@
                 ? cachedDataset 
                 : cachedDataset.filter(record => record.subject === focusFilter);
 
+            // Column accumulators to build vertical GPA metrics safely
+            let sumPointsA1 = 0, countA1 = 0;
+            let sumPointsA2 = 0, countA2 = 0;
+            let sumPointsA3 = 0, countA3 = 0;
+            let totalCgpaSum = 0, countCgpaRows = 0;
+            
+            // New accumulators for Target Grade Column
+            let totalTargetGpaSum = 0, countTargetRows = 0;
+
+            // Populate course rows dynamically
             filteredSubset.forEach(row => {
-                const mark1 = Number(row.a1) || 0;
-                const mark2 = Number(row.a2) || 0;
-                const mark3 = Number(row.a3) || 0;
-                const mathematicalMean = ((mark1 + mark2 + mark3) / 3).toFixed(1);
+                let rowSum = 0;
+                let rowCount = 0;
+
+                let disp1 = "N/A";
+                let disp2 = "N/A";
+                let disp3 = "N/A";
+                let dispTarget = "N/A";
+
+                // Process Assessment 1
+                if (row.a1 !== undefined && row.a1 !== null && row.a1.toString().trim() !== "") {
+                    const m1 = Number(row.a1);
+                    if (!isNaN(m1)) {
+                        disp1 = m1;
+                        rowSum += m1;
+                        rowCount++;
+                        sumPointsA1 += m1;
+                        countA1++;
+                    }
+                }
+
+                // Process Assessment 2
+                if (row.a2 !== undefined && row.a2 !== null && row.a2.toString().trim() !== "") {
+                    const m2 = Number(row.a2);
+                    if (!isNaN(m2)) {
+                        disp2 = m2;
+                        rowSum += m2;
+                        rowCount++;
+                        sumPointsA2 += m2;
+                        countA2++;
+                    }
+                }
+
+                // Process Assessment 3
+                if (row.a3 !== undefined && row.a3 !== null && row.a3.toString().trim() !== "") {
+                    const m3 = Number(row.a3);
+                    if (!isNaN(m3)) {
+                        disp3 = m3;
+                        rowSum += m3;
+                        rowCount++;
+                        sumPointsA3 += m3;
+                        countA3++;
+                    }
+                }
+
+                // Process Lecturer's Target Grade and track its GPA equivalent
+                if (row.targetGrade !== undefined && row.targetGrade !== null && row.targetGrade.toString().trim() !== "") {
+                    dispTarget = row.targetGrade.toString().trim();
+                    const derivedTargetGpa = getGpaFromLetter(dispTarget);
+                    if (derivedTargetGpa !== null) {
+                        totalTargetGpaSum += derivedTargetGpa;
+                        countTargetRows++;
+                    }
+                }
+
+                // Horizontal course calculations ignoring missing marks
+                let mathematicalMean = "N/A";
+                let mathematicalCgpa = "N/A";
+
+                if (rowCount > 0) {
+                    const numericMean = rowSum / rowCount;
+                    mathematicalMean = numericMean.toFixed(1) + "%";
+                    
+                    const calculatedCgpa = (numericMean / 100) * 4;
+                    mathematicalCgpa = calculatedCgpa.toFixed(2);
+                    
+                    totalCgpaSum += calculatedCgpa;
+                    countCgpaRows++;
+                }
 
                 const tableRowElement = document.createElement('tr');
                 tableRowElement.className = "hover:bg-gray-50/50 transition";
                 tableRowElement.innerHTML = `
                     <td class="px-4 py-3.5 font-semibold text-gray-900">${row.subject}</td>
-                    <td class="px-4 py-3.5 text-center text-gray-600">${mark1}</td>
-                    <td class="px-4 py-3.5 text-center text-gray-600">${mark2}</td>
-                    <td class="px-4 py-3.5 text-center text-gray-600">${mark3}</td>
-                    <td class="px-4 py-3.5 text-center font-bold text-blue-600 bg-blue-50/50 rounded-lg">${mathematicalMean}%</td>
+                    <td class="px-4 py-3.5 text-center text-gray-600">${disp1}</td>
+                    <td class="px-4 py-3.5 text-center text-gray-600">${disp2}</td>
+                    <td class="px-4 py-3.5 text-center text-gray-600">${disp3}</td>
+                    <td class="px-4 py-3.5 text-center font-bold text-blue-600 bg-blue-50/20">${mathematicalMean}</td>
+                    <td class="px-4 py-3.5 text-center font-bold text-indigo-600 bg-indigo-50/30 rounded-l-lg">${mathematicalCgpa}</td>
+                    <td class="px-4 py-3.5 text-center text-emerald-700 font-bold bg-emerald-50/30 rounded-r-lg">${dispTarget}</td>
                 `;
                 targetTableBody.appendChild(tableRowElement);
             });
+
+            // Calculate vertical columns Grade GPA metrics directly from active fields
+            const gradeGPA_A1 = countA1 > 0 ? ((sumPointsA1 / (countA1 * 100)) * 4).toFixed(2) : "N/A";
+            const gradeGPA_A2 = countA2 > 0 ? ((sumPointsA2 / (countA2 * 100)) * 4).toFixed(2) : "N/A";
+            const gradeGPA_A3 = countA3 > 0 ? ((sumPointsA3 / (countA3 * 100)) * 4).toFixed(2) : "N/A";
+
+            // Calculate ultimate cumulative GPA average across all active subject rows
+            const cumulativeGpaSummary = countCgpaRows > 0 ? (totalCgpaSum / countCgpaRows).toFixed(2) : "N/A";
+            
+            // Calculate Lect's Target Grade Average GPA summary
+            const targetGpaSummary = countTargetRows > 0 ? (totalTargetGpaSum / countTargetRows).toFixed(2) : "N/A";
+
+            // Inject modified "Grade (GPA)" row summary at table baseline
+            if (filteredSubset.length > 0) {
+                const gradeRowElement = document.createElement('tr');
+                gradeRowElement.className = "bg-slate-100 font-bold border-t-2 border-slate-300 shadow-sm";
+                gradeRowElement.innerHTML = `
+                    <td class="px-4 py-3.5 text-left font-extrabold text-slate-900 uppercase tracking-wider">Grade (GPA)</td>
+                    <td class="px-4 py-3.5 text-center text-indigo-700 font-bold">${gradeGPA_A1}</td>
+                    <td class="px-4 py-3.5 text-center text-indigo-700 font-bold">${gradeGPA_A2}</td>
+                    <td class="px-4 py-3.5 text-center text-indigo-700 font-bold">${gradeGPA_A3}</td>
+                    <td class="px-4 py-3.5 text-center text-slate-400 font-medium italic">—</td>
+                    <td class="px-4 py-3.5 text-center font-black text-indigo-900 bg-indigo-100/80 rounded-l-lg">${cumulativeGpaSummary}</td>
+                    <td class="px-4 py-3.5 text-center font-black text-emerald-900 bg-emerald-100/80 rounded-r-lg">${targetGpaSummary}</td>
+                `;
+                targetTableBody.appendChild(gradeRowElement);
+            }
 
             generateVisualization(focusFilter, filteredSubset);
         }
@@ -188,7 +315,6 @@
         function generateVisualization(viewMode, metricsArray) {
             setTimeout(function() {
                 try {
-                    // Double check if the library actually loaded this time
                     if (typeof Chart === 'undefined') {
                         throw new Error("The Chart framework could not download. Your internet firewall is blocking the chart script file.");
                     }
@@ -207,7 +333,6 @@
                         { stroke: 'rgba(5, 150, 105, 1)', fill: 'rgba(5, 150, 105, 0.1)' },
                         { stroke: 'rgba(217, 119, 6, 1)', fill: 'rgba(217, 119, 6, 0.1)' }
                     ];
-
                     let activeConfig = {};
 
                     if (viewMode === 'overall') {
@@ -224,7 +349,6 @@
                                 pointHoverRadius: 7
                             };
                         });
-
                         activeConfig = {
                             type: 'line',
                             data: {
