@@ -1,0 +1,43 @@
+CORE THEORETICAL FRAMEWORK TO INTEGRATE:
+Ground the narrative and discussion in the following established pedagogical theories:
+1. Zone of Proximal Development (ZPD) & Scaffolding Theory (Vygotsky, 1978): Frame ChatGPT as a digital "More Knowledgeable Other" (MKO) providing targeted micro-corrections and structured prompts.
+2. Formative Assessment & Assessment for Learning (AfL) (Black & Wiliam, 1998): Emphasize closing the feedback loop within the same class session to eliminate grading latency.
+3. Self-Regulated Learning (SRL) Model (Zimmerman, 2000): Structure student engagement around forethought, active performance monitoring, and self-reflection.
+4. Process Writing Approach (Flower & Hayes, 1981): Treat writing as an iterative, multi-draft cognitive task rather than a single summative product.
+
+
+Manuscript Structure: 
+1. ABSTRACT
+- Structured abstract (200–250 words) covering: Problem context, Objective, KMTS FACES Methodology, Key Findings (highlighting the 95% exact band match rate from the attached poster), and Pedagogical Implications. Include 5–6 Keywords.
+
+ 2. INTRODUCTION
+- Background & Problem Statement: Synthesize baseline MUET writing performance metrics ($69\%$ at Band 3 or below; $47.5\%$ in sample group) and explain how teacher grading latency impairs formative learning.
+- Research Questions (RQs):
+  - RQ1: What is the scoring concordance between ChatGPT-generated evaluations and official MUET examiner writing band scores?
+  - RQ2: How does real-time AI formative feedback influence student essay performance across iterative practice sessions?
+  - RQ3: How viable is the integration of OCR digitizing tools (Google Lens) and structured prompts for same-day writing evaluation in L2 classrooms?
+- Theoretical Integration: Explicitly introduce the theoretical frameworks (ZPD, AfL, SRL, Process Writing) guiding the intervention.
+
+ 3. METHODS
+- Research Design & Context: Action research utilizing the KMTS FACES (Find, Analyze, Curate, Execute, Sustain) framework at Kolej Matrikulasi Sarawak ($N=40$).
+- Data Collection & Intervention Workflow: Detail the 3-phase workflow from the attachments:
+  1. Timed handwritten essay writing (1 hour 15 minutes).
+  2. Digitization via Google Lens OCR.
+  3. ChatGPT prompt processing (CEFR B2 pitch grading, sentence-by-sentence grammar checks) for same-day feedback.
+  4. Post-actual MUET exam essay reconstruction and evaluation comparison.
+- Data Analysis: Method for testing percentage agreement and scoring variance between ChatGPT and official MUET results using Jamovi/Excel.
+
+ 4. RESULTS
+- RQ1 (Accuracy): Detail quantitative findings from the attached charts (95% exact band match, 5% minor variance of $\pm 0.5$). Include a formatted Markdown summary table of score distributions.
+- RQ2 (Longitudinal Progress): Present performance trends across Session 1 Baseline (17.5%), Session 2 AI Practice (22.5%), and Session 3 Actual Exam Output (12.5%).
+- RQ3 (Efficiency & Feedback Quality): Document turnaround efficiency (same-day feedback) and specific diagnostic areas addressed (grammar, cohesive devices, logical layering).
+
+ 5. DISCUSSION
+- Interpretation: Explain why prompt-guided AI achieved rater-level concordance in standardized assessment.
+- Theoretical Alignment: Connect outcomes back to ZPD (AI as MKO), AfL (latency reduction), and SRL (e-portfolio self-reflection).
+- Analysis of Variance: Address why 5% ($n=2$) showed minor variances (e.g., post-exam recall bias, self-editing prior to input).
+- Implications & Limitations: Discuss implications for teacher workload and acknowledge study constraints (sample size $N=40$, reliance on OCR output clarity).
+
+ 6. CONCLUSION & RECOMMENDATIONS
+- Summary: Reiterate main findings on AI reliability in formative assessment.
+- Scaling Strategies: Outline scaling mechanisms from the source files, including Google Sites e-portfolios, PLC color-coded tracking dashboards, and combined Speaking (800/2) + Writing (800/4) interventions.

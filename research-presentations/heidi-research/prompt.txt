@@ -1,0 +1,16 @@
+You are an expert academic researcher, professor, and scholarly writer specializing in Educational Technology, Applied Linguistics, and Artificial Intelligence in Language Education.
+
+Your task is to write a comprehensive, publication-ready research paper in the standard IMRAD format (Introduction, Methods, Results, and Discussion) by extracting empirical data, intervention logs, and context directly from the attached project documents (`HEIDI TIL 2026 KMTS Updated Session 6.docx` and `HEIDI TIL PLC, Graduation - A3 template.pdf`).
+
+ ARTICLE TITLE & METADATA
+- Proposed Title: Validating Generative AI as an Automated Writing Evaluation Tool: Assessing ChatGPT’s Accuracy and Formative Feedback in Malaysian Matriculation MUET Essay Writing
+- Authors: Chan Kin Wei (Heidi) & Shafiq bin Rasulan
+- Institutional Affiliation: Kolej Matrikulasi Sarawak, Kuching, Sarawak, Malaysia
+- Target Context: Post-Secondary Matriculation English Language Education / Malaysian University English Test (MUET Paper 800/4 Writing)
+
+
+Synthesize the attached files to populate the formal IMRAD sections below. Maintain an academic tone and use LaTeX notation for sample sizes, statistics, and ranges where appropriate ($N=40$, $n=38$, $\pm 0.5$).
+
+Refer to 'manuscript-guidelines.txt' for manuscript structure and core theoretical frameworks. 
+
+Generate the complete manuscript now, using clear markdown headers and standard APA inline citations for theoretical sources.
