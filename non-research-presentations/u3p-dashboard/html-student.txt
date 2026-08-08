@@ -1,47 +1,500 @@
-function doGet() {
-  return HtmlService.createHtmlOutputFromFile('Index')
-      .setTitle('Student Results Dashboard')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
-      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
-}
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student Results Dashboard</title>
+  <!-- Chart.js CDN for Analytics Visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
-/**
- * Fetches all academic rows tied to a single Student ID.
- * @param {string} studentId The ID provided by the user.
- * @return {Array<Object>} An array containing the matching subject records.
- */
-function getStudentData(studentId) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Database");
-  
-  if (!sheet) {
-    throw new Error("Sheet tab named 'Database' could not be found!");
-  }
-  
-  var data = sheet.getDataRange().getValues();
-  var studentRecords = [];
-  
-  // Format the target ID to string and trim trailing spaces
-  var targetId = studentId.toString().trim().toLowerCase();
-  
-  // Loop through data row by row, skipping header row (index 0)
-  for (var i = 1; i < data.length; i++) {
-    var currentId = data[i][0].toString().trim().toLowerCase();
+    body {
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 24px;
+      color: #334155;
+    }
+
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Header Banner */
+    .header-banner {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: #ffffff;
+      text-align: center;
+      padding: 28px 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
+    }
+
+    .header-banner h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .header-banner p {
+      margin: 8px 0 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    /* Search & Filter Bar */
+    .filter-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 20px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .input-group label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .input-group input, .input-group select {
+      padding: 10px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      background-color: #f8fafc;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .input-group input:focus, .input-group select:focus {
+      border-color: #2563eb;
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .btn-query {
+      background-color: #2563eb;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 24px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      height: 42px;
+    }
+
+    .btn-query:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* Main Grid Layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 960px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin: 0 0 20px 0;
+    }
+
+    /* Left Column: Registry Profile */
+    .profile-card {
+      justify-content: space-between;
+    }
+
+    .profile-item {
+      margin-bottom: 20px;
+    }
+
+    .profile-label {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .profile-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .profile-value.name {
+      font-size: 18px;
+      color: #1d4ed8;
+      text-transform: uppercase;
+    }
+
+    .profile-footer-note {
+      font-size: 11px;
+      color: #94a3b8;
+      font-style: italic;
+      line-height: 1.4;
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    /* Right Column: Academic Matrix & Visualization */
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Table Styles */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    th {
+      color: #475569;
+      font-weight: 700;
+      padding: 12px 8px;
+      border-bottom: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 14px 8px;
+      color: #334155;
+      border-bottom: 1px solid #f1f5f9;
+      white-space: nowrap;
+    }
+
+    .td-subject {
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .highlight-blue {
+      color: #2563eb;
+      font-weight: 700;
+    }
+
+    .status-not-found {
+      color: #0d9488;
+      font-weight: 700;
+    }
+
+    tr.summary-row {
+      background-color: #f0f4ff;
+      font-weight: 700;
+    }
+
+    tr.summary-row td {
+      border-bottom: none;
+    }
+
+    /* Analytics Chart */
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 320px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-container">
     
-    if (currentId === targetId) {
-      studentRecords.push({
-        id: data[i][0],
-        name: data[i][1],
-        class: data[i][2],
-        subject: data[i][3],
-        a1: data[i][4],
-        a2: data[i][5],
-        a3: data[i][6],
-        targetGrade: data[i][7],       // Column H ("Lecturer's Target Grade")
-        studentTargetGrade: data[i][8]  // Column I ("Student's Target Grade")
+    <!-- Header Banner -->
+    <div class="header-banner">
+      <h1>Student Academic Dashboard</h1>
+      <p>Real-time Performance Metrics & Analytics</p>
+    </div>
+
+    <!-- Filter & Search Controls -->
+    <div class="filter-card">
+      <div class="input-group">
+        <label for="studentId">Search Student ID</label>
+        <input type="text" id="studentId" value="MS2625138136" placeholder="Enter Student ID...">
+      </div>
+      <button class="btn-query" onclick="fetchStudentData()">Query Record</button>
+
+      <div class="input-group" style="margin-left: auto;">
+        <label for="viewFilter">Configure View Filter</label>
+        <select id="viewFilter">
+          <option value="overall">Overall Results</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-grid">
+      
+      <!-- Left Column: Registry Profile -->
+      <div class="card profile-card">
+        <div>
+          <h2 class="card-section-title">Registry Profile</h2>
+          
+          <div class="profile-item">
+            <div class="profile-label">Unique System ID</div>
+            <div class="profile-value" id="dispId">--</div>
+          </div>
+
+          <div class="profile-item">
+            <div class="profile-label">Student Name</div>
+            <div class="profile-value name" id="dispName">--</div>
+          </div>
+
+          <div class="profile-item">
+            <div class="profile-label">Assigned Class</div>
+            <div class="profile-value" id="dispClass">--</div>
+          </div>
+        </div>
+
+        <div class="profile-footer-note">
+          * Display structures adjust automatically to map the registered courses specific to this ID profile.
+        </div>
+      </div>
+
+      <!-- Right Column: Evaluation Matrix & Visualization -->
+      <div class="right-column">
+        
+        <!-- Table Matrix Card -->
+        <div class="card">
+          <h2 class="card-section-title">Academic Evaluation Matrix</h2>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Course Subject</th>
+                  <th>Assmt. 1</th>
+                  <th>Assmt. 2</th>
+                  <th>Assmt. 3</th>
+                  <th>Mean %</th>
+                  <th>Mean (CGPA)</th>
+                  <th>Lect's Target Grade</th>
+                  <th>Stud's Target Grade</th>
+                </tr>
+              </thead>
+              <tbody id="matrixTableBody">
+                <!-- Dynamically Populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Chart Visualization Card -->
+        <div class="card">
+          <h2 class="card-section-title">Performance Analytics Visualization</h2>
+          <div class="chart-container">
+            <canvas id="performanceChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    let performanceChartInstance = null;
+
+    // Fetch data on page load with default ID
+    window.addEventListener('DOMContentLoaded', () => {
+      fetchStudentData();
+    });
+
+    function fetchStudentData() {
+      const studentId = document.getElementById('studentId').value.trim();
+      if (!studentId) return;
+
+      google.script.run
+        .withSuccessHandler(renderDashboard)
+        .withFailureHandler(err => alert("Error: " + err.message))
+        .getStudentData(studentId);
+    }
+
+    function renderDashboard(records) {
+      if (!records || records.length === 0) {
+        alert("No records found for the given Student ID.");
+        return;
+      }
+
+      // 1. Populate Profile Card
+      document.getElementById('dispId').innerText = records[0].id || '--';
+      document.getElementById('dispName').innerText = records[0].name || '--';
+      document.getElementById('dispClass').innerText = records[0].class || '--';
+
+      // 2. Populate Academic Evaluation Matrix Table
+      const tbody = document.getElementById('matrixTableBody');
+      tbody.innerHTML = '';
+
+      let totalA1 = 0, countA1 = 0;
+      let totalA2 = 0, countA2 = 0;
+      let totalA3 = 0, countA3 = 0;
+      let cgpaSum = 0;
+
+      const chartDatasets = [];
+      const colors = ['#2563eb', '#db2777', '#059669', '#d97706', '#9333ea'];
+
+      records.forEach((rec, index) => {
+        const a1Val = isNumeric(rec.a1) ? Number(rec.a1) : null;
+        const a2Val = isNumeric(rec.a2) ? Number(rec.a2) : null;
+        const a3Val = isNumeric(rec.a3) ? Number(rec.a3) : null;
+
+        if (a1Val !== null) { totalA1 += a1Val; countA1++; }
+        if (a2Val !== null) { totalA2 += a2Val; countA2++; }
+        if (a3Val !== null) { totalA3 += a3Val; countA3++; }
+
+        // Calculate Subject Mean % and CGPA (Scale: 100% = 4.0 CGPA)
+        const validScores = [a1Val, a2Val, a3Val].filter(v => v !== null);
+        const meanPct = validScores.length ? (validScores.reduce((a, b) => a + b, 0) / validScores.length) : null;
+        const cgpa = meanPct !== null ? (meanPct * 0.04) : null;
+        if (cgpa !== null) cgpaSum += cgpa;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="td-subject">${rec.subject || '--'}</td>
+          <td>${a1Val !== null ? a1Val : 'N/A'}</td>
+          <td>${a2Val !== null ? a2Val : 'N/A'}</td>
+          <td>${a3Val !== null ? a3Val : 'N/A'}</td>
+          <td class="highlight-blue">${meanPct !== null ? meanPct.toFixed(1) + '%' : '—'}</td>
+          <td class="highlight-blue">${cgpa !== null ? cgpa.toFixed(2) : '—'}</td>
+          <td class="status-not-found">${rec.targetGrade || 'Not Found'}</td>
+          <td class="status-not-found">${rec.studentTargetGrade || 'Not Found'}</td>
+        `;
+        tbody.appendChild(row);
+
+        // Prepare dataset for Chart
+        chartDatasets.push({
+          label: rec.subject,
+          data: [a1Val || 0, a2Val || 0, a3Val || 0],
+          borderColor: colors[index % colors.length],
+          backgroundColor: colors[index % colors.length],
+          borderWidth: 2,
+          tension: 0.1,
+          pointRadius: 4
+        });
+      });
+
+      // Overall GPA calculations
+      const avgA1GPA = countA1 > 0 ? ((totalA1 / countA1) * 0.04).toFixed(2) : 'N/A';
+      const avgA2GPA = countA2 > 0 ? ((totalA2 / countA2) * 0.04).toFixed(2) : 'N/A';
+      const avgA3GPA = countA3 > 0 ? ((totalA3 / countA3) * 0.04).toFixed(2) : 'N/A';
+      const overallCGPA = records.length > 0 ? (cgpaSum / records.length).toFixed(2) : '—';
+
+      // Summary / Bottom Row
+      const summaryRow = document.createElement('tr');
+      summaryRow.className = 'summary-row';
+      summaryRow.innerHTML = `
+        <td class="td-subject">GRADE (GPA)</td>
+        <td>${avgA1GPA}</td>
+        <td>${avgA2GPA}</td>
+        <td>${avgA3GPA}</td>
+        <td>—</td>
+        <td>${overallCGPA}</td>
+        <td>N/A</td>
+        <td>N/A</td>
+      `;
+      tbody.appendChild(summaryRow);
+
+      // 3. Render Chart
+      renderChart(chartDatasets);
+    }
+
+    function renderChart(datasets) {
+      const ctx = document.getElementById('performanceChart').getContext('2d');
+      
+      if (performanceChartInstance) {
+        performanceChartInstance.destroy();
+      }
+
+      performanceChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Assessment 1', 'Assessment 2', 'Assessment 3'],
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 0,
+              max: 100,
+              title: {
+                display: true,
+                text: 'Scores (%)',
+                font: { weight: 'bold' }
+              },
+              ticks: { stepSize: 10 }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { usePointStyle: true, boxWidth: 8 }
+            }
+          }
+        }
       });
     }
-  }
-  
-  return studentRecords;
-}
+
+    function isNumeric(val) {
+      return !isNaN(parseFloat(val)) && isFinite(val);
+    }
+  </script>
+</body>
+</html>
