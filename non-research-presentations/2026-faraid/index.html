@@ -16,6 +16,7 @@
         /* Custom scrollbar for better embedded experience */
         ::-webkit-scrollbar {
             width: 8px;
+            height: 8px;
         }
         ::-webkit-scrollbar-track {
             background: #f1f5f9; 
@@ -28,51 +29,23 @@
             background: #94a3b8; 
         }
 
-        /* Tree Styles */
-        .tree ul {
-            padding-top: 20px; position: relative;
+        /* Structured Family Tree Styles */
+        .tree-wrapper {
+            overflow: auto;
+            min-height: 450px;
+            padding: 2rem;
             display: flex;
             justify-content: center;
-            padding-left: 0;
         }
-        .tree li {
-            text-align: center;
-            list-style-type: none;
-            position: relative;
-            padding: 20px 5px 0 5px;
+        .family-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: max-content;
         }
-        .tree li::before, .tree li::after{
-            content: '';
-            position: absolute; top: 0; right: 50%;
-            border-top: 2px solid #cbd5e1;
-            width: 50%; height: 20px;
-        }
-        .tree li::after{
-            right: auto; left: 50%;
-            border-left: 2px solid #cbd5e1;
-        }
-        .tree li:only-child::after, .tree li:only-child::before {
-            display: none;
-        }
-        .tree li:only-child { padding-top: 0;}
-        .tree li:first-child::before, .tree li:last-child::after {
-            border: 0 none;
-        }
-        .tree li:last-child::before {
-            border-right: 2px solid #cbd5e1;
-            border-radius: 0 5px 0 0;
-        }
-        .tree li:first-child::after {
-            border-radius: 5px 0 0 0;
-        }
-        .tree ul ul::before {
-            content: '';
-            position: absolute; top: 0; left: 50%;
-            border-left: 2px solid #cbd5e1;
-            width: 0; height: 20px;
-            transform: translateX(-50%);
-        }
-        .tree .node-card {
+
+        /* Nodes */
+        .node-card {
             border: 1px solid #e2e8f0;
             padding: 10px 15px;
             display: inline-block;
@@ -80,13 +53,41 @@
             background: white;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             min-width: 120px;
+            text-align: center;
             position: relative;
-            z-index: 1;
+            z-index: 10;
         }
-        .tree .node-title { font-weight: 600; color: #0f172a; font-size: 0.875rem; margin-bottom: 2px; }
-        .tree .node-share { font-size: 0.75rem; color: #64748b; margin-bottom: 4px; }
-        .tree .node-amount { font-weight: 700; color: #059669; font-size: 0.875rem; }
-        .tree .node-root { border-color: #059669; background: #ecfdf5; }
+        .node-title { font-weight: 600; color: #0f172a; font-size: 0.875rem; margin-bottom: 2px; }
+        .node-share { font-size: 0.75rem; color: #64748b; margin-bottom: 4px; }
+        .node-amount { font-weight: 700; color: #059669; font-size: 0.875rem; }
+        .node-root { border-width: 2px; border-color: #10b981; background: #ecfdf5; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); }
+
+        /* Ancestors Row */
+        .ft-parents { position: relative; padding-bottom: 20px; display: flex; gap: 16px; justify-content: center; }
+        .ft-parents::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 2px; height: 20px; background: #94a3b8; transform: translateX(-50%); }
+        .ft-parent-node { position: relative; padding-bottom: 20px; }
+        .ft-parent-node::before { content: ''; position: absolute; bottom: 0; left: 50%; width: 2px; height: 20px; background: #94a3b8; transform: translateX(-50%); }
+        .ft-parent-node::after { content: ''; position: absolute; bottom: 0; height: 2px; background: #94a3b8; }
+        .ft-parent-node:first-child::after { left: 50%; right: 0; }
+        .ft-parent-node:last-child::after { left: 0; right: 50%; }
+        .ft-parent-node:not(:first-child):not(:last-child)::after { left: 0; right: 0; }
+        .ft-parent-node:only-child::after { display: none; }
+
+        /* Descendants Row */
+        .ft-children { position: relative; padding-top: 20px; display: flex; gap: 16px; justify-content: center; }
+        .ft-children::before { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 20px; background: #94a3b8; transform: translateX(-50%); }
+        .ft-children:empty::before { display: none; }
+        .ft-node { position: relative; padding-top: 20px; }
+        .ft-node::before { content: ''; position: absolute; top: 0; left: 50%; width: 2px; height: 20px; background: #94a3b8; transform: translateX(-50%); }
+        .ft-node::after { content: ''; position: absolute; top: 0; height: 2px; background: #94a3b8; }
+        .ft-node:first-child::after { left: 50%; right: 0; }
+        .ft-node:last-child::after { left: 0; right: 50%; }
+        .ft-node:not(:first-child):not(:last-child)::after { left: 0; right: 0; }
+        .ft-node:only-child::after { display: none; }
+
+        /* Connections */
+        .ft-vertical-line { width: 2px; height: 24px; background-color: #94a3b8; margin: 0 auto; }
+        .ft-horizontal-line { height: 2px; width: 24px; background-color: #94a3b8; }
     </style>
 </head>
 <body class="antialiased min-h-screen p-4 md:p-8">
@@ -147,8 +148,12 @@
                                 <label class="block text-xs font-medium text-slate-700 mb-1">Anak Perempuan (AP)</label>
                                 <input type="number" id="daughters" min="0" value="0" class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                             </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-medium text-slate-700 mb-1">Cucu Perempuan kpd Anak Lelaki (CPAL)</label>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 mb-1">Cucu Lelaki (CL)</label>
+                                <input type="number" id="cl" min="0" value="0" class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 mb-1">Cucu Pr kpd Anak Lk (CPAL)</label>
                                 <input type="number" id="cpal" min="0" value="0" class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                             </div>
                         </div>
@@ -233,8 +238,8 @@
 
                     <div class="p-6 flex-1 overflow-hidden flex flex-col">
                         <!-- Hierarchical Tree -->
-                        <div class="mb-8 overflow-x-auto pb-4 flex-1 w-full flex justify-center">
-                            <div class="tree" id="tree-container">
+                        <div class="tree-wrapper mb-8 pb-4 flex-1 w-full bg-slate-50/50 rounded-xl border border-slate-100">
+                            <div class="family-tree" id="tree-container">
                                 <!-- Tree populated by JS -->
                             </div>
                         </div>
@@ -337,6 +342,7 @@
             // Descendants
             const sons = parseInt(document.getElementById('sons').value) || 0;
             const daughters = parseInt(document.getElementById('daughters').value) || 0;
+            const cl = parseInt(document.getElementById('cl').value) || 0;
             const cpal = parseInt(document.getElementById('cpal').value) || 0;
             
             // Parents / Grandparents
@@ -363,8 +369,8 @@
                 if(wivesCount > 4) wivesCount = 4;
             }
 
-            const hasDescendants = (sons > 0 || daughters > 0 || cpal > 0);
-            const hasMaleDescendants = (sons > 0);
+            const hasDescendants = (sons > 0 || daughters > 0 || cl > 0 || cpal > 0);
+            const hasMaleDescendants = (sons > 0 || cl > 0);
             const totalSiblings = k1 + k2 + a3 + k3;
 
             let shares = {}; 
@@ -424,7 +430,7 @@
                 fractions['Anak Perempuan (AP)'] = (daughters === 1) ? '1/2' : '2/3';
             }
 
-            if (cpal > 0 && sons === 0) {
+            if (cpal > 0 && sons === 0 && cl === 0) {
                 if (daughters === 0) {
                     shares['Cucu Pr (CPAL)'] = (cpal === 1) ? (1/2) : (2/3);
                     fractions['Cucu Pr (CPAL)'] = (cpal === 1) ? '1/2' : '2/3';
@@ -432,7 +438,6 @@
                     shares['Cucu Pr (CPAL)'] = 1/6; // To complete 2/3
                     fractions['Cucu Pr (CPAL)'] = '1/6';
                 }
-                // If daughters > 1, CPAL is blocked (unless Asabah with a male counterpart, omitted for simplicity)
             }
 
             // 4. Siblings (Fardz)
@@ -456,7 +461,7 @@
 
             // Full Sisters (K1) - Blocked by Sons, Father, Datuk
             let k1IsAsabah = false;
-            if (sons === 0 && !fatherAlive && !datukAlive) {
+            if (sons === 0 && cl === 0 && !fatherAlive && !datukAlive) {
                 if (daughters > 0 || cpal > 0) {
                     // Asabah m'al Ghair (with daughters)
                     k1IsAsabah = true; 
@@ -468,7 +473,7 @@
 
             // Paternal Sisters (K2) - Blocked by Sons, Father, Datuk, Full Brother, or 2+ K1
             let k2IsAsabah = false;
-            if (sons === 0 && !fatherAlive && !datukAlive && k1 < 2) {
+            if (sons === 0 && cl === 0 && !fatherAlive && !datukAlive && k1 < 2) {
                 if ((daughters > 0 || cpal > 0) && k1 === 0) {
                     k2IsAsabah = true;
                 } else if (k2 > 0 && !k1IsAsabah) {
@@ -513,6 +518,17 @@
                         shares['Anak Perempuan (AP)'] = (shares['Anak Perempuan (AP)'] || 0) + (valuePerPart * daughters);
                         fractions['Anak Perempuan (AP)'] = 'Asabah (1 bhg)';
                     }
+                } else if (cl > 0) {
+                    let totalParts = (cl * 2) + (cpal * 1);
+                    let valuePerPart = residue / totalParts;
+                    
+                    shares['Cucu Lelaki (CL)'] = valuePerPart * 2 * cl;
+                    fractions['Cucu Lelaki (CL)'] = 'Asabah (2 bhg)';
+                    
+                    if (cpal > 0) {
+                        shares['Cucu Pr (CPAL)'] = (shares['Cucu Pr (CPAL)'] || 0) + (valuePerPart * cpal);
+                        fractions['Cucu Pr (CPAL)'] = fractions['Cucu Pr (CPAL)'] ? fractions['Cucu Pr (CPAL)'] + ' + Asabah' : 'Asabah (1 bhg)';
+                    }
                 } else if (fatherAlive) {
                     shares['Bapa (BP)'] = (shares['Bapa (BP)'] || 0) + residue;
                     fractions['Bapa (BP)'] = fractions['Bapa (BP)'] ? fractions['Bapa (BP)'] + ' + Asabah' : 'Asabah';
@@ -533,11 +549,11 @@
             }
 
             // Prepare Data for UI
-            renderResults(shares, fractions, estate, notes, wivesCount, sons, daughters, cpal, k1, k2, a3, k3);
+            renderResults(shares, fractions, estate, notes, wivesCount, sons, daughters, cl, cpal, k1, k2, a3, k3);
         }
 
         // UI Rendering Logic
-        function renderResults(shares, fractions, totalEstate, notes, wivesCount, sons, daughters, cpal, k1, k2, a3, k3) {
+        function renderResults(shares, fractions, totalEstate, notes, wivesCount, sons, daughters, cl, cpal, k1, k2, a3, k3) {
             if (totalEstate <= 0) {
                 document.getElementById('empty-state').classList.remove('hidden');
                 document.getElementById('results-section').classList.add('hidden');
@@ -573,6 +589,7 @@
                 { key: 'Nenek Ibu (NIB)', label: 'Nenek Ibu', code: 'NIB' },
                 { key: 'Anak Perempuan (AP)', label: 'Anak Perempuan', code: 'AP', split: daughters },
                 { key: 'Anak Lelaki', label: 'Anak Lelaki', code: 'AL', split: sons },
+                { key: 'Cucu Lelaki (CL)', label: 'Cucu Lelaki', code: 'CL', split: cl },
                 { key: 'Cucu Pr (CPAL)', label: 'Cucu Pr (Lelaki)', code: 'CPAL', split: cpal },
                 { key: 'Prmpuan Seibu Sebapa (K1)', label: 'Adik Pr Sebapa Seibu', code: 'K1', split: k1 },
                 { key: 'Prmpuan Sebapa (K2)', label: 'Adik Pr Sebapa', code: 'K2', split: k2 },
@@ -584,42 +601,48 @@
             mapping.forEach(item => {
                 if (shares[item.key] && shares[item.key] > 0.0001) {
                     resultsData.push({
-                        label: item.split ? `${item.split} ${item.key}` : item.key,
+                        key: item.key,
+                        label: item.split && item.split > 1 ? `${item.split} ${item.key}` : item.key,
                         singularLabel: item.code,
                         fullName: item.label,
                         shareValue: shares[item.key],
                         fractionStr: fractions[item.key] || 'Asabah',
                         amount: shares[item.key] * totalEstate,
-                        splitCount: item.split || 1
+                        splitCount: item.split > 0 ? item.split : 1
                     });
                 }
             });
 
-            // Build UI Elements
-            let treeHTML = `
-                <ul>
-                    <li>
-                        <div class="node-card node-root">
-                            <div class="node-title text-emerald-800">Si Mati (SM)</div>
-                            <div class="node-share font-semibold">Total Estate</div>
-                            <div class="node-amount">${formatRM(totalEstate)}</div>
-                        </div>
-                        <ul>
-            `;
-
-            resultsData.forEach((data, index) => {
-                const percentage = (data.shareValue * 100).toFixed(1);
-                const colorClass = colorPalette[index % colorPalette.length];
-                
-                let detailsText = "";
+            // Helper to generate a single node card HTML
+            const createNodeCard = (data, idx, borderColor) => {
+                let nodeName = data.splitCount > 1 ? `${data.singularLabel} ${idx + 1}` : data.singularLabel;
                 let perPersonAmount = data.amount / data.splitCount;
-                let perPersonPercentage = (data.shareValue / data.splitCount * 100).toFixed(1);
-                
-                // For table view
-                if (data.splitCount > 1) {
-                    detailsText = `<div class="text-xs text-slate-400 mt-1">Each receives ${formatRM(perPersonAmount)}</div>`;
-                }
+                return `
+                    <div class="node-card border-t-4 ${borderColor}">
+                        <div class="node-title text-slate-800" title="${data.fullName}">${nodeName}</div>
+                        <div class="node-share bg-slate-100 rounded px-1 py-0.5 mt-1 mb-1 text-slate-700 font-medium">${data.fractionStr}</div>
+                        <div class="node-amount text-emerald-600">${formatRM(perPersonAmount)}</div>
+                    </div>
+                `;
+            };
 
+            // Categorize data for the tree layout
+            const catAncestors = ['Bapa (BP)', 'Ibu (IB)', 'Datuk (D)', 'Nenek Bapa (NBP)', 'Nenek Ibu (NIB)'];
+            const catSpouses = ['Husband (SU)', 'Wives (IS)'];
+            const catSiblings = ['Prmpuan Seibu Sebapa (K1)', 'Prmpuan Sebapa (K2)', 'Lelaki Seibu (A3)', 'Prmpuan Seibu (K3)'];
+            const catDescendants = ['Anak Lelaki', 'Anak Perempuan (AP)', 'Cucu Lelaki (CL)', 'Cucu Pr (CPAL)'];
+
+            let ancestorNodes = [];
+            let spouseNodes = [];
+            let siblingNodes = [];
+            let descendantNodes = [];
+
+            resultsData.forEach(data => {
+                // Populate Table
+                const percentage = (data.shareValue * 100).toFixed(1);
+                const colorClass = colorPalette[resultsData.indexOf(data) % colorPalette.length];
+                let detailsText = data.splitCount > 1 ? `<div class="text-xs text-slate-400 mt-1">Each receives ${formatRM(data.amount / data.splitCount)}</div>` : "";
+                
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="py-3 px-4">
@@ -637,26 +660,71 @@
                 `;
                 tableBody.appendChild(tr);
 
-                // For tree view
-                for (let i = 0; i < data.splitCount; i++) {
-                    let nodeName = data.splitCount > 1 ? `${data.singularLabel} ${i + 1}` : data.singularLabel;
-                    treeHTML += `
-                        <li>
-                            <div class="node-card border-t-4 border-t-emerald-500">
-                                <div class="node-title text-slate-800" title="${data.fullName}">${nodeName}</div>
-                                <div class="node-share bg-slate-100 rounded px-1 py-0.5 mt-1 mb-1 text-slate-700 font-medium">${data.fractionStr}</div>
-                                <div class="node-amount text-emerald-600">${formatRM(perPersonAmount)}</div>
-                            </div>
-                        </li>
-                    `;
+                // Group for Tree
+                for(let i = 0; i < data.splitCount; i++) {
+                    if (catAncestors.includes(data.key)) {
+                        ancestorNodes.push(createNodeCard(data, i, 'border-t-emerald-500'));
+                    } else if (catSpouses.includes(data.key)) {
+                        spouseNodes.push(createNodeCard(data, i, 'border-t-purple-500'));
+                    } else if (catSiblings.includes(data.key)) {
+                        siblingNodes.push(createNodeCard(data, i, 'border-t-amber-500'));
+                    } else if (catDescendants.includes(data.key)) {
+                        descendantNodes.push(createNodeCard(data, i, 'border-t-blue-500'));
+                    }
                 }
             });
 
+            // Build Hierarchical Tree HTML
+            let treeHTML = ``;
+
+            // 1. Ancestors Level
+            if (ancestorNodes.length > 0) {
+                treeHTML += `<div class="ft-parents">`;
+                ancestorNodes.forEach(html => {
+                    treeHTML += `<div class="ft-parent-node">${html}</div>`;
+                });
+                treeHTML += `</div>`;
+                treeHTML += `<div class="ft-vertical-line"></div>`;
+            }
+
+            // 2. Ego Level (Spouses - Deceased - Siblings)
+            treeHTML += `<div class="flex items-center justify-center">`;
+            
+            // Spouses
+            if (spouseNodes.length > 0) {
+                treeHTML += `<div class="flex gap-4">`;
+                spouseNodes.forEach(html => treeHTML += html);
+                treeHTML += `</div><div class="ft-horizontal-line"></div>`;
+            }
+
+            // Deceased Node
             treeHTML += `
-                        </ul>
-                    </li>
-                </ul>
+                <div class="node-card node-root relative z-10 mx-2">
+                    <div class="node-title text-emerald-800">Si Mati (SM)</div>
+                    <div class="node-share font-semibold">Total Estate</div>
+                    <div class="node-amount">${formatRM(totalEstate)}</div>
+                </div>
             `;
+
+            // Siblings
+            if (siblingNodes.length > 0) {
+                treeHTML += `<div class="ft-horizontal-line"></div><div class="flex gap-4">`;
+                siblingNodes.forEach(html => treeHTML += html);
+                treeHTML += `</div>`;
+            }
+            
+            treeHTML += `</div>`;
+
+            // 3. Descendants Level
+            if (descendantNodes.length > 0) {
+                treeHTML += `<div class="ft-vertical-line"></div>`;
+                treeHTML += `<div class="ft-children">`;
+                descendantNodes.forEach(html => {
+                    treeHTML += `<div class="ft-node">${html}</div>`;
+                });
+                treeHTML += `</div>`;
+            }
+
             treeContainer.innerHTML = treeHTML;
         }
     </script>
