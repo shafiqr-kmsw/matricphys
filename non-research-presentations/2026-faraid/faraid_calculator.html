@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic Inheritance (Faraid) Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles to enhance Tailwind defaults */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Slate 50 */
+            color: #0f172a; /* Slate 900 */
+        }
+        /* Custom scrollbar for better embedded experience */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Tree Styles */
+        .tree ul {
+            padding-top: 20px; position: relative;
+            display: flex;
+            justify-content: center;
+            padding-left: 0;
+        }
+        .tree li {
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 20px 5px 0 5px;
+        }
+        .tree li::before, .tree li::after{
+            content: '';
+            position: absolute; top: 0; right: 50%;
+            border-top: 2px solid #cbd5e1;
+            width: 50%; height: 20px;
+        }
+        .tree li::after{
+            right: auto; left: 50%;
+            border-left: 2px solid #cbd5e1;
+        }
+        .tree li:only-child::after, .tree li:only-child::before {
+            display: none;
+        }
+        .tree li:only-child { padding-top: 0;}
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+        .tree li:last-child::before {
+            border-right: 2px solid #cbd5e1;
+            border-radius: 0 5px 0 0;
+        }
+        .tree li:first-child::after {
+            border-radius: 5px 0 0 0;
+        }
+        .tree ul ul::before {
+            content: '';
+            position: absolute; top: 0; left: 50%;
+            border-left: 2px solid #cbd5e1;
+            width: 0; height: 20px;
+            transform: translateX(-50%);
+        }
+        .tree .node-card {
+            border: 1px solid #e2e8f0;
+            padding: 10px 15px;
+            display: inline-block;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            min-width: 120px;
+            position: relative;
+            z-index: 1;
+        }
+        .tree .node-title { font-weight: 600; color: #0f172a; font-size: 0.875rem; margin-bottom: 2px; }
+        .tree .node-share { font-size: 0.75rem; color: #64748b; margin-bottom: 4px; }
+        .tree .node-amount { font-weight: 700; color: #059669; font-size: 0.875rem; }
+        .tree .node-root { border-color: #059669; background: #ecfdf5; }
+    </style>
+</head>
+<body class="antialiased min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-emerald-800 mb-2">Faraid Calculator</h1>
+            <p class="text-slate-500">Calculate Islamic Inheritance Shares Based on Standard Malaysian Rules</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+            
+            <!-- Left Column: Inputs Form -->
+            <div class="w-full lg:w-5/12 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-xl font-semibold mb-6 flex items-center text-slate-800">
+                    <svg class="w-5 h-5 mr-2 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Estate Details
+                </h2>
+
+                <form id="faraid-form" onsubmit="event.preventDefault(); calculateFaraid();">
+                    
+                    <!-- Total Estate -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Total Estate Value (RM) *</label>
+                        <input type="number" id="estate" min="0" step="0.01" required placeholder="e.g. 150000" class="w-full rounded-lg border-slate-300 border p-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
+                    </div>
+
+                    <!-- Gender -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Gender of Deceased *</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center cursor-pointer p-3 border border-slate-200 rounded-lg flex-1 hover:bg-slate-50 transition-colors">
+                                <input type="radio" name="gender" value="male" checked onchange="updateSpouseField()" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                                <span class="ml-2 text-sm font-medium">Male</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer p-3 border border-slate-200 rounded-lg flex-1 hover:bg-slate-50 transition-colors">
+                                <input type="radio" name="gender" value="female" onchange="updateSpouseField()" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                                <span class="ml-2 text-sm font-medium">Female</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Spouse Field -->
+                    <div id="spouse-section" class="mb-5 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <!-- Content populated by JS -->
+                    </div>
+
+                    <!-- Descendants -->
+                    <div class="mb-5 p-4 border border-slate-200 rounded-xl bg-white shadow-sm">
+                        <h3 class="text-sm font-semibold text-slate-800 mb-3 border-b pb-2">Descendants</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 mb-1">Anak Lelaki (Sons)</label>
+                                <input type="number" id="sons" min="0" value="0" class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 mb-1">Anak Perempuan (AP)</label>
+                                <input type="number" id="daughters" min="0" value="0" class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-slate-700 mb-1">Cucu Perempuan kpd Anak Lelaki (CPAL)</label>
+                                <input type="number" id="cpal" min="0" value="0" class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parents & Grandparents -->
+                    <div class="mb-5 p-4 border border-slate-200 rounded-xl bg-white shadow-sm">
+                        <h3 class="text-sm font-semibold text-slate-800 mb-3 border-b pb-2">Parents & Grandparents</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <label class="flex items-center p-2 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                                <input type="checkbox" id="father" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                                <span class="ml-2 text-xs font-medium">Bapa (BP)</span>
+                            </label>
+                            <label class="flex items-center p-2 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                                <input type="checkbox" id="mother" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                                <span class="ml-2 text-xs font-medium">Ibu (IB)</span>
+                            </label>
+                            <label class="flex items-center p-2 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                                <input type="checkbox" id="datuk" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                                <span class="ml-2 text-xs font-medium">Datuk (D)</span>
+                            </label>
+                            <label class="flex items-center p-2 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                                <input type="checkbox" id="nenekBapa" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                                <span class="ml-2 text-xs font-medium">Nenek Sblh Bapa (NBP)</span>
+                            </label>
+                            <label class="flex items-center p-2 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                                <input type="checkbox" id="nenekIbu" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                                <span class="ml-2 text-xs font-medium">Nenek Sblh Ibu (NIB)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Siblings -->
+                    <div class="mb-6 p-4 border border-slate-200 rounded-xl bg-white shadow-sm">
+                        <h3 class="text-sm font-semibold text-slate-800 mb-3 border-b pb-2">Adik-Beradik (Siblings)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 mb-1">Prmpuan Seibu Sebapa (K1)</label>
+                                <input type="number" id="k1" min="0" value="0" class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 mb-1">Prmpuan Sebapa (K2)</label>
+                                <input type="number" id="k2" min="0" value="0" class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 mb-1">Lelaki Seibu (A3)</label>
+                                <input type="number" id="a3" min="0" value="0" class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-700 mb-1">Prmpuan Seibu (K3)</label>
+                                <input type="number" id="k3" min="0" value="0" class="w-full rounded-lg border-slate-300 border p-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculate Button -->
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:-translate-y-0.5 flex justify-center items-center">
+                        Calculate Shares
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="w-full lg:w-7/12 flex flex-col">
+                
+                <!-- Initial State Placeholder -->
+                <div id="empty-state" class="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col items-center justify-center text-center">
+                    <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-10 h-10 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-slate-700">No Calculation Yet</h3>
+                    <p class="text-sm text-slate-500 mt-2 max-w-xs">Enter the estate details and click calculate to view the distribution of shares.</p>
+                </div>
+
+                <!-- Results Section (Hidden by default) -->
+                <div id="results-section" class="hidden flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+                    
+                    <div class="p-6 border-b border-slate-100 bg-slate-50">
+                        <h2 class="text-xl font-semibold text-slate-800">Distribution Results</h2>
+                        <p id="total-estate-display" class="text-sm text-slate-500 mt-1"></p>
+                    </div>
+
+                    <div class="p-6 flex-1 overflow-hidden flex flex-col">
+                        <!-- Hierarchical Tree -->
+                        <div class="mb-8 overflow-x-auto pb-4 flex-1 w-full flex justify-center">
+                            <div class="tree" id="tree-container">
+                                <!-- Tree populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Data Table -->
+                        <div class="overflow-x-auto border-t border-slate-100 pt-6">
+                            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">Summary Table</h3>
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200">
+                                        <th class="py-3 px-4 text-sm font-semibold text-slate-700">Heir</th>
+                                        <th class="py-3 px-4 text-sm font-semibold text-slate-700 text-right">Share (%)</th>
+                                        <th class="py-3 px-4 text-sm font-semibold text-slate-700 text-right">Amount (RM)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="results-table-body" class="divide-y divide-slate-100">
+                                    <!-- Rows populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Information Note (Aul/Radd) -->
+                    <div id="calc-notes" class="px-6 pb-2 text-sm text-amber-600 hidden font-medium"></div>
+
+                </div>
+
+                <!-- Disclaimer -->
+                <div class="mt-4 bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800 flex items-start">
+                    <svg class="w-5 h-5 mr-3 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p><strong>Disclaimer:</strong> This is a basic simulation tool based on standard fixed shares. Complex cases (e.g., involving siblings, grandparents, blocked heirs, Aul/Radd nuances) require formal consultation and a <strong>Sijil Faraid</strong> from the Syariah Court.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const colorPalette = [
+            'bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 
+            'bg-purple-500', 'bg-rose-500', 'bg-cyan-500', 'bg-indigo-500'
+        ];
+
+        // Format Currency
+        const formatRM = (amount) => {
+            return new Intl.NumberFormat('en-MY', {
+                style: 'currency',
+                currency: 'MYR',
+                minimumFractionDigits: 2
+            }).format(amount);
+        };
+
+        // Update Spouse Field based on Gender
+        function updateSpouseField() {
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const spouseSection = document.getElementById('spouse-section');
+            
+            if (gender === 'male') {
+                spouseSection.innerHTML = `
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Number of Surviving Wives (0-4)</label>
+                    <input type="number" id="wives" min="0" max="4" value="1" class="w-full rounded-lg border-slate-300 border p-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors">
+                `;
+            } else {
+                spouseSection.innerHTML = `
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Surviving Husband</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center flex-1 p-3 border border-slate-300 bg-white rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                            <input type="radio" name="husband" value="yes" checked class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                            <span class="ml-2 text-sm font-medium">Yes, Alive</span>
+                        </label>
+                        <label class="flex items-center flex-1 p-3 border border-slate-300 bg-white rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                            <input type="radio" name="husband" value="no" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 border-gray-300">
+                            <span class="ml-2 text-sm font-medium">No</span>
+                        </label>
+                    </div>
+                `;
+            }
+            bindAutoUpdate();
+            calculateFaraid();
+        }
+
+        function bindAutoUpdate() {
+            const inputs = document.querySelectorAll('#faraid-form input');
+            inputs.forEach(input => {
+                input.removeEventListener('input', calculateFaraid);
+                input.removeEventListener('change', calculateFaraid);
+                input.addEventListener('input', calculateFaraid);
+                input.addEventListener('change', calculateFaraid);
+            });
+        }
+
+        // Initialize form
+        updateSpouseField();
+
+        // Main Calculation Logic
+        function calculateFaraid() {
+            // Inputs
+            const estate = parseFloat(document.getElementById('estate').value) || 0;
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            
+            // Descendants
+            const sons = parseInt(document.getElementById('sons').value) || 0;
+            const daughters = parseInt(document.getElementById('daughters').value) || 0;
+            const cpal = parseInt(document.getElementById('cpal').value) || 0;
+            
+            // Parents / Grandparents
+            const fatherAlive = document.getElementById('father').checked;
+            const motherAlive = document.getElementById('mother').checked;
+            const datukAlive = document.getElementById('datuk').checked;
+            const nenekBapaAlive = document.getElementById('nenekBapa').checked;
+            const nenekIbuAlive = document.getElementById('nenekIbu').checked;
+            
+            // Siblings
+            const k1 = parseInt(document.getElementById('k1').value) || 0;
+            const k2 = parseInt(document.getElementById('k2').value) || 0;
+            const a3 = parseInt(document.getElementById('a3').value) || 0;
+            const k3 = parseInt(document.getElementById('k3').value) || 0;
+
+            let husbandAlive = false;
+            let wivesCount = 0;
+            
+            if (gender === 'female') {
+                const hInput = document.querySelector('input[name="husband"]:checked');
+                husbandAlive = hInput ? (hInput.value === 'yes') : false;
+            } else {
+                wivesCount = parseInt(document.getElementById('wives').value) || 0;
+                if(wivesCount > 4) wivesCount = 4;
+            }
+
+            const hasDescendants = (sons > 0 || daughters > 0 || cpal > 0);
+            const hasMaleDescendants = (sons > 0);
+            const totalSiblings = k1 + k2 + a3 + k3;
+
+            let shares = {}; 
+            let fractions = {}; // Store string representation of Fardhu fraction
+            let notes = "";
+
+            // 1. Spouses (Fardz)
+            if (husbandAlive) {
+                shares['Husband (SU)'] = hasDescendants ? (1/4) : (1/2);
+                fractions['Husband (SU)'] = hasDescendants ? '1/4' : '1/2';
+            }
+            if (wivesCount > 0) {
+                shares['Wives (IS)'] = hasDescendants ? (1/8) : (1/4);
+                fractions['Wives (IS)'] = hasDescendants ? '1/8' : '1/4';
+            }
+
+            // 2. Parents & Grandparents (Fardz)
+            if (motherAlive) {
+                let share = (hasDescendants || totalSiblings >= 2) ? (1/6) : (1/3);
+                shares['Ibu (IB)'] = share;
+                fractions['Ibu (IB)'] = (share === 1/6) ? '1/6' : '1/3';
+            }
+            
+            if (fatherAlive) {
+                if (hasDescendants) {
+                    shares['Bapa (BP)'] = 1/6;
+                    fractions['Bapa (BP)'] = '1/6';
+                }
+            } else if (datukAlive) {
+                // Datuk takes father's place if father is absent
+                if (hasDescendants) {
+                    shares['Datuk (D)'] = 1/6;
+                    fractions['Datuk (D)'] = '1/6';
+                }
+            }
+
+            // Grandmothers
+            let activeGrandmothers = 0;
+            if (nenekIbuAlive && !motherAlive) activeGrandmothers++;
+            if (nenekBapaAlive && !motherAlive && !fatherAlive) activeGrandmothers++;
+            
+            if (activeGrandmothers > 0) {
+                let sharePerNenek = (1/6) / activeGrandmothers;
+                if (nenekIbuAlive && !motherAlive) {
+                    shares['Nenek Ibu (NIB)'] = sharePerNenek;
+                    fractions['Nenek Ibu (NIB)'] = activeGrandmothers > 1 ? '1/12 (Kongsi 1/6)' : '1/6';
+                }
+                if (nenekBapaAlive && !motherAlive && !fatherAlive) {
+                    shares['Nenek Bapa (NBP)'] = sharePerNenek;
+                    fractions['Nenek Bapa (NBP)'] = activeGrandmothers > 1 ? '1/12 (Kongsi 1/6)' : '1/6';
+                }
+            }
+
+            // 3. Descendants (Fardz)
+            if (daughters > 0 && sons === 0) {
+                shares['Anak Perempuan (AP)'] = (daughters === 1) ? (1/2) : (2/3);
+                fractions['Anak Perempuan (AP)'] = (daughters === 1) ? '1/2' : '2/3';
+            }
+
+            if (cpal > 0 && sons === 0) {
+                if (daughters === 0) {
+                    shares['Cucu Pr (CPAL)'] = (cpal === 1) ? (1/2) : (2/3);
+                    fractions['Cucu Pr (CPAL)'] = (cpal === 1) ? '1/2' : '2/3';
+                } else if (daughters === 1) {
+                    shares['Cucu Pr (CPAL)'] = 1/6; // To complete 2/3
+                    fractions['Cucu Pr (CPAL)'] = '1/6';
+                }
+                // If daughters > 1, CPAL is blocked (unless Asabah with a male counterpart, omitted for simplicity)
+            }
+
+            // 4. Siblings (Fardz)
+            // Maternal Siblings (A3 & K3) - Blocked by descendants, Father, Datuk
+            if (!hasDescendants && !fatherAlive && !datukAlive) {
+                const maternalSibs = a3 + k3;
+                if (maternalSibs > 0) {
+                    let totalShare = maternalSibs === 1 ? (1/6) : (1/3);
+                    let sharePerSib = totalShare / maternalSibs;
+                    
+                    if (a3 > 0) {
+                        shares['Lelaki Seibu (A3)'] = sharePerSib * a3;
+                        fractions['Lelaki Seibu (A3)'] = maternalSibs === 1 ? '1/6' : 'Kongsi 1/3';
+                    }
+                    if (k3 > 0) {
+                        shares['Prmpuan Seibu (K3)'] = sharePerSib * k3;
+                        fractions['Prmpuan Seibu (K3)'] = maternalSibs === 1 ? '1/6' : 'Kongsi 1/3';
+                    }
+                }
+            }
+
+            // Full Sisters (K1) - Blocked by Sons, Father, Datuk
+            let k1IsAsabah = false;
+            if (sons === 0 && !fatherAlive && !datukAlive) {
+                if (daughters > 0 || cpal > 0) {
+                    // Asabah m'al Ghair (with daughters)
+                    k1IsAsabah = true; 
+                } else if (k1 > 0) {
+                    shares['Prmpuan Seibu Sebapa (K1)'] = (k1 === 1) ? (1/2) : (2/3);
+                    fractions['Prmpuan Seibu Sebapa (K1)'] = (k1 === 1) ? '1/2' : '2/3';
+                }
+            }
+
+            // Paternal Sisters (K2) - Blocked by Sons, Father, Datuk, Full Brother, or 2+ K1
+            let k2IsAsabah = false;
+            if (sons === 0 && !fatherAlive && !datukAlive && k1 < 2) {
+                if ((daughters > 0 || cpal > 0) && k1 === 0) {
+                    k2IsAsabah = true;
+                } else if (k2 > 0 && !k1IsAsabah) {
+                    if (k1 === 1) {
+                        shares['Prmpuan Sebapa (K2)'] = 1/6; // complete 2/3
+                        fractions['Prmpuan Sebapa (K2)'] = '1/6';
+                    } else if (k1 === 0) {
+                        shares['Prmpuan Sebapa (K2)'] = (k2 === 1) ? (1/2) : (2/3);
+                        fractions['Prmpuan Sebapa (K2)'] = (k2 === 1) ? '1/2' : '2/3';
+                    }
+                }
+            }
+
+            // Sum up fixed shares (Fardz)
+            let fixedSum = 0;
+            for (let heir in shares) fixedSum += shares[heir];
+
+            // Handle Aul (Sum > 100%)
+            if (fixedSum > 1.0001) { 
+                notes = "Note: Aul case detected (Fixed shares exceed 100%). Shares proportionally reduced.";
+                for (let heir in shares) {
+                    shares[heir] = shares[heir] / fixedSum; 
+                }
+                fixedSum = 1;
+            }
+
+            // Calculate Residue
+            let residue = 1 - fixedSum;
+            if (residue < 0.0001) residue = 0;
+
+            // 5. Asabah (Distribution of Residue)
+            if (residue > 0) {
+                if (sons > 0) {
+                    let totalParts = (sons * 2) + (daughters * 1);
+                    let valuePerPart = residue / totalParts;
+                    
+                    if (sons > 0) {
+                        shares['Anak Lelaki'] = valuePerPart * 2 * sons;
+                        fractions['Anak Lelaki'] = 'Asabah (2 bhg)';
+                    }
+                    if (daughters > 0) {
+                        shares['Anak Perempuan (AP)'] = (shares['Anak Perempuan (AP)'] || 0) + (valuePerPart * daughters);
+                        fractions['Anak Perempuan (AP)'] = 'Asabah (1 bhg)';
+                    }
+                } else if (fatherAlive) {
+                    shares['Bapa (BP)'] = (shares['Bapa (BP)'] || 0) + residue;
+                    fractions['Bapa (BP)'] = fractions['Bapa (BP)'] ? fractions['Bapa (BP)'] + ' + Asabah' : 'Asabah';
+                } else if (datukAlive) {
+                    shares['Datuk (D)'] = (shares['Datuk (D)'] || 0) + residue;
+                    fractions['Datuk (D)'] = fractions['Datuk (D)'] ? fractions['Datuk (D)'] + ' + Asabah' : 'Asabah';
+                } else if (k1 > 0 && k1IsAsabah) {
+                    shares['Prmpuan Seibu Sebapa (K1)'] = residue;
+                    fractions['Prmpuan Seibu Sebapa (K1)'] = 'Asabah (Bersama AP)';
+                } else if (k2 > 0 && k2IsAsabah) {
+                    shares['Prmpuan Sebapa (K2)'] = residue;
+                    fractions['Prmpuan Sebapa (K2)'] = 'Asabah (Bersama AP)';
+                } else {
+                    shares['Baitulmal / Radd'] = residue;
+                    fractions['Baitulmal / Radd'] = 'Baki';
+                    notes = notes ? notes : "Note: Leftover residue goes to Baitulmal or returned via Radd.";
+                }
+            }
+
+            // Prepare Data for UI
+            renderResults(shares, fractions, estate, notes, wivesCount, sons, daughters, cpal, k1, k2, a3, k3);
+        }
+
+        // UI Rendering Logic
+        function renderResults(shares, fractions, totalEstate, notes, wivesCount, sons, daughters, cpal, k1, k2, a3, k3) {
+            if (totalEstate <= 0) {
+                document.getElementById('empty-state').classList.remove('hidden');
+                document.getElementById('results-section').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('results-section').classList.remove('hidden');
+            document.getElementById('total-estate-display').textContent = `Total Estate: ${formatRM(totalEstate)}`;
+
+            const tableBody = document.getElementById('results-table-body');
+            const treeContainer = document.getElementById('tree-container');
+            const calcNotes = document.getElementById('calc-notes');
+            
+            tableBody.innerHTML = '';
+            
+            if (notes) {
+                calcNotes.textContent = notes;
+                calcNotes.classList.remove('hidden');
+            } else {
+                calcNotes.classList.add('hidden');
+            }
+
+            let resultsData = [];
+            
+            const mapping = [
+                { key: 'Husband (SU)', label: 'Suami', code: 'SU' },
+                { key: 'Wives (IS)', label: 'Isteri', code: 'IS', split: wivesCount },
+                { key: 'Bapa (BP)', label: 'Bapa', code: 'BP' },
+                { key: 'Ibu (IB)', label: 'Ibu', code: 'IB' },
+                { key: 'Datuk (D)', label: 'Datuk', code: 'D' },
+                { key: 'Nenek Bapa (NBP)', label: 'Nenek Bapa', code: 'NBP' },
+                { key: 'Nenek Ibu (NIB)', label: 'Nenek Ibu', code: 'NIB' },
+                { key: 'Anak Perempuan (AP)', label: 'Anak Perempuan', code: 'AP', split: daughters },
+                { key: 'Anak Lelaki', label: 'Anak Lelaki', code: 'AL', split: sons },
+                { key: 'Cucu Pr (CPAL)', label: 'Cucu Pr (Lelaki)', code: 'CPAL', split: cpal },
+                { key: 'Prmpuan Seibu Sebapa (K1)', label: 'Adik Pr Sebapa Seibu', code: 'K1', split: k1 },
+                { key: 'Prmpuan Sebapa (K2)', label: 'Adik Pr Sebapa', code: 'K2', split: k2 },
+                { key: 'Lelaki Seibu (A3)', label: 'Adik Lk Seibu', code: 'A3', split: a3 },
+                { key: 'Prmpuan Seibu (K3)', label: 'Adik Pr Seibu', code: 'K3', split: k3 },
+                { key: 'Baitulmal / Radd', label: 'Baitulmal / Radd', code: '-' }
+            ];
+
+            mapping.forEach(item => {
+                if (shares[item.key] && shares[item.key] > 0.0001) {
+                    resultsData.push({
+                        label: item.split ? `${item.split} ${item.key}` : item.key,
+                        singularLabel: item.code,
+                        fullName: item.label,
+                        shareValue: shares[item.key],
+                        fractionStr: fractions[item.key] || 'Asabah',
+                        amount: shares[item.key] * totalEstate,
+                        splitCount: item.split || 1
+                    });
+                }
+            });
+
+            // Build UI Elements
+            let treeHTML = `
+                <ul>
+                    <li>
+                        <div class="node-card node-root">
+                            <div class="node-title text-emerald-800">Si Mati (SM)</div>
+                            <div class="node-share font-semibold">Total Estate</div>
+                            <div class="node-amount">${formatRM(totalEstate)}</div>
+                        </div>
+                        <ul>
+            `;
+
+            resultsData.forEach((data, index) => {
+                const percentage = (data.shareValue * 100).toFixed(1);
+                const colorClass = colorPalette[index % colorPalette.length];
+                
+                let detailsText = "";
+                let perPersonAmount = data.amount / data.splitCount;
+                let perPersonPercentage = (data.shareValue / data.splitCount * 100).toFixed(1);
+                
+                // For table view
+                if (data.splitCount > 1) {
+                    detailsText = `<div class="text-xs text-slate-400 mt-1">Each receives ${formatRM(perPersonAmount)}</div>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="py-3 px-4">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full ${colorClass} mr-2 flex-shrink-0"></span>
+                            <span class="font-medium text-slate-800">${data.label}</span>
+                        </div>
+                        ${detailsText}
+                    </td>
+                    <td class="py-3 px-4 text-right text-slate-600">
+                        <div class="font-medium">${data.fractionStr}</div>
+                        <div class="text-xs text-slate-400">${percentage}%</div>
+                    </td>
+                    <td class="py-3 px-4 text-right font-semibold text-slate-800">${formatRM(data.amount)}</td>
+                `;
+                tableBody.appendChild(tr);
+
+                // For tree view
+                for (let i = 0; i < data.splitCount; i++) {
+                    let nodeName = data.splitCount > 1 ? `${data.singularLabel} ${i + 1}` : data.singularLabel;
+                    treeHTML += `
+                        <li>
+                            <div class="node-card border-t-4 border-t-emerald-500">
+                                <div class="node-title text-slate-800" title="${data.fullName}">${nodeName}</div>
+                                <div class="node-share bg-slate-100 rounded px-1 py-0.5 mt-1 mb-1 text-slate-700 font-medium">${data.fractionStr}</div>
+                                <div class="node-amount text-emerald-600">${formatRM(perPersonAmount)}</div>
+                            </div>
+                        </li>
+                    `;
+                }
+            });
+
+            treeHTML += `
+                        </ul>
+                    </li>
+                </ul>
+            `;
+            treeContainer.innerHTML = treeHTML;
+        }
+    </script>
+</body>
+</html>
