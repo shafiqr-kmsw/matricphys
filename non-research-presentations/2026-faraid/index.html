@@ -311,20 +311,37 @@
             let notes = "";
 
             // 1. Spouses (Fardz)
+            let spouseShareSum = 0;
             if (husbandAlive) {
                 shares['Husband (SU)'] = hasDescendants ? (1/4) : (1/2);
                 fractions['Husband (SU)'] = hasDescendants ? '1/4' : '1/2';
+                spouseShareSum += shares['Husband (SU)'];
             }
             if (wivesCount > 0) {
                 shares['Wives (IS)'] = hasDescendants ? (1/8) : (1/4);
                 fractions['Wives (IS)'] = hasDescendants ? '1/8' : '1/4';
+                spouseShareSum += shares['Wives (IS)'];
+            }
+
+            // Al-Umariyyatan (Gharrawain) Check
+            // Condition: Deceased leaves only Mother, Father, and Spouse(s)
+            let isUmariyyatan = false;
+            if (!hasDescendants && totalSiblings < 2 && motherAlive && fatherAlive && spouseShareSum > 0) {
+                isUmariyyatan = true;
             }
 
             // 2. Parents & Grandparents (Fardz)
             if (motherAlive) {
-                let share = (hasDescendants || totalSiblings >= 2) ? (1/6) : (1/3);
-                shares['Ibu (IB)'] = share;
-                fractions['Ibu (IB)'] = (share === 1/6) ? '1/6' : '1/3';
+                if (isUmariyyatan) {
+                    let remainder = 1 - spouseShareSum;
+                    shares['Ibu (IB)'] = remainder / 3;
+                    fractions['Ibu (IB)'] = '1/3 Baki';
+                    notes += (notes ? "\n" : "") + "Note: Al-Umariyyatan (Gharrawain) case applied. Mother receives 1/3 of the remainder after the spouse's share.";
+                } else {
+                    let share = (hasDescendants || totalSiblings >= 2) ? (1/6) : (1/3);
+                    shares['Ibu (IB)'] = share;
+                    fractions['Ibu (IB)'] = (share === 1/6) ? '1/6' : '1/3';
+                }
             }
             
             if (fatherAlive) {
@@ -426,7 +443,7 @@
 
             // Handle Aul (Sum > 100%)
             if (fixedSum > 1.0001) { 
-                notes = "Note: Aul case detected (Fixed shares exceed 100%). Shares proportionally reduced.";
+                notes += (notes ? "\n" : "") + "Note: Aul case detected (Fixed shares exceed 100%). Shares proportionally reduced.";
                 for (let heir in shares) {
                     shares[heir] = shares[heir] / fixedSum; 
                 }
@@ -477,7 +494,7 @@
                 } else {
                     shares['Baitulmal / Radd'] = residue;
                     fractions['Baitulmal / Radd'] = 'Baki';
-                    notes = notes ? notes : "Note: Leftover residue goes to Baitulmal or returned via Radd.";
+                    notes += (notes ? "\n" : "") + "Note: Leftover residue goes to Baitulmal or returned via Radd.";
                 }
             }
 
@@ -504,7 +521,8 @@
             tableBody.innerHTML = '';
             
             if (notes) {
-                calcNotes.textContent = notes;
+                // Handle multiple notes separated by newlines
+                calcNotes.innerHTML = notes.replace(/\n/g, '<br/>');
                 calcNotes.classList.remove('hidden');
             } else {
                 calcNotes.classList.add('hidden');
